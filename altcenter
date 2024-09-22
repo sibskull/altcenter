@@ -20,14 +20,19 @@
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtCore import QTranslator
 from PyQt5 import uic
+from PyQt5.QtGui import QStandardItemModel
 import os
 import sys
 import locale
 
+from plugins import Base
+
 data_dir = "/usr/share/altcenter"
 data_dir = "."
+plugin_path = os.path.join(data_dir, "plugins")
 
 class MainWindow(QWidget):
+    """Main window"""
     def __init__(self):
         super(MainWindow, self).__init__() # Call the inherited classes __init__ method
 
@@ -52,6 +57,15 @@ app.installTranslator(translator)
 
 # Initialize UI
 window = MainWindow() # Create an instance of our class
+
+# Set module list model
+list_module = QStandardItemModel()
+window.moduleList.setModel(list_module)
+
+# Load plugins
+for p in Base.plugins:
+    inst = p()
+    inst.start(list_module, window.stack)
 
 # Start the application
 sys.exit(app.exec_())
