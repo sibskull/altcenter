@@ -23,25 +23,21 @@ from PyQt5.QtGui import QStandardItem, QFont
 import subprocess
 
 class PluginHardware(plugins.Base):
-    """Hardware pane"""
-    # hardware_pane = None
-    hardware_info = None
+    # license_pane = None
+    license_info = None
+    index = 0
 
     def __init__(self):
         pass
 
     def start(self, plist, pane):
-        # Add to main plugin listqqй
-        node = QStandardItem("Hardware")
+        # Licence
+        node = QStandardItem("License")
         plist.appendRow([node])
-        # TODO: connect item selection to appropriate pane activation
 
-        self.hardware_info = QTextBrowser()
-        # Show output in monospace font
-        self.hardware_info.setCurrentFont(QFont("monospace", 9))
-        index = pane.addWidget(self.hardware_info)
-        # pane.setCurrentIndex(index)
-
-        # Read info from inxi -F
-        result = subprocess.check_output("inxi -F", shell=True, text=True)
-        self.hardware_info.setText(result)
+        self.license_info = QTextBrowser()
+        self.license_info.setCurrentFont(QFont("monospace", 9))
+        self.index = pane.addWidget(self.license_info)
+        pane.setCurrentIndex(self.index)
+        licen = subprocess.check_output("cat /usr/share/alt-notes/license.ru.html", shell=True, text=True)
+        self.license_info.setHtml(licen)
