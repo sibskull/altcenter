@@ -39,6 +39,9 @@ class MainWindow(QWidget):
         # Load UI from file
         uic.loadUi('mainwindow.ui', self) # Load the .ui file
 
+        self.splitter.setStretchFactor(0,0)
+        self.splitter.setStretchFactor(1,1)
+
         # Show window
         self.show()
 
