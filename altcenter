@@ -37,7 +37,7 @@ class MainWindow(QWidget):
         super(MainWindow, self).__init__() # Call the inherited classes __init__ method
 
         # Load UI from file
-        uic.loadUi('mainwindow.ui', self) # Load the .ui file
+        uic.loadUi('ui_mainwindow.ui', self) # Load the .ui file
 
         self.splitter.setStretchFactor(0,0)
         self.splitter.setStretchFactor(1,1)
