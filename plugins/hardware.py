@@ -23,16 +23,21 @@ from PyQt5.QtGui import QStandardItem, QFont
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import QT_VERSION_STR
 from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QTranslator, QLocale, QCoreApplication
+
+import locale
 import os, re, subprocess
 
 
 class HardwareWidget(QDialog):
-    aaa = 1
 
     def __init__(self):
         super(HardwareWidget,self).__init__()
-        loadUi('ui_hardware.ui', self)
-        self.aaa = 2
+
+        current_file = os.path.abspath(__file__)
+        current_dir = os.path.dirname(current_file)
+        parent_dir_of_module_dir = os.path.dirname(current_dir)
+        loadUi(os.path.join(parent_dir_of_module_dir, 'ui_hardware.ui'), self)
 
 
 def parse_os_release() -> dict:
@@ -108,7 +113,6 @@ def get_video_info_from_inxi():
 #     renderer: Mesa Intel UHD Graphics (CML GT2)
 # """
         gpu_info = re.findall(r'Device-\d+:\s*(.*?)\s*driver:\s*(\S+)\s*v:\s*(\S+)', output)
-
         # for device in gpu_info:
         #     device_name, driver, version = device
         #     print(f"Устройство: {device_name}\nДрайвер: {driver}\nВерсия: {version}\n")
@@ -124,6 +128,7 @@ class PluginHardware(plugins.Base):
     hardware_info = None
 
     def __init__(self):
+        super().__init__()
         pass
 
     def HLine(self):
@@ -133,8 +138,8 @@ class PluginHardware(plugins.Base):
         return hLine
 
     def start(self, plist, pane):
-        # Add to main plugin listqqй
-        node = QStandardItem("Hardware")
+        # Add to main plugin list
+        node = QStandardItem(self.tr("Hardware"))
         plist.appendRow([node])
         # TODO: connect item selection to appropriate pane activation
 
@@ -163,40 +168,40 @@ class PluginHardware(plugins.Base):
 
         # Software section
         #
-        titleSection = QLabel("Software")
+        titleSection = QLabel(self.tr("Software"))
         titleSection.setFont(fontTitle)
         titleSection.setAlignment(Qt.AlignmentFlag.AlignCenter)
         hw.formLayout.addRow(titleSection)
         hw.formLayout.addRow(self.HLine())
 
-        hw.formLayout.addRow("Qt version:", QLabel(QT_VERSION_STR))
+        hw.formLayout.addRow(self.tr("Qt version:"), QLabel(QT_VERSION_STR))
 
         uname = os.uname()
-        hw.formLayout.addRow("Kernel:", QLabel(uname.release))
+        hw.formLayout.addRow(self.tr("Kernel:"), QLabel(uname.release))
 
-        hw.formLayout.addRow("Display server:", QLabel(get_display_server()))
+        hw.formLayout.addRow(self.tr("Display server:"), QLabel(get_display_server()))
 
 
         # Hardware section
         #
-        titleSection = QLabel("Hardware")
+        titleSection = QLabel(self.tr("Hardware"))
         titleSection.setFont(fontTitle)
         titleSection.setAlignment(Qt.AlignmentFlag.AlignCenter)
         hw.formLayout.addRow(titleSection)
         hw.formLayout.addRow(self.HLine())
 
         cpu_name, num_cores = get_cpu_info_from_proc()
-        hw.formLayout.addRow("Processor:", QLabel("{} x {}".format(num_cores, cpu_name)))
+        hw.formLayout.addRow(self.tr("Processor:"), QLabel("{} x {}".format(num_cores, cpu_name)))
 
         total_memory, used_memory, free_memory = get_memory_info_from_free()
-        hw.formLayout.addRow("Memory (used/total):",
-                             QLabel(f"{used_memory / (1024 ** 3):.2f} GB  /  {total_memory / (1024 ** 3):.2f} GB"))
+        hw.formLayout.addRow(self.tr("Memory (used/total):"),
+                             QLabel(f"{used_memory / (1024 ** 3):.2f} {self.tr("GB")}  /  {total_memory / (1024 ** 3):.2f} GB"))
 
         gpu_info = get_video_info_from_inxi()
-        i = 0;
+        i = 0
         for device in gpu_info:
             i += 1
-            s = "Graphics"
+            s = self.tr("Graphics")
             if len(gpu_info) > 1:
                 s = f"{s}-{i}"
             gr = QLabel(s)
@@ -206,11 +211,11 @@ class PluginHardware(plugins.Base):
             device_name, driver, version = device
             # print(f"Устройство: {device_name}\nДрайвер: {driver}\nВерсия: {version}\n")
             lblHwGpuDevice = QLabel(device_name)
-            hw.formLayout.addRow("Device:", lblHwGpuDevice)
+            hw.formLayout.addRow(self.tr("Device:"), lblHwGpuDevice)
             lblHwGpuDriver = QLabel(driver)
-            hw.formLayout.addRow("Driver:", lblHwGpuDriver)
+            hw.formLayout.addRow(self.tr("Driver:"), lblHwGpuDriver)
             lblHwGpuDriverVersion = QLabel(version)
             # lblHwGpuDriverVersion.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            hw.formLayout.addRow("Version:", lblHwGpuDriverVersion)
+            hw.formLayout.addRow(self.tr("Version:"), lblHwGpuDriverVersion)
 
         pane.addWidget(hw)

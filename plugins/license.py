@@ -18,26 +18,44 @@
 # Place - Suite 330, Boston, MA  02111-1307, USA.
 
 import plugins
-from PyQt5.QtWidgets import QWidget, QTextBrowser
-from PyQt5.QtGui import QStandardItem, QFont
-import subprocess
+from PyQt5.QtWidgets import QTextBrowser
+from PyQt5.QtGui import QStandardItem, QFont, QTextDocument
+from PyQt5.QtCore import QUrl
+import locale, os
 
-class PluginHardware(plugins.Base):
+
+class PluginLicense(plugins.Base):
     # license_pane = None
     license_info = None
     index = 0
 
     def __init__(self):
+        super().__init__()
         pass
 
     def start(self, plist, pane):
         # Licence
-        node = QStandardItem("License")
+        node = QStandardItem(self.tr("License"))
         plist.appendRow([node])
 
         self.license_info = QTextBrowser()
         self.license_info.setCurrentFont(QFont("monospace", 9))
         self.index = pane.addWidget(self.license_info)
+
+        # licen = subprocess.check_output("cat /usr/share/alt-notes/license.ru.html", shell=True, text=True)
+        # self.license_info.setHtml(licen)
+
+        file_path = "/usr/share/alt-notes/license." + locale.getlocale()[0].split( '_' )[0] + ".html"
+
+        if os.path.isfile(file_path):
+            url = QUrl(file_path)
+            self.license_info.setSource(url, QTextDocument.ResourceType.HtmlResource)
+        else:
+            file_path = "/usr/share/alt-notes/license.all.html"
+            if os.path.isfile(file_path):
+                url = QUrl(file_path)
+                self.license_info.setSource(url, QTextDocument.ResourceType.HtmlResource)
+            else:
+                self.license_info.setHtml(f"File '{file_path}' not found.")
+
         pane.setCurrentIndex(self.index)
-        licen = subprocess.check_output("cat /usr/share/alt-notes/license.ru.html", shell=True, text=True)
-        self.license_info.setHtml(licen)
