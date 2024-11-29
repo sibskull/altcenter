@@ -82,14 +82,14 @@ class MainWindow(QWidget, Ui_MainWindow):
 
         # Software section
         #
-        titleSection = QLabel(self.tr("Software"))
-        titleSection.setFont(fontTitle)
-        titleSection.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        titleSection.setStyleSheet("QLabel {padding: 15px 0px 0px 0px;}")
-        self.formLayout.addRow(titleSection)
-        self.formLayout.addRow(self.HLine())
+        # titleSection = QLabel(self.tr("Software"))
+        # titleSection.setFont(fontTitle)
+        # titleSection.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # titleSection.setStyleSheet("QLabel {padding: 15px 0px 0px 0px;}")
+        # self.formLayout.addRow(titleSection)
+        # self.formLayout.addRow(self.HLine())
 
-        self.formLayout.addRow(self.tr("Qt version:"), QLabel(QT_VERSION_STR))
+        # self.formLayout.addRow(self.tr("Qt version:"), QLabel(QT_VERSION_STR))
 
         uname = os.uname()
         self.formLayout.addRow(self.tr("Kernel:"), QLabel(uname.release))
@@ -98,41 +98,41 @@ class MainWindow(QWidget, Ui_MainWindow):
 
         # Hardware section
         #
-        titleSection = QLabel(self.tr("Hardware"))
-        titleSection.setFont(fontTitle)
-        titleSection.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        titleSection.setStyleSheet("QLabel {padding: 15px 0px 0px 0px;}")
-        self.formLayout.addRow(titleSection)
-        self.formLayout.addRow(self.HLine())
+        # titleSection = QLabel(self.tr("Hardware"))
+        # titleSection.setFont(fontTitle)
+        # titleSection.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # titleSection.setStyleSheet("QLabel {padding: 15px 0px 0px 0px;}")
+        # self.formLayout.addRow(titleSection)
+        # self.formLayout.addRow(self.HLine())
 
-        cpu_name, num_cores = my_utils.get_cpu_info_from_proc()
-        self.formLayout.addRow(self.tr("Processor:"), QLabel("{} x {}".format(num_cores, cpu_name)))
+        # cpu_name, num_cores = my_utils.get_cpu_info_from_proc()
+        # self.formLayout.addRow(self.tr("Processor:"), QLabel("{} x {}".format(num_cores, cpu_name)))
 
         total_memory, used_memory, free_memory = my_utils.get_memory_info_from_free()
         gb = self.tr("GB")
         self.formLayout.addRow(self.tr("Memory (used/total):"),
                                 QLabel(f"{used_memory / (1024 ** 3):.2f} {gb}  /  {total_memory / (1024 ** 3):.2f} {gb}"))
 
-        gpu_info = my_utils.get_video_info_from_inxi()
-        i = 0
-        for device in gpu_info:
-            i += 1
-            s = self.tr("Graphics")
-            if len(gpu_info) > 1:
-                s = f"{s}-{i}"
-            gr = QLabel(s)
-            gr.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.formLayout.addRow(gr, QLabel())
+        # gpu_info = my_utils.get_video_info_from_inxi()
+        # i = 0
+        # for device in gpu_info:
+        #     i += 1
+        #     s = self.tr("Graphics")
+        #     if len(gpu_info) > 1:
+        #         s = f"{s}-{i}"
+        #     gr = QLabel(s)
+        #     gr.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        #     self.formLayout.addRow(gr, QLabel())
 
-            device_name, driver, version = device
-            # print(f"Устройство: {device_name}\nДрайвер: {driver}\nВерсия: {version}\n")
-            lblHwGpuDevice = QLabel(device_name)
-            self.formLayout.addRow(self.tr("Device:"), lblHwGpuDevice)
-            lblHwGpuDriver = QLabel(driver)
-            self.formLayout.addRow(self.tr("Driver:"), lblHwGpuDriver)
-            lblHwGpuDriverVersion = QLabel(version)
-            # lblHwGpuDriverVersion.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            self.formLayout.addRow(self.tr("Version:"), lblHwGpuDriverVersion)
+        #     device_name, driver, version = device
+        #     # print(f"Устройство: {device_name}\nДрайвер: {driver}\nВерсия: {version}\n")
+        #     lblHwGpuDevice = QLabel(device_name)
+        #     self.formLayout.addRow(self.tr("Device:"), lblHwGpuDevice)
+        #     lblHwGpuDriver = QLabel(driver)
+        #     self.formLayout.addRow(self.tr("Driver:"), lblHwGpuDriver)
+        #     lblHwGpuDriverVersion = QLabel(version)
+        #     # lblHwGpuDriverVersion.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        #     self.formLayout.addRow(self.tr("Version:"), lblHwGpuDriverVersion)
 
 
 # Run application
