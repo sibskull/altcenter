@@ -1,221 +1,377 @@
 #!/usr/bin/python3
 
-# Application for configure and maintain ALT operating system
-# (c) 2024 Andrey Cherepanov <cas@altlinux.org>
-
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 3 of the License, or (at your option) any later
-# version.
-
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-# details.
-
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-# Place - Suite 330, Boston, MA  02111-1307, USA.
-
 import plugins
-from PyQt5.QtWidgets import QWidget, QTextBrowser, QDialog, QLabel, QFrame, QSizePolicy
-from PyQt5.QtGui import QStandardItem, QFont
-from PyQt5.uic import loadUi
-from PyQt5.QtCore import QT_VERSION_STR
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QGroupBox,
+                            QGridLayout, QScrollArea, QTextBrowser, QFrame)
+from PyQt5.QtGui import QStandardItem
 from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QTranslator, QLocale, QCoreApplication
+import subprocess
+import re
 
-import locale
-import os, re, subprocess
-
-
-class HardwareWidget(QDialog):
-
-    def __init__(self):
-        super(HardwareWidget,self).__init__()
-
-        current_file = os.path.abspath(__file__)
-        current_dir = os.path.dirname(current_file)
-        parent_dir_of_module_dir = os.path.dirname(current_dir)
-        loadUi(os.path.join(parent_dir_of_module_dir, 'ui_hardware.ui'), self)
-
-
-def parse_os_release() -> dict:
-    os_info = {}
-    with open('/etc/os-release', 'r') as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith('#'):
-                continue
-
-            key, value = line.split('=', 1)
-
-            value = value.strip('"')
-
-            os_info[key] = value
-
-    return os_info
-
-
-def get_display_server() -> str:
-    session_type = os.getenv('XDG_SESSION_TYPE')
-    if session_type:
-        return session_type
-    else:
-        return "Not detected"
-
-
-def get_cpu_info_from_proc():
-    with open("/proc/cpuinfo", "r") as f:
-        cpu_info = f.read()
-
-    cpu_name = None
-    for line in cpu_info.splitlines():
-        if line.startswith("model name"):
-            cpu_name = line.split(":")[1].strip()
-            break
-
-    num_cores = cpu_info.count("processor")
-
-    return cpu_name, num_cores
-
-
-def get_memory_info_from_free():
-    try:
-        result = subprocess.run(['free', '-b'], capture_output=True, text=True)
-        memory_info = result.stdout
-
-        lines = memory_info.splitlines()
-        total_memory = int(lines[1].split()[1])
-        used_memory = int(lines[1].split()[2])
-        free_memory = int(lines[1].split()[3])
-
-        return total_memory, used_memory, free_memory
-    except FileNotFoundError:
-        return "free command not found", None, None
-
-
-def get_video_info_from_inxi():
-    try:
-        result = subprocess.run(['inxi', '-G', '-c'], capture_output=True, text=True)
-        output = result.stdout
-#         output = """Graphics:
-#   Device-1: Intel CometLake-H GT2 [UHD Graphics] driver: i915 v: kernel
-#   Device-2: NVIDIA TU116M [GeForce GTX 1660 Ti Mobile] driver: nouveau
-#     v: kernel
-#   Device-3: Chicony HP Wide Vision HD Camera driver: uvcvideo type: USB
-#   Display: x11 server: X.Org v: 1.21.1.14 driver: X:
-#     loaded: modesetting,nouveau unloaded: fbdev,vesa dri: iris,nouveau gpu: i915
-#     resolution: 1920x1080~60Hz
-#   API: EGL v: 1.5 drivers: iris,nouveau,swrast
-#     platforms: gbm,x11,surfaceless,device
-#   API: OpenGL v: 4.6 compat-v: 4.3 vendor: intel mesa v: 24.2.6
-#     renderer: Mesa Intel UHD Graphics (CML GT2)
-# """
-        gpu_info = re.findall(r'Device-\d+:\s*(.*?)\s*driver:\s*(\S+)\s*v:\s*(\S+)', output)
-        # for device in gpu_info:
-        #     device_name, driver, version = device
-        #     print(f"Устройство: {device_name}\nДрайвер: {driver}\nВерсия: {version}\n")
-
-        return gpu_info
-    except FileNotFoundError:
-        return "inxi command not found", None, None
-
-
-class PluginHardware(plugins.Base):
-    """Hardware pane"""
-    # hardware_pane = None
-    hardware_info = None
-
+class HardwareWidget(QWidget):
     def __init__(self):
         super().__init__()
-        pass
+        self.current_language = 'ru'
+        self.initUI()
 
-    def HLine(self):
-        hLine = QFrame()
-        hLine.setFrameShape(QFrame.Shape.HLine)
-        hLine.setFrameShadow(QFrame.Shadow.Sunken)
-        return hLine
+    def initUI(self):
+        # Основной layout
+        main_layout = QVBoxLayout()
+
+        # Создаем область прокрутки
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QScrollArea.NoFrame)
+
+        # Контейнер для содержимого
+        container = QWidget()
+        layout = QVBoxLayout(container)
+        layout.setSpacing(20)
+
+        # Определяем заголовки групп в зависимости от языка
+        group_titles = {
+            # 'en': {
+            'about': self.tr("Hardware Information")
+            # },
+            # 'ru': {
+            #     'about': "Информация об оборудовании"
+            # }
+        }
+
+        # Группа информации о системе
+        about_group = QGroupBox(group_titles['about'])
+        about_grid = QGridLayout()
+        about_grid.setSpacing(10)
+
+        # Получаем информацию о системе через inxi -F
+        try:
+            system_info = subprocess.check_output(
+                "inxi -F",
+                shell=True,
+                text=True
+            )
+            # Очищаем от специальных символов
+            system_info = re.sub(r'', '', system_info)
+            system_info = re.sub(r'12', '', system_info)
+
+            # Расширенный список терминов для разделителей
+            separators = [
+                self.tr('Info:'),
+                self.tr('Drives:'),
+                self.tr('Bluetooth:'),
+                self.tr('Graphics:'),
+                self.tr('CPU:'),
+                self.tr('Battery:'),
+                self.tr('Machine:'),
+                self.tr('Audio:'),
+                self.tr('Network:'),
+                self.tr('Sensors:'),
+                self.tr('Swap:')
+            ]
+
+
+            # Добавляем белую разделительную линию
+            for separator in separators:
+                system_info = system_info.replace(separator, '<hr style="border: 1px solid #FFFFFF; margin: 10px 0;">' + separator)
+
+            # Словари переводов для разных языков
+            translations = {
+                'en': {
+                    # Special terms
+                    'System Temperatures': self.tr('System Temperatures'),
+                    'Fun speeds': self.tr('Fun speeds'),
+                    'N/A': self.tr('N/A'),
+
+                    # Units of measurement
+                    'GiB': self.tr('GiB'),
+                    'MiB': self.tr('MiB'),
+                    'MHz': self.tr('MHz'),
+                    'Wh': self.tr('Wh'),
+
+                    # Headers with HTML formatting
+                    'System:': self.tr('<b>System:</b>'),
+                    'Kernel:': self.tr('<b>Kernel:</b>'),
+                    'Desktop:': self.tr('<b>Desktop:</b>'),
+                    'CPU:': self.tr('<b>CPU:</b>'),
+                    'GPU:': self.tr('<b>GPU:</b>'),
+                    'Memory:': self.tr('<b>Memory:</b>'),
+                    'Drives:': self.tr('<b>Drives:</b>'),
+                    'Network:': self.tr('<b>Network:</b>'),
+                    'Info:': self.tr('<b>Info:</b>'),
+                    'Machine:': self.tr('<b>Machine:</b>'),
+                    'Battery:': self.tr('<b>Battery:</b>'),
+                    'Processes:': self.tr('<b>Processes:</b>'),
+                    'Audio:': self.tr('<b>Audio:</b>'),
+                    'Sensors:': self.tr('<b>Sensors:</b>'),
+                    'Graphics:': self.tr('<b>Graphics:</b>'),
+                    'Display:': self.tr('<b>Display:</b>'),
+                    'Bluetooth:': self.tr('<b>Bluetooth:</b>'),
+
+                    # Common terms with colon and formatting
+                    'speed:': self.tr('<b>Speed:</b>'),
+                    'type:': self.tr('<b>Type:</b>'),
+                    'size:': self.tr('<b>Size:</b>'),
+                    'used:': self.tr('<b>Used:</b>'),
+                    'serial:': self.tr('<b>Serial Number:</b>'),
+                    'driver:': self.tr('<b>Driver:</b>'),
+                    'version:': self.tr('<b>Version:</b>'),
+                    'model:': self.tr('<b>Model:</b>'),
+                    'device:': self.tr('<b>Device:</b>'),
+                    'vendor:': self.tr('<b>Vendor:</b>'),
+                    'partition:': self.tr('<b>Partition:</b>'),
+                    'swap:': self.tr('<b>Swap File:</b>'),
+
+                    # The same terms with capital letters
+                    'Speed:': self.tr('<b>Speed:</b>'),
+                    'Type:': self.tr('<b>Type:</b>'),
+                    'Size:': self.tr('<b>Size:</b>'),
+                    'Used:': self.tr('<b>Used:</b>'),
+                    'Serial:': self.tr('<b>Serial Number:</b>'),
+                    'Driver:': self.tr('<b>Driver:</b>'),
+                    'Version:': self.tr('<b>Version:</b>'),
+                    'Model:': self.tr('<b>Model:</b>'),
+                    'Device:': self.tr('<b>Device:</b>'),
+                    'Vendor:': self.tr('<b>Vendor:</b>'),
+                    'Partition:': self.tr('<b>Partition:</b>'),
+                    'Swap:': self.tr('<b>Swap:</b>'),
+
+                    # Common terms without formatting
+                    'menu': self.tr('Hardware'),
+                    'title': self.tr('Hardware Information'),
+                    'System': self.tr('System'),
+                    'Kernel': self.tr('Kernel'),
+                    'Desktop': self.tr('Desktop'),
+                    'Laptop': self.tr('Laptop'),
+                    'type': self.tr('Type'),
+                    'model': self.tr('Model'),
+                    'serial': self.tr('Serial Number'),
+                    'product': self.tr('Product'),
+                    'charge': self.tr('Charge'),
+                    'condition': self.tr('Condition'),
+                    'core': self.tr('Core'),
+                    'cores': self.tr('Cores'),
+                    'cache': self.tr('Cache'),
+                    'speed': self.tr('Speed'),
+                    'min': self.tr('Min'),
+                    'max': self.tr('Max'),
+                    'avg': self.tr('Average'),
+                    'device': self.tr('Device'),
+                    'driver': self.tr('Driver'),
+                    'server': self.tr('Server'),
+                    'loaded': self.tr('Loaded'),
+                    'unloaded': self.tr('Unloaded'),
+                    'resolution': self.tr('Resolution'),
+                    'vendor': self.tr('Vendor'),
+                    'renderer': self.tr('Renderer'),
+                    'surfaces': self.tr('Surfaces'),
+                    'status': self.tr('Status'),
+                    'active': self.tr('Active'),
+                    'with': self.tr('With'),
+                    'compositor': self.tr('Compositor'),
+                    'arch': self.tr('Architecture'),
+                    'bits': self.tr('Bits')
+                }
+            }
+
+
+            # Используем переводы в зависимости от текущего языка
+            current_translations = translations['en']
+
+            # Заменяем термины на переведенные версии
+            for eng, translated in current_translations.items():
+                system_info = system_info.replace(eng, translated)
+
+            # Форматируем вывод для HTML
+            system_info = "<p>" + system_info.replace("\n", "</p><p>") + "</p>"
+
+        except Exception as e:
+            system_info = f"<p>{'Error getting system information' if self.current_language == 'en' else 'Ошибка получения информации о системе'}: {e}</p>"
+
+        # Создаем и добавляем текст в grid с сохранением HTML-форматирования
+        label = QLabel()
+        label.setWordWrap(True)
+        label.setTextFormat(Qt.RichText)
+        label.setOpenExternalLinks(False)
+        label.setText(system_info)
+        about_grid.addWidget(label, 0, 0)
+
+        # Применяем стили
+        style = """
+            QGroupBox {
+                font-weight: bold;
+                border: 2px solid #CCCCCC;
+                border-radius: 6px;
+                margin-top: 6px;
+                padding-top: 10px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 3px;
+            }
+            QLabel {
+                font-size: 14px;
+                padding: 5px;
+                line-height: 1.5;
+            }
+        """
+
+        about_group.setStyleSheet(style)
+
+        # Устанавливаем layout
+        about_group.setLayout(about_grid)
+
+        # Добавляем группу в layout
+        layout.addWidget(about_group)
+        layout.addStretch()
+
+        # Устанавливаем контейнер в область прокрутки
+        scroll.setWidget(container)
+        main_layout.addWidget(scroll)
+
+        self.setLayout(main_layout)
+
+    def update_language(self, language):
+        self.current_language = language
+        if self.layout():
+            QWidget().setLayout(self.layout())
+        self.initUI()
+# Убрать новые переводы
+    def translate_hardware_info(self, text, language='ru'):
+        if language == 'ru':
+            translations = {
+            }
+
+    def retranslateUi(self):
+        """Update interface language"""
+        titles = {
+            'en': {
+            }
+        }
+        return titles[self.current_language]
+
+class PluginHardware(plugins.Base):
+    def __init__(self):
+        super().__init__()
+        self.node = None
+        self.hardware_widget = None
+        self.current_language = 'ru'
+        self.menu_titles = {
+            'en': {
+                'menu': self.tr("Hardware"),
+                'system': self.tr("System"),
+                'computer': self.tr("Computer"),
+                'battery': self.tr("Battery"),
+                'CPU': self.tr("Processor"),
+                'graphics': self.tr("Graphics"),
+                'audio': self.tr("Audio"),
+                'kernel': self.tr("Kernel"),
+                'arch': self.tr("arch"),
+                'bits': self.tr("bits"),
+                'desktop': self.tr("Desktop"),
+                'type': self.tr("Type"),
+                'laptop': self.tr("Laptop"),
+                'product': self.tr("product"),
+                'model': self.tr("model"),
+                'serial': self.tr("serial"),
+                'date': self.tr("date"),
+                'charge': self.tr("charge"),
+                'condition': self.tr("condition"),
+                'Wh': self.tr("Wh"),
+                'info': self.tr("Info"),
+                'core': self.tr("core"),
+                'cores': self.tr("cores"),
+                'cache': self.tr("cache"),
+                'speed': self.tr("Speed"),
+                'min': self.tr("min"),
+                'max': self.tr("max"),
+                'avg': self.tr("avg"),
+                'device': self.tr("Device"),
+                'driver': self.tr("driver"),
+                'server': self.tr("server"),
+                'with': self.tr("with"),
+                'compositor': self.tr("compositor"),
+                'loaded': self.tr("loaded"),
+                'unloaded': self.tr("unloaded"),
+                'resolution': self.tr("resolution"),
+                'vendor': self.tr("vendor"),
+                'renderer': self.tr("renderer"),
+                'surfaces': self.tr("surfaces"),
+                'status': self.tr("status"),
+                'active': self.tr("active"),
+                'GiB': self.tr("GiB"),
+                'MiB': self.tr("MiB"),
+                'MHz': self.tr("MHz")
+            }
+            # 'ru': {
+            #     'menu': "Оборудование",
+            #     'system': "Система",
+            #     'computer': "Компьютер",
+            #     'battery': "Батарея",
+            #     'processor': "Процессор",
+            #     'graphics': "Графика",
+            #     'audio': "Аудио",
+            #     'kernel': "Ядро",
+            #     'arch': "архитектура",
+            #     'bits': "бит",
+            #     'desktop': "Рабочий стол",
+            #     'type': "Тип",
+            #     'laptop': "Ноутбук",
+            #     'product': "продукт",
+            #     'model': "модель",
+            #     'serial': "серийный номер",
+            #     'charge': "заряд",
+            #     'condition': "состояние",
+            #     'Wh': "Вт⋅ч",
+            #     'info': "Информация",
+            #     'core': "ядро",
+            #     'cores': "ядер",
+            #     'cache': "кэш",
+            #     'speed': "Частота",
+            #     'min': "мин",
+            #     'max': "макс",
+            #     'avg': "средняя",
+            #     'device': "Устройство",
+            #     'driver': "драйвер",
+            #     'server': "сервер",
+            #     'with': "с",
+            #     'compositor': "композитор",
+            #     'loaded': "загружен",
+            #     'unloaded': "выгружено",
+            #     'resolution': "разрешение",
+            #     'vendor': "производитель",
+            #     'renderer': "рендерер",
+            #     'surfaces': "поверхности",
+            #     'status': "статус",
+            #     'active': "активен",
+            #     'GiB': "ГБ",
+            #     'MiB': "МБ",
+            #     'MHz': "МГц"
+            # }
+        }
 
     def start(self, plist, pane):
-        # Add to main plugin list
-        node = QStandardItem(self.tr("Hardware"))
-        plist.appendRow([node])
-        # TODO: connect item selection to appropriate pane activation
+        self.node = QStandardItem(self.tr("Hardware"))
+        plist.appendRow([self.node])
 
-        # self.hardware_info = QTextBrowser()
-        # # Show output in monospace font
-        # self.hardware_info.setCurrentFont(QFont("monospace", 9))
-        # index = pane.addWidget(self.hardware_info)
-        # # pane.setCurrentIndex(index)
+        self.hardware_widget = HardwareWidget()
+        pane.addWidget(self.hardware_widget)
 
-        # # Read info from inxi -F
-        # result = subprocess.check_output("inxi -F", shell=True, text=True)
-        # self.hardware_info.setText(result)
+    # def update_language(self, language):
+    #     self.current_language = language
+    #     menu_titles = {
+    #         'en': "Hardware",
+    #         'ru': "Оборудование"
+    #     }
+    #     self.node.setText(menu_titles[language])
+    #     if self.hardware_widget:
+    #         self.hardware_widget.update_language(language)
 
-        os_info = parse_os_release()
-        # for key, value in os_info.items():
-        #     print(f"{key}: {value}")
-
-        hw = HardwareWidget()
-
-        fontTitle = hw.font()
-        fontTitle.setPointSize(fontTitle.pointSize() + 2)
-
-        hw.lblAltValue.setText("{} {} {}".format(os_info["PRETTY_NAME"], os_info["NAME"], os_info["VERSION"]))
-        # print("{} {} {}".format(os_info["PRETTY_NAME"], os_info["NAME"], os_info["VERSION"]))
+    def get_hardware_info(self):
+        info = subprocess.check_output(['inxi', '-F', '--width', '80'], text=True)
 
 
-        # Software section
-        #
-        titleSection = QLabel(self.tr("Software"))
-        titleSection.setFont(fontTitle)
-        titleSection.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        hw.formLayout.addRow(titleSection)
-        hw.formLayout.addRow(self.HLine())
+        for key, value in self.menu_titles.items():
+            info = info.replace(self.menu_titles['en'][key], value)
 
-        hw.formLayout.addRow(self.tr("Qt version:"), QLabel(QT_VERSION_STR))
-
-        uname = os.uname()
-        hw.formLayout.addRow(self.tr("Kernel:"), QLabel(uname.release))
-
-        hw.formLayout.addRow(self.tr("Display server:"), QLabel(get_display_server()))
-
-
-        # Hardware section
-        #
-        titleSection = QLabel(self.tr("Hardware"))
-        titleSection.setFont(fontTitle)
-        titleSection.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        hw.formLayout.addRow(titleSection)
-        hw.formLayout.addRow(self.HLine())
-
-        cpu_name, num_cores = get_cpu_info_from_proc()
-        hw.formLayout.addRow(self.tr("Processor:"), QLabel("{} x {}".format(num_cores, cpu_name)))
-
-        total_memory, used_memory, free_memory = get_memory_info_from_free()
-        hw.formLayout.addRow(self.tr("Memory (used/total):"),
-                             QLabel(f"{used_memory / (1024 ** 3):.2f} {self.tr("GB")}  /  {total_memory / (1024 ** 3):.2f} GB"))
-
-        gpu_info = get_video_info_from_inxi()
-        i = 0
-        for device in gpu_info:
-            i += 1
-            s = self.tr("Graphics")
-            if len(gpu_info) > 1:
-                s = f"{s}-{i}"
-            gr = QLabel(s)
-            gr.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            hw.formLayout.addRow(gr, QLabel())
-
-            device_name, driver, version = device
-            # print(f"Устройство: {device_name}\nДрайвер: {driver}\nВерсия: {version}\n")
-            lblHwGpuDevice = QLabel(device_name)
-            hw.formLayout.addRow(self.tr("Device:"), lblHwGpuDevice)
-            lblHwGpuDriver = QLabel(driver)
-            hw.formLayout.addRow(self.tr("Driver:"), lblHwGpuDriver)
-            lblHwGpuDriverVersion = QLabel(version)
-            # lblHwGpuDriverVersion.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            hw.formLayout.addRow(self.tr("Version:"), lblHwGpuDriverVersion)
-
-        pane.addWidget(hw)
+        return info
