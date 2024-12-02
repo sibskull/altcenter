@@ -2,6 +2,29 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ru_RU">
 <context>
+    <name>AboutWidget</name>
+    <message>
+        <location filename="plugins/about.py" line="62"/>
+        <source>Kernel:</source>
+        <translation>Ядро:</translation>
+    </message>
+    <message>
+        <location filename="plugins/about.py" line="65"/>
+        <source>Display server:</source>
+        <translation>Графическая платформа:</translation>
+    </message>
+    <message>
+        <location filename="plugins/about.py" line="72"/>
+        <source>Memory (used/total):</source>
+        <translation>Память (использовано/всего):</translation>
+    </message>
+    <message>
+        <location filename="plugins/about.py" line="73"/>
+        <source>GB</source>
+        <translation>Гб</translation>
+    </message>
+</context>
+<context>
     <name>DocumentationWidget</name>
     <message>
         <location filename="plugins/documentation.py" line="33"/>
@@ -475,34 +498,24 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="ui_mainwindow.py" line="135"/>
+        <location filename="ui_mainwindow.py" line="106"/>
         <source>ALT Center</source>
         <translation>ALT Center</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="138"/>
+        <location filename="ui_mainwindow.py" line="107"/>
         <source>Do not run on next sesion start</source>
         <translation>Не загружать при старте следующей сессии</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="139"/>
+        <location filename="ui_mainwindow.py" line="108"/>
         <source>&amp;Close</source>
         <translation>В&amp;ыход</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="136"/>
-        <source>ALT</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="ui_mainwindow.py" line="137"/>
-        <source>&lt;a href=&quot;https://www.basealt.ru/&quot;&gt;https://www.basealt.ru/&lt;/a&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
         <location filename="mainwindow.py" line="73"/>
         <source>About system</source>
-        <translation>О системе</translation>
+        <translation type="obsolete">О системе</translation>
     </message>
     <message>
         <location filename="mainwindow.py" line="85"/>
@@ -517,12 +530,12 @@
     <message>
         <location filename="mainwindow.py" line="95"/>
         <source>Kernel:</source>
-        <translation>Ядро:</translation>
+        <translation type="obsolete">Ядро:</translation>
     </message>
     <message>
         <location filename="mainwindow.py" line="97"/>
         <source>Display server:</source>
-        <translation>Графическая платформа:</translation>
+        <translation type="obsolete">Графическая платформа:</translation>
     </message>
     <message>
         <location filename="mainwindow.py" line="100"/>
@@ -537,12 +550,12 @@
     <message>
         <location filename="mainwindow.py" line="112"/>
         <source>GB</source>
-        <translation>Гб</translation>
+        <translation type="obsolete">Гб</translation>
     </message>
     <message>
         <location filename="mainwindow.py" line="113"/>
         <source>Memory (used/total):</source>
-        <translation>Память (использовано/всего):</translation>
+        <translation type="obsolete">Память (использовано/всего):</translation>
     </message>
     <message>
         <location filename="mainwindow.py" line="118"/>
@@ -563,6 +576,14 @@
         <location filename="mainwindow.py" line="133"/>
         <source>Version:</source>
         <translation type="obsolete">Версия:</translation>
+    </message>
+</context>
+<context>
+    <name>PluginAbout</name>
+    <message>
+        <location filename="plugins/about.py" line="114"/>
+        <source>About system</source>
+        <translation>О системе</translation>
     </message>
 </context>
 <context>
