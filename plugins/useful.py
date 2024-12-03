@@ -190,10 +190,9 @@ class UsefulWidget(QWidget):
 
 class PluginUseful(plugins.Base):
     def __init__(self):
-        super().__init__()
+        super().__init__(50)
         self.node = None
         self.useful_widget = None
-        self.current_language = 'ru'
 
     def start(self, plist, pane):
         self.node = QStandardItem(self.tr("Useful Information"))
@@ -201,12 +200,3 @@ class PluginUseful(plugins.Base):
 
         self.useful_widget = UsefulWidget()
         pane.addWidget(self.useful_widget)
-
-    # def update_language(self, language):
-    #     menu_titles = {
-    #         'en': "Useful Information",
-    #         'ru': "Полезная информация"
-    #     }
-    #     self.node.setText(menu_titles)
-    #     if self.useful_widget:
-    #         self.useful_widget.update_language(language)

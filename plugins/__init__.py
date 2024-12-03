@@ -27,10 +27,11 @@ class Base(QObject):
     plugins = []
     name = ""
 
-    def __init__(self):
+    def __init__(self, position):
         super().__init__()
+        self.position = position
 
-    # For every class that inherits from the current,
+    # For every class that inherits from the current
     # the class name will be added to plugins
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -41,6 +42,10 @@ class Base(QObject):
 
     def setName(self, name):
         self.name = name
+
+    def getPosition(self):
+        return self.position
+
 
 # Load one module
 def load_module(path):
@@ -58,3 +63,5 @@ for fname in os.listdir(plugin_path):
             load_module(os.path.join(plugin_path, fname))
         except Exception:
             traceback.print_exc()
+
+Base.plugins.sort(key=lambda x: x().getPosition())

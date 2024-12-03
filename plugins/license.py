@@ -30,7 +30,7 @@ class PluginLicense(plugins.Base):
     index = 0
 
     def __init__(self):
-        super().__init__()
+        super().__init__(10)
         pass
 
     def start(self, plist, pane):

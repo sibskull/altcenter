@@ -174,10 +174,9 @@ class DocumentationWidget(QWidget):
 
 class PluginDocumentation(plugins.Base):
     def __init__(self):
-        super().__init__()
+        super().__init__(20)
         self.node = None
         self.documentation_widget = None
-        self.current_language = 'ru'
 
     def start(self, plist, pane):
         self.node = QStandardItem(self.tr("Documentation"))
@@ -185,12 +184,3 @@ class PluginDocumentation(plugins.Base):
 
         self.documentation_widget = DocumentationWidget()
         pane.addWidget(self.documentation_widget)
-
-    # def update_language(self, language):
-    #     menu_titles = {
-    #         'en': "Documentation",
-    #         'ru': "Документация"
-    #     }
-    #     self.node.setText(menu_titles[language])
-    #     if self.documentation_widget:
-    #         self.documentation_widget.update_language(language)
