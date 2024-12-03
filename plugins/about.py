@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt, QSize
 
 import os
 import sys
-import locale
+# import locale
 
 import plugins
 import my_utils
@@ -106,7 +106,7 @@ class AboutWidget(QWidget):
 
 class PluginAbout(plugins.Base):
     def __init__(self):
-        super().__init__()
+        super().__init__(1)
         self.node = None
         self.about_widget = None
 
