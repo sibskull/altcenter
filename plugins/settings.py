@@ -321,10 +321,9 @@ class SettingsWidget(QWidget):
 
 class PluginSettings(plugins.Base):
     def __init__(self):
-        super().__init__()
+        super().__init__(40)
         self.node = None
         self.settings_widget = None
-        self.current_language = 'ru'
 
     def start(self, plist, pane):
         self.node = QStandardItem(self.tr("Settings"))
@@ -332,12 +331,3 @@ class PluginSettings(plugins.Base):
 
         self.settings_widget = SettingsWidget()
         index = pane.addWidget(self.settings_widget)
-
-    # def update_language(self, language):
-    #     menu_titles = {
-    #         'en': "Settings",
-    #         'ru': "Настройки"
-    #     }
-    #     self.node.setText(menu_titles[language])
-    #     if self.settings_widget:
-    #         self.settings_widget.update_language(language)
