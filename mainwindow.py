@@ -24,6 +24,10 @@ import os
 import sys
 import locale
 
+current_file = os.path.abspath(__file__)
+current_dir = os.path.dirname(current_file)
+os.chdir(current_dir)
+
 from ui_mainwindow import Ui_MainWindow
 from plugins import Base
 
@@ -52,7 +56,6 @@ class MainWindow(QWidget, Ui_MainWindow):
 
 # Run application
 app = QApplication(sys.argv) # Create an instance of QtWidgets.QApplication
-
 
 # Load current locale translation
 current_file = os.path.abspath(__file__)
