@@ -13,22 +13,46 @@ import plugins
 import my_utils
 
 class AboutWidget(QWidget):
-    def __init__(self):
+    def __init__(self, palette):
         super().__init__()
+        self.palette = palette
         self.initUI()
 
+    def translate_os_name(self, name:str) -> str:
+        dictionary = {
+            'ALT' : self.tr("ALT"),
+            'ALT Education' : self.tr("ALT Education"),
+            'ALT Workstation' : self.tr("ALT Workstation"),
+            'ALT Workstation K' : self.tr("ALT Workstation K"),
+            'ALT Regular' : self.tr("ALT Regular"),
+            'Sisyphus' : self.tr("Sisyphus"),
+            'ALT Server' : self.tr("ALT Server"),
+            'ALT Virtualization Server' : self.tr("ALT Virtualization Server"),
+            'ALT Starterkit' : self.tr("ALT Starterkit"),
+        }
+
+        if name in dictionary:
+            name = dictionary[name]
+
+        return name
+
+
     def initUI(self):
+        self.setAutoFillBackground(True)
+        self.setPalette(self.palette)
+
         # Основной лэйаут для окна
         main_layout = QVBoxLayout()
 
         # Создание QScrollArea
         scroll_area = QScrollArea(self)
         scroll_area.setWidgetResizable(True)  # Ресайз области прокрутки
+        scroll_area.setFrameShape(QScrollArea.NoFrame)
 
         # Создание контейнера для виджетов внутри QScrollArea
         container = QWidget()
-        font = QFont('Sans', 11)
-        container.setFont(font)
+        # font = QFont('Sans', 11)
+        # container.setFont(font)
         container_layout = QVBoxLayout(container)  # Внутренний лэйаут для контейнера
         container_layout.setSpacing(10)
 
@@ -38,17 +62,19 @@ class AboutWidget(QWidget):
 
         # Создаем метки
         os_info = my_utils.parse_os_release()
-        s = "{} {} {}".format(os_info["PRETTY_NAME"], os_info["NAME"], os_info["VERSION"])
-        label1 = QLabel(s)
+        s = self.translate_os_name(os_info["MY_NAME"])
+        os_name = "{}{}".format(s, os_info["MY_NAME_REST"])
+        label1 = QLabel(os_name)
         label1.setAlignment(Qt.AlignCenter)
         label1.setWordWrap(True)
         label_font = container.font()
-        label_font.setPointSize(label_font.pointSize() + 18)
+        label_font.setPointSize(label_font.pointSize() + 14)
         # label_font.setBold(True)
         label1.setFont(label_font)
 
         label2 = QLabel('<a href="https://www.basealt.ru/">https://www.basealt.ru/</a>')
         label2.setAlignment(Qt.AlignCenter)
+        label2.setOpenExternalLinks(True)
 
         # Добавляем метки в контейнер
         container_layout.addWidget(label1)
@@ -114,7 +140,9 @@ class PluginAbout(plugins.Base):
         self.node = QStandardItem(self.tr("About system"))
         plist.appendRow([self.node])
 
-        self.about_widget = AboutWidget()
+        main_palette = pane.window().palette()
+
+        self.about_widget = AboutWidget(main_palette)
         pane.addWidget(self.about_widget)
 
 
