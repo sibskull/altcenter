@@ -24,6 +24,10 @@ import os
 import sys
 import locale
 
+current_file = os.path.abspath(__file__)
+current_dir = os.path.dirname(current_file)
+os.chdir(current_dir)
+
 from ui_mainwindow import Ui_MainWindow
 from plugins import Base
 
