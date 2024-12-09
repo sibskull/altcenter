@@ -4,24 +4,69 @@
 <context>
     <name>AboutWidget</name>
     <message>
-        <location filename="plugins/about.py" line="62"/>
+        <location filename="plugins/about.py" line="88"/>
         <source>Kernel:</source>
         <translation>Ядро:</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="65"/>
+        <location filename="plugins/about.py" line="91"/>
         <source>Display server:</source>
         <translation>Графическая платформа:</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="72"/>
+        <location filename="plugins/about.py" line="98"/>
         <source>Memory (used/total):</source>
         <translation>Память (использовано/всего):</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="73"/>
+        <location filename="plugins/about.py" line="99"/>
         <source>GB</source>
         <translation>Гб</translation>
+    </message>
+    <message>
+        <location filename="plugins/about.py" line="23"/>
+        <source>ALT</source>
+        <translation>Альт</translation>
+    </message>
+    <message>
+        <location filename="plugins/about.py" line="24"/>
+        <source>ALT Education</source>
+        <translation>Альт Образование</translation>
+    </message>
+    <message>
+        <location filename="plugins/about.py" line="25"/>
+        <source>ALT Workstation</source>
+        <translation>Альт Рабочая станция</translation>
+    </message>
+    <message>
+        <location filename="plugins/about.py" line="31"/>
+        <source>ALT Starterkit</source>
+        <translation>Альт Стартовый набор</translation>
+    </message>
+    <message>
+        <location filename="plugins/about.py" line="28"/>
+        <source>Sisyphus</source>
+        <translation>Сизиф</translation>
+    </message>
+    <message>
+        <location filename="plugins/about.py" line="26"/>
+        <source>ALT Workstation K</source>
+        <translation>Альт Рабочая станция К</translation>
+    </message>
+    <message>
+        <location filename="plugins/about.py" line="27"/>
+        <source>ALT Regular</source>
+        <translation>Альт Регулярная сборка</translation>
+    </message>
+    <message>
+        <location filename="plugins/about.py" line="30"/>
+        <source>ALT Virtualization Server</source>
+        <translation>Альт Сервер виртуализации</translation>
+    </message>
+    <message>
+        <location filename="plugins/about.py" line="29"/>
+        <source>ALT Server</source>
+        <translation>Альт Сервер</translation>
     </message>
 </context>
 <context>
@@ -581,7 +626,7 @@
 <context>
     <name>PluginAbout</name>
     <message>
-        <location filename="plugins/about.py" line="114"/>
+        <location filename="plugins/about.py" line="140"/>
         <source>About system</source>
         <translation>О системе</translation>
     </message>
@@ -589,7 +634,7 @@
 <context>
     <name>PluginDocumentation</name>
     <message>
-        <location filename="plugins/documentation.py" line="183"/>
+        <location filename="plugins/documentation.py" line="182"/>
         <source>Documentation</source>
         <translation>Документация</translation>
     </message>
@@ -828,7 +873,7 @@
 <context>
     <name>PluginSettings</name>
     <message>
-        <location filename="plugins/settings.py" line="330"/>
+        <location filename="plugins/settings.py" line="329"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
@@ -836,7 +881,7 @@
 <context>
     <name>PluginUseful</name>
     <message>
-        <location filename="plugins/useful.py" line="199"/>
+        <location filename="plugins/useful.py" line="198"/>
         <source>Useful Information</source>
         <translation>Полезная информация</translation>
     </message>
@@ -861,7 +906,7 @@
     <message>
         <location filename="plugins/settings.py" line="39"/>
         <source>Save Settings</source>
-        <translation>Сохранить настройки</translation>
+        <translation type="unfinished">Сохранить настройки</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="60"/>
@@ -968,83 +1013,93 @@
     </message>
     <message>
         <location filename="plugins/useful.py" line="109"/>
-        <source>🗂️ Superuser privileges</source>
-        <translation>🗂️ Права суперпользователя</translation>
+        <source>&#xf0;&#x9f;&#x97;&#x82;&#xef;&#xb8;&#x8f; Superuser privileges</source>
+        <translation type="unfinished">🗂️ Права суперпользователя</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="110"/>
-        <source>🔍 System update</source>
-        <translation>🔍 Обновление системы</translation>
+        <source>&#xf0;&#x9f;&#x94;&#x8d; System update</source>
+        <translation type="unfinished">🔍 Обновление системы</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="111"/>
-        <source>📦 Package install</source>
-        <translation>📦 Установка пакета</translation>
+        <source>&#xf0;&#x9f;&#x93;&#xa6; Package install</source>
+        <translation type="unfinished">📦 Установка пакета</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="112"/>
-        <source>💻 System information</source>
-        <translation>💻 Информация о системе</translation>
+        <source>&#xf0;&#x9f;&#x92;&#xbb; System information</source>
+        <translation type="unfinished">💻 Информация о системе</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="113"/>
-        <source>📊 Disk usage</source>
-        <translation>📊 Использование диска</translation>
+        <source>&#xf0;&#x9f;&#x93;&#x8a; Disk usage</source>
+        <translation type="unfinished">📊 Использование диска</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="134"/>
         <source>🎨 Graphics</source>
-        <translation>🎨 Графика</translation>
+        <translation type="unfinished">🎨 Графика</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="135"/>
         <source>🎵 Audio</source>
-        <translation>🎵 Аудио</translation>
+        <translation type="unfinished">🎵 Аудио</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="136"/>
         <source>📝 Office</source>
-        <translation>📝 Офис</translation>
+        <translation type="unfinished">📝 Офис</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="137"/>
         <source>💬 Communication</source>
-        <translation>💬 Общение</translation>
+        <translation type="unfinished">💬 Общение</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="138"/>
         <source>🌐 Browsers</source>
-        <translation>🌐 Браузеры</translation>
+        <translation type="unfinished">🌐 Браузеры</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="159"/>
         <source>💡 Use Alt+F2 to quickly run applications</source>
-        <translation>💡 Используйте Alt+F2 для быстрого запуска приложений</translation>
+        <translation type="unfinished">💡 Используйте Alt+F2 для быстрого запуска приложений</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="160"/>
         <source>📦 Install additional applications through Software Center</source>
-        <translation>📦 Установка дополнительных программ доступна через Центр программ</translation>
+        <translation type="unfinished">📦 Установка дополнительных программ доступна через Центр программ</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="161"/>
-        <source>🔄 Use PortProton to run Windows games</source>
-        <translation>🔄 Используйте PortProton для запуска Windows-игр</translation>
+        <source>&#xf0;&#x9f;&#x94;&#x84; Use PortProton to run Windows games</source>
+        <translation type="unfinished">🔄 Используйте PortProton для запуска Windows-игр</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="162"/>
-        <source>🔄 Regular system updates improve security</source>
-        <translation>🔄 Регулярные обновления системы улучшают безопасность</translation>
+        <source>&#xf0;&#x9f;&#x94;&#x84; Regular system updates improve security</source>
+        <translation type="unfinished">🔄 Регулярные обновления системы улучшают безопасность</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="163"/>
-        <source>💾 Back up important data regularly</source>
-        <translation>💾 Регулярно делайте резервные копии важных данных</translation>
+        <source>&#xf0;&#x9f;&#x92;&#xbe; Back up important data regularly</source>
+        <translation type="unfinished">💾 Регулярно делайте резервные копии важных данных</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="164"/>
-        <source>🔐 Use strong passwords for better security</source>
-        <translation>🔐 Используйте надёжные пароли для лучшей безопасности</translation>
+        <source>&#xf0;&#x9f;&#x94;&#x90; Use strong passwords for better security</source>
+        <translation type="unfinished">🔐 Используйте надёжные пароли для лучшей безопасности</translation>
+    </message>
+    <message>
+        <location filename="plugins/useful.py" line="135"/>
+        <source>Graphics</source>
+        <translation type="obsolete">Графический процессор</translation>
+    </message>
+    <message>
+        <location filename="plugins/useful.py" line="136"/>
+        <source>Audio</source>
+        <translation type="obsolete">Аудио</translation>
     </message>
 </context>
 </TS>

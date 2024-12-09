@@ -1,19 +1,35 @@
 import os, re, subprocess
 
 
-def parse_os_release() -> dict:
-    os_info = {}
-    with open('/etc/os-release', 'r') as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith('#'):
-                continue
+def parse_os_release(file_name = '/etc/os-release') -> dict:
+    os_info = {'PRETTY_NAME': 'Name of Linux not found'}
 
-            key, value = line.split('=', 1)
+    try:
+        with open(file_name, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
 
-            value = value.strip('"')
+                key, value = line.split('=', 1)
 
-            os_info[key] = value
+                value = value.strip('"')
+
+                os_info[key] = value
+    except:
+        pass
+
+    if 'PRETTY_NAME' in os_info:
+        s = os_info["PRETTY_NAME"].split('(')[0]
+
+        # Делим на слова и версию
+        match = re.split(r'( \d)', s, maxsplit=1)
+
+        name = match[0]  # До первой цифры
+        rest = match[1] + match[2] if len(match) > 2 else ""  # Остальная часть (с числом)
+
+        os_info["MY_NAME"] = name
+        os_info["MY_NAME_REST"] = rest.rstrip()
 
     return os_info
 
@@ -82,7 +98,33 @@ def get_video_info_from_inxi():
     except FileNotFoundError:
         return "inxi command not found", None, None
 
+
 if __name__ == "__main__":
-    os_info = parse_os_release()
-    for key, value in os_info.items():
-        print(f"{key}: {value}")
+    def test_parse_os_release(s) -> str:
+        os_info = parse_os_release(s)
+        s = os_info['PRETTY_NAME']
+        ns = f"{os_info['MY_NAME']=}\n{os_info['MY_NAME_REST']=}"
+        print(s)
+        print(ns)
+        print()
+
+    test_parse_os_release('./tests/etc/os-release-regular')
+    test_parse_os_release('./tests/etc/os-release-edu')
+    test_parse_os_release('./tests/etc/os-release-wsk')
+    test_parse_os_release('./tests/etc/os-release-server-v')
+    test_parse_os_release('./tests/etc/os-release-xxx')
+
+    # for key, value in os_info.items():
+    #     print(f"{key}: {value}")
+
+    text = "ALT Virtualization Server 10.2 10.4 25 56 abc   "
+    # text = "ALT Regular"
+
+    match = re.split(r'( \d)', text, maxsplit=1)
+
+    part1 = match[0]
+    part2 = match[1] + match[2] if len(match) > 2 else ""
+    part2 = part2.rstrip()
+
+    print(f"Часть до первой цифры: '{part1}'")
+    print(f"Остальная часть: '{part2}'")
