@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel,
-                            QGridLayout, QScrollArea, QSpacerItem, QSizePolicy)
-from PyQt5.QtGui import QStandardItem, QFont
+from PyQt5.QtWidgets import (QApplication, QWidget,
+                             QVBoxLayout, QLabel,
+                             QGridLayout, QScrollArea,
+                             QSpacerItem, QSizePolicy,
+                             QMenu, QAction)
+from PyQt5.QtGui import QStandardItem, QClipboard, QFont
 from PyQt5.QtCore import Qt, QSize
 
 import os
@@ -71,10 +74,13 @@ class AboutWidget(QWidget):
         label_font.setPointSize(label_font.pointSize() + 14)
         # label_font.setBold(True)
         label1.setFont(label_font)
+        self.text = []
+        self.text.append(os_name)
 
         label2 = QLabel('<a href="https://www.basealt.ru/">https://www.basealt.ru/</a>')
         label2.setAlignment(Qt.AlignCenter)
         label2.setOpenExternalLinks(True)
+        self.text.append('https://www.basealt.ru/')
 
         # Добавляем метки в контейнер
         container_layout.addWidget(label1)
@@ -87,9 +93,11 @@ class AboutWidget(QWidget):
         uname = os.uname()
         grid_label1 = QLabel(self.tr("Kernel:"))
         grid_label2 = QLabel(uname.release)
+        self.text.append('{} {}'.format(grid_label1.text(), grid_label2.text()))
 
         grid_label3 = QLabel(self.tr("Display server:"))
         grid_label4 = QLabel(my_utils.get_display_server())
+        self.text.append('{} {}'.format(grid_label3.text(), grid_label4.text()))
 
         # cpu_name, num_cores = my_utils.get_cpu_info_from_proc()
         # self.formLayout.addRow(self.tr("Processor:"), QLabel("{} x {}".format(num_cores, cpu_name)))
@@ -99,6 +107,7 @@ class AboutWidget(QWidget):
         gb = self.tr("GB")
         s = f"{used_memory / (1024 ** 3):.2f} {gb}  /  {total_memory / (1024 ** 3):.2f} {gb}"
         grid_label6 = QLabel(s)
+        self.text.append('{} {}\n'.format(grid_label5.text(), grid_label6.text()))
 
         # Устанавливаем выравнивание для левого столбца (по правому краю)
         grid_label1.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -128,6 +137,34 @@ class AboutWidget(QWidget):
 
         # Устанавливаем основной лэйаут для окна
         self.setLayout(main_layout)
+
+        # Устанавливаем поведение контекстного меню
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
+
+
+    def show_context_menu(self, pos):
+        context_menu = QMenu(self)
+
+        # Добавляем пункт "Скопировать текст"
+        copy_action = QAction(self.tr("Copy text"), self)
+        context_menu.addAction(copy_action)
+
+        # Связываем действие с функцией
+        copy_action.triggered.connect(self.copy_text)
+
+        # Показываем контекстное меню
+        context_menu.exec_(self.mapToGlobal(pos))
+
+
+    def copy_text(self):
+        # Собираем весь текст с QLabel
+        text_to_copy = "\n".join(self.text)
+
+        # Копируем в буфер обмена
+        clipboard = QApplication.clipboard()
+        clipboard.setText(text_to_copy)
+        # print("Текст скопирован в буфер обмена.")
 
 
 class PluginAbout(plugins.Base):

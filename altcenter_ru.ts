@@ -4,69 +4,74 @@
 <context>
     <name>AboutWidget</name>
     <message>
-        <location filename="plugins/about.py" line="88"/>
+        <location filename="plugins/about.py" line="94"/>
         <source>Kernel:</source>
         <translation>Ядро:</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="91"/>
+        <location filename="plugins/about.py" line="98"/>
         <source>Display server:</source>
         <translation>Графическая платформа:</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="98"/>
+        <location filename="plugins/about.py" line="106"/>
         <source>Memory (used/total):</source>
         <translation>Память (использовано/всего):</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="99"/>
+        <location filename="plugins/about.py" line="107"/>
         <source>GB</source>
         <translation>Гб</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="23"/>
+        <location filename="plugins/about.py" line="26"/>
         <source>ALT</source>
         <translation>Альт</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="24"/>
+        <location filename="plugins/about.py" line="27"/>
         <source>ALT Education</source>
         <translation>Альт Образование</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="25"/>
+        <location filename="plugins/about.py" line="28"/>
         <source>ALT Workstation</source>
         <translation>Альт Рабочая станция</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="31"/>
+        <location filename="plugins/about.py" line="34"/>
         <source>ALT Starterkit</source>
         <translation>Альт Стартовый набор</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="28"/>
+        <location filename="plugins/about.py" line="31"/>
         <source>Sisyphus</source>
         <translation>Сизиф</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="26"/>
+        <location filename="plugins/about.py" line="29"/>
         <source>ALT Workstation K</source>
         <translation>Альт Рабочая станция К</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="27"/>
+        <location filename="plugins/about.py" line="30"/>
         <source>ALT Regular</source>
         <translation>Альт Регулярная сборка</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="30"/>
+        <location filename="plugins/about.py" line="33"/>
         <source>ALT Virtualization Server</source>
         <translation>Альт Сервер виртуализации</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="29"/>
+        <location filename="plugins/about.py" line="32"/>
         <source>ALT Server</source>
         <translation>Альт Сервер</translation>
+    </message>
+    <message>
+        <location filename="plugins/about.py" line="150"/>
+        <source>Copy text</source>
+        <translation>Скопировать текст</translation>
     </message>
 </context>
 <context>
@@ -626,7 +631,7 @@
 <context>
     <name>PluginAbout</name>
     <message>
-        <location filename="plugins/about.py" line="140"/>
+        <location filename="plugins/about.py" line="177"/>
         <source>About system</source>
         <translation>О системе</translation>
     </message>
@@ -637,6 +642,14 @@
         <location filename="plugins/documentation.py" line="182"/>
         <source>Documentation</source>
         <translation>Документация</translation>
+    </message>
+</context>
+<context>
+    <name>PluginDocumentation2</name>
+    <message>
+        <location filename="plugins/documentation2.py" line="20"/>
+        <source>Documentation New</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -881,7 +894,7 @@
 <context>
     <name>PluginUseful</name>
     <message>
-        <location filename="plugins/useful.py" line="198"/>
+        <location filename="plugins/useful.py" line="212"/>
         <source>Useful Information</source>
         <translation>Полезная информация</translation>
     </message>
@@ -925,13 +938,13 @@
     </message>
     <message>
         <location filename="plugins/settings.py" line="82"/>
-        <source>🔔 Notify About Updates</source>
-        <translation>🔔 Уведомлять об обновлениях</translation>
+        <source>ð Notify About Updates</source>
+        <translation type="unfinished">🔔 Уведомлять об обновлениях</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="83"/>
+        <location filename="plugins/settings.py" line="81"/>
         <source>â° Update Frequency</source>
-        <translation type="obsolete">⏰ Частота обновлений</translation>
+        <translation type="unfinished">⏰ Частота обновлений</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="150"/>
@@ -980,18 +993,13 @@
     </message>
     <message>
         <location filename="plugins/settings.py" line="79"/>
-        <source>🌙 Dark Theme</source>
-        <translation>🌙 Тёмная тема</translation>
+        <source>ð Dark Theme</source>
+        <translation type="unfinished">🌙 Тёмная тема</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="80"/>
-        <source>🔄 Enable Auto-update</source>
-        <translation>🔄 Включить автообновление</translation>
-    </message>
-    <message>
-        <location filename="plugins/settings.py" line="81"/>
-        <source>⏰ Update Frequency</source>
-        <translation>⏰ Частота обновлений</translation>
+        <source>ð Enable Auto-update</source>
+        <translation type="unfinished">🔄 Включить автообновление</translation>
     </message>
 </context>
 <context>
@@ -999,97 +1007,97 @@
     <message>
         <location filename="plugins/useful.py" line="32"/>
         <source>Useful Commands</source>
-        <translation>Полезные команды</translation>
+        <translation type="obsolete">Полезные команды</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="33"/>
         <source>Recommended Applications</source>
-        <translation>Рекомендуемые приложения</translation>
+        <translation type="obsolete">Рекомендуемые приложения</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="34"/>
         <source>Tips and Tricks</source>
-        <translation>Советы и рекомендации</translation>
+        <translation type="obsolete">Советы и рекомендации</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="109"/>
-        <source>&#xf0;&#x9f;&#x97;&#x82;&#xef;&#xb8;&#x8f; Superuser privileges</source>
-        <translation type="unfinished">🗂️ Права суперпользователя</translation>
+        <source>ðï¸ Superuser privileges</source>
+        <translation type="obsolete">🗂️ Права суперпользователя</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="110"/>
-        <source>&#xf0;&#x9f;&#x94;&#x8d; System update</source>
-        <translation type="unfinished">🔍 Обновление системы</translation>
+        <source>ð System update</source>
+        <translation type="obsolete">🔍 Обновление системы</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="111"/>
-        <source>&#xf0;&#x9f;&#x93;&#xa6; Package install</source>
-        <translation type="unfinished">📦 Установка пакета</translation>
+        <source>ð¦ Package install</source>
+        <translation type="obsolete">📦 Установка пакета</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="112"/>
-        <source>&#xf0;&#x9f;&#x92;&#xbb; System information</source>
-        <translation type="unfinished">💻 Информация о системе</translation>
+        <source>ð» System information</source>
+        <translation type="obsolete">💻 Информация о системе</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="113"/>
-        <source>&#xf0;&#x9f;&#x93;&#x8a; Disk usage</source>
-        <translation type="unfinished">📊 Использование диска</translation>
+        <source>ð Disk usage</source>
+        <translation type="obsolete">📊 Использование диска</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="134"/>
-        <source>🎨 Graphics</source>
-        <translation type="unfinished">🎨 Графика</translation>
+        <source>?? Graphics</source>
+        <translation type="obsolete">🎨 Графика</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="135"/>
-        <source>🎵 Audio</source>
-        <translation type="unfinished">🎵 Аудио</translation>
+        <source>?? Audio</source>
+        <translation type="obsolete">🎵 Аудио</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="136"/>
-        <source>📝 Office</source>
-        <translation type="unfinished">📝 Офис</translation>
+        <source>?? Office</source>
+        <translation type="obsolete">📝 Офис</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="137"/>
-        <source>💬 Communication</source>
-        <translation type="unfinished">💬 Общение</translation>
+        <source>?? Communication</source>
+        <translation type="obsolete">💬 Общение</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="138"/>
-        <source>🌐 Browsers</source>
-        <translation type="unfinished">🌐 Браузеры</translation>
+        <source>?? Browsers</source>
+        <translation type="obsolete">🌐 Браузеры</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="159"/>
-        <source>💡 Use Alt+F2 to quickly run applications</source>
-        <translation type="unfinished">💡 Используйте Alt+F2 для быстрого запуска приложений</translation>
+        <source>?? Use Alt+F2 to quickly run applications</source>
+        <translation type="obsolete">💡 Используйте Alt+F2 для быстрого запуска приложений</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="160"/>
-        <source>📦 Install additional applications through Software Center</source>
-        <translation type="unfinished">📦 Установка дополнительных программ доступна через Центр программ</translation>
+        <source>?? Install additional applications through Software Center</source>
+        <translation type="obsolete">📦 Установка дополнительных программ доступна через Центр программ</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="161"/>
-        <source>&#xf0;&#x9f;&#x94;&#x84; Use PortProton to run Windows games</source>
-        <translation type="unfinished">🔄 Используйте PortProton для запуска Windows-игр</translation>
+        <source>ð Use PortProton to run Windows games</source>
+        <translation type="obsolete">🔄 Используйте PortProton для запуска Windows-игр</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="162"/>
-        <source>&#xf0;&#x9f;&#x94;&#x84; Regular system updates improve security</source>
-        <translation type="unfinished">🔄 Регулярные обновления системы улучшают безопасность</translation>
+        <source>ð Regular system updates improve security</source>
+        <translation type="obsolete">🔄 Регулярные обновления системы улучшают безопасность</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="163"/>
-        <source>&#xf0;&#x9f;&#x92;&#xbe; Back up important data regularly</source>
-        <translation type="unfinished">💾 Регулярно делайте резервные копии важных данных</translation>
+        <source>ð¾ Back up important data regularly</source>
+        <translation type="obsolete">💾 Регулярно делайте резервные копии важных данных</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="164"/>
-        <source>&#xf0;&#x9f;&#x94;&#x90; Use strong passwords for better security</source>
-        <translation type="unfinished">🔐 Используйте надёжные пароли для лучшей безопасности</translation>
+        <source>ð Use strong passwords for better security</source>
+        <translation type="obsolete">🔐 Используйте надёжные пароли для лучшей безопасности</translation>
     </message>
     <message>
         <location filename="plugins/useful.py" line="135"/>
