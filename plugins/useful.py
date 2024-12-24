@@ -1,12 +1,14 @@
 #!/usr/bin/python3
 
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QGroupBox,
-                            QGridLayout, QScrollArea, QTextBrowser)
-from PyQt5.QtGui import QStandardItem, QFont, QTextDocument
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QUrl
+# from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QGroupBox,
+#                             QGridLayout, QScrollArea, QTextBrowser)
+# from PyQt5.QtGui import QStandardItem, QFont, QTextDocument
+# from PyQt5.QtCore import Qt
+# from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QStandardItem
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 
-import locale, os
+import locale, os, markdown
 
 import plugins
 
@@ -212,9 +214,10 @@ class PluginUseful(plugins.Base):
         self.node = QStandardItem(self.tr("Useful Information"))
         plist.appendRow([self.node])
 
-        self.license_info = QTextBrowser()
-        self.license_info.setCurrentFont(QFont("monospace", 9))
-        self.index = pane.addWidget(self.license_info)
+        # self.text_browser = QTextBrowser()
+        self.text_browser = QWebEngineView()
+        # self.text_browser.setCurrentFont(QFont("monospace"))
+        self.index = pane.addWidget(self.text_browser)
 
         current_file = os.path.abspath(__file__)
         current_dir = os.path.dirname(current_file)
@@ -222,13 +225,56 @@ class PluginUseful(plugins.Base):
         file_name = 'useful_' + locale.getlocale()[0].split( '_' )[0] + '.md'
         file_path = os.path.join(parent_dir, 'translations', file_name)
 
+        def read_file(file_name: str) -> str:
+            """Чтение Markdown текста из файла"""
+            try:
+                with open(file_name, 'r', encoding='utf-8') as file:
+                    markdown_text = file.read()
+            except FileNotFoundError:
+                markdown_text = "Ошибка: файл не найден!"
+            return markdown_text
+
+
         if os.path.isfile(file_path):
-            url = QUrl(file_path)
-            self.license_info.setSource(url, QTextDocument.ResourceType.MarkdownResource)
+            markdown_text = read_file(file_path)
         else:
             file_path = os.path.join(parent_dir, 'translations', 'useful_en.md')
             if os.path.isfile(file_path):
-                url = QUrl(file_path)
-                self.license_info.setSource(url, QTextDocument.ResourceType.MarkdownResource)
+                markdown_text = read_file(file_path)
             else:
-                self.license_info.setHtml(f"File '{file_path}' not found.")
+                markdown_text = f"File '{file_path}' not found."
+
+
+        html_text = markdown.markdown(markdown_text)
+
+        # self.text_browser.setStyleSheet("""
+        #     QTextBrowser {
+        #         font-family: Arial, sans-serif;
+        #         font-size: 14px;
+        #     }
+        # """)
+
+        styled_html = f"""
+        <style>
+        code {{
+            font-family: Liberation Mono, DejaVu Sans Mono;
+            color: #101010;
+            background-color: #dcdcdc;
+            padding: 2px 5px;
+            font-weight: 540;
+            border-radius: 2px;
+        }}
+        pre {{
+            font-family: Liberation Mono, DejaVu Sans Mono;
+            background-color: #dcdcdc;
+            margin: 15px;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: 540;
+            box-sizing: border-box;
+        }}
+        </style>
+        {html_text}
+        """
+
+        self.text_browser.setHtml(styled_html)

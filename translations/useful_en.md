@@ -2,11 +2,11 @@
 
 ### Useful Commands
 
-- Superuser privileges: *su -*
-- System update: *apt-get update & apt-get dist-upgrade*
-- Package install: *apt-get install package_name*
-- System information: *inxi -F*
-- Disk usage: *df -h*
+- Superuser privileges: `su -`
+- System update: `apt-get update & apt-get dist-upgrade`
+- Package install: `apt-get install package_name`
+- System information: `inxi -F`
+- Disk usage: `df -h`
 
 ### Recommended Applications
 
@@ -18,7 +18,7 @@
 
 ### Tips and Tricks
 
-- Use *Alt+F2* to quickly run applications
+- Use `Alt+F2` to quickly run applications
 - Install additional applications through Software Center
 - Use *PortProton* to run Windows games
 - Regular system updates improve security
