@@ -21,7 +21,6 @@ class SettingsWidget(QWidget):
     def init_widgets(self):
         """Инициализация всех виджетов"""
         # Основные настройки
-        self.darkModeCheck = QCheckBox()
 
 
         # Настройки обновлений
@@ -34,11 +33,6 @@ class SettingsWidget(QWidget):
         self.updateFreqCombo.addItems(update_frequencies)
 
         self.notifyUpdatesCheck = QCheckBox()
-
-        # Кнопка сохранения
-        button_text = self.tr("Save Settings")
-        self.saveButton = QPushButton(f"💾 {button_text}")
-        self.saveButton.clicked.connect(self.saveSettings)
 
     def initUI(self):
         # Основной layout
@@ -57,7 +51,6 @@ class SettingsWidget(QWidget):
         # Определяем заголовки групп
         group_titles = {
             # 'en': {
-            'general': self.tr("General Settings"),
             'updates': self.tr("Updates"),
             'launch': self.tr("Advanced Settings")
             # },
@@ -68,15 +61,10 @@ class SettingsWidget(QWidget):
             # }
         }
 
-        # Группа основных настроек
-        general = QGroupBox(group_titles['general'])
-        general_grid = QGridLayout()
-        general_grid.setSpacing(10)
 
         # Определяем метки для элементов
         labels = {
             # 'en': {
-            'dark_mode': self.tr("🌙 Dark Theme"),
             'auto_update': self.tr("🔄 Enable Auto-update"),
             'update_freq': self.tr("⏰ Update Frequency"),
             'notify': self.tr("🔔 Notify About Updates")
@@ -89,12 +77,6 @@ class SettingsWidget(QWidget):
             #     'notify': "🔔 Уведомлять об обновлениях"
             # }
         }
-
-        # Добавляем элементы в general_grid
-        general_grid.addWidget(QLabel(labels['dark_mode']), 0, 0)
-        general_grid.addWidget(self.darkModeCheck, 0, 1)
-
-        general.setLayout(general_grid)
 
         # Группа обновлений
         updates = QGroupBox(group_titles['updates'])
@@ -156,18 +138,6 @@ class SettingsWidget(QWidget):
                     'name': self.tr('System Settings'),
                     'command': 'systemsettings5',
                     'tooltip': self.tr('General settings: power management, network, date, workspace behavior.')
-                },
-                {
-                    'icon': 'info.png',
-                    'name': self.tr('About System'),
-                    'command': 'kinfocenter',
-                    'tooltip': self.tr('Information about installed system.')
-                },
-                {
-                    'icon': 'preferences-desktop-display',
-                    'name': self.tr('Display Settings'),
-                    'command': 'kcmshell5 kcm_kscreen',
-                    'tooltip': self.tr('Change display settings.')
                 }
             ]
         }
@@ -252,17 +222,11 @@ class SettingsWidget(QWidget):
                 border: 1px solid #1976D2;
             }
         """
-
-        general.setStyleSheet(style)
         updates.setStyleSheet(style)
         launch.setStyleSheet(style)
-        self.saveButton.setStyleSheet(style)
-        self.saveButton.setObjectName("saveButton")
 
         # Добавляем группы в layout
-        layout.addWidget(general)
         layout.addWidget(updates)
-        layout.addWidget(self.saveButton)
         layout.addStretch()
         layout.addWidget(launch)
 
@@ -281,7 +245,6 @@ class SettingsWidget(QWidget):
             if os.path.exists('settings.json'):
                 with open('settings.json', 'r') as f:
                     settings = json.load(f)
-                    self.darkModeCheck.setChecked(settings.get('dark_mode', False))
                     self.autoUpdateCheck.setChecked(settings.get('auto_update', True))
                     self.updateFreqCombo.setCurrentText(settings.get('update_frequency', 'Еженедельно'))
                     self.notifyUpdatesCheck.setChecked(settings.get('notify_updates', True))
@@ -292,7 +255,6 @@ class SettingsWidget(QWidget):
         """Сохранение настроек в файл"""
         try:
             settings = {
-                'dark_mode': self.darkModeCheck.isChecked(),
                 'auto_update': self.autoUpdateCheck.isChecked(),
                 'update_frequency': self.updateFreqCombo.currentText(),
                 'notify_updates': self.notifyUpdatesCheck.isChecked()
