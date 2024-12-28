@@ -2,11 +2,25 @@
 
 ### Useful Commands
 
-- Superuser privileges: `su -`
-- System update: `apt-get update & apt-get dist-upgrade`
-- Package install: `apt-get install package_name`
-- System information: `inxi -F`
-- Disk usage: `df -h`
+Superuser privileges
+
+    su -
+
+System update:
+
+    apt-get update & apt-get dist-upgrade
+
+Package install:
+
+    apt-get install package_name
+
+System information:
+
+    inxi -F
+
+Disk usage:
+
+    df -h
 
 ### Recommended Applications
 
