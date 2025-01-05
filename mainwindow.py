@@ -15,8 +15,12 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA  02111-1307, USA.
 
+APPLICATION_NAME = 'altcenter'
+APPLICATION_VERSION = '1.0'
+
 from PyQt5.QtWidgets import QApplication, QWidget
-from PyQt5.QtCore import QTranslator
+from PyQt5.QtCore import QTranslator, QSettings
+from PyQt5.QtCore import QCommandLineParser, QCommandLineOption
 # from PyQt5 import uic
 from PyQt5.QtGui import QStandardItemModel
 
@@ -37,6 +41,8 @@ plugin_path = os.path.join(data_dir, "plugins")
 
 class MainWindow(QWidget, Ui_MainWindow):
     """Main window"""
+    settings = None
+
     def __init__(self):
         #super(MainWindow, self).__init__() # Call the inherited classes __init__ method
         super().__init__()
@@ -53,10 +59,19 @@ class MainWindow(QWidget, Ui_MainWindow):
         """Slot for change selection"""
         self.stack.setCurrentIndex(index.row() + 1)
 
+    def onSessionStartChange(self, state):
+        """Slot to change autostart checkbox change"""
+        self.settings.setValue('Settings/runOnSessionStart', (state == 2))
+        self.settings.sync()
 
 # Run application
 app = QApplication(sys.argv) # Create an instance of QtWidgets.QApplication
+app.setApplicationName(APPLICATION_NAME)
+app.setApplicationVersion(APPLICATION_VERSION)
 
+# Load settings
+current_config = "altcenter.ini"
+settings = QSettings(current_config, QSettings.IniFormat)
 
 # Load current locale translation
 current_file = os.path.abspath(__file__)
@@ -68,9 +83,33 @@ tr_file = os.path.join(current_dir, "altcenter_" + locale.getlocale()[0].split( 
 if translator.load( tr_file ):
     app.installTranslator(translator)
 
+# Set command line argument parser
+parser = QCommandLineParser()
+parser.addHelpOption()
+parser.addVersionOption()
+at_startup = QCommandLineOption('at-startup', app.tr('Run at session startup'))
+parser.addOption(at_startup)
+
+# Process the actual command line arguments given by the user
+parser.process(app)
+
+# Additional arguments (like module_name)
+#print(parser.positionalArguments())
+
+# Quit if "Do not run on next sesion start" is checked and application ran with --at-startup
+value_runOnSessionStart = settings.value('Settings/runOnSessionStart', False, type=bool)
+if parser.isSet(at_startup) and value_runOnSessionStart:
+    sys.exit(0)
 
 # Initialize UI
 window = MainWindow() # Create an instance of our class
+
+# Use settings file
+window.settings = settings
+
+# Set autostart checkbox state
+window.runOnSessionStart.setChecked(value_runOnSessionStart)
+window.runOnSessionStart.stateChanged.connect(window.onSessionStartChange)
 
 # Set module list model
 window.list_module = QStandardItemModel()
