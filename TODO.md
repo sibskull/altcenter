@@ -4,7 +4,6 @@
 
 - Open specified module by its name from command line
 - Use system pathes
-- Set icon and localized window caption
 
 ## Plugins
 
