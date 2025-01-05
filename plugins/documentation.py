@@ -18,7 +18,7 @@ class PluginDocumentation2(plugins.Base):
         self.name = "documentation"
 
     def start(self, plist, pane):
-        self.node = QStandardItem(self.tr("Documentation New"))
+        self.node = QStandardItem(self.tr("Documentation"))
         self.node.setData(self.name)
         plist.appendRow([self.node])
 
