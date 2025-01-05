@@ -1,5 +1,6 @@
 # Application for configure and maintain ALT operating system
-# (c) 2024 Andrey Cherepanov <cas@altlinux.org>
+# (c) 2024-2025 Andrey Cherepanov <cas@altlinux.org>
+# (c) 2024 Sergey Shevchenko <Sergey.Shevchenko04@gmail.com>
 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
