@@ -87,7 +87,7 @@ class PluginUseful(plugins.Base):
         styled_html = f"""
         <style>
         code {{
-            font-family: Liberation Mono, DejaVu Sans Mono;
+            /*font-family: Liberation Mono, DejaVu Sans Mono;*/
             color: #101010;
             background-color: #dcdcdc;
             padding: 1px 0px;
@@ -95,7 +95,7 @@ class PluginUseful(plugins.Base):
             border-radius: 2px;
         }}
         pre {{
-            font-family: Liberation Mono, DejaVu Sans Mono;
+            /*font-family: Liberation Mono, DejaVu Sans Mono;*/
             background-color: #dcdcdc;
             margin: 15px;
             padding: 10px 20px;
