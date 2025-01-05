@@ -24,7 +24,7 @@ from PyQt5.QtCore import QTranslator, QSettings
 from PyQt5.QtCore import QCommandLineParser, QCommandLineOption
 from PyQt5.QtCore import QItemSelectionModel
 # from PyQt5 import uic
-from PyQt5.QtGui import QStandardItemModel, QIcon
+from PyQt5.QtGui import QStandardItemModel
 
 import os
 import sys
