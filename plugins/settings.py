@@ -244,9 +244,11 @@ class PluginSettings(plugins.Base):
         super().__init__(40)
         self.node = None
         self.settings_widget = None
+        self.name = "settings"
 
     def start(self, plist, pane):
         self.node = QStandardItem(self.tr("Settings"))
+        self.node.setData(self.name)
         plist.appendRow([self.node])
 
         self.settings_widget = SettingsWidget()

@@ -40,9 +40,6 @@ class Base(QObject):
     def start(self, plist, pane):
         pass
 
-    def setName(self, name):
-        self.name = name
-
     def getPosition(self):
         return self.position
 
@@ -52,7 +49,8 @@ def load_module(path):
     name = os.path.split(path)[-1]
     spec = util.spec_from_file_location(name, path)
     module = util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    module.name = name
+    e = spec.loader.exec_module(module)
     return module
 
 plugin_path = os.path.dirname(os.path.abspath(__file__))

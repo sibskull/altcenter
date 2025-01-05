@@ -22,6 +22,7 @@ APPLICATION_VERSION = '1.0'
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtCore import QTranslator, QSettings
 from PyQt5.QtCore import QCommandLineParser, QCommandLineOption
+from PyQt5.QtCore import QItemSelectionModel
 # from PyQt5 import uic
 from PyQt5.QtGui import QStandardItemModel
 
@@ -41,6 +42,8 @@ data_dir = "/usr/share/altcenter"
 data_dir = "."
 plugin_path = os.path.join(data_dir, "plugins")
 
+module_name = "about" # First module name
+
 class MainWindow(QWidget, Ui_MainWindow):
     """Main window"""
     settings = None
@@ -55,7 +58,6 @@ class MainWindow(QWidget, Ui_MainWindow):
 
         self.splitter.setStretchFactor(0,0)
         self.splitter.setStretchFactor(1,1)
-
 
     def onSelectionChange(self, index):
         """Slot for change selection"""
@@ -90,13 +92,17 @@ parser = QCommandLineParser()
 parser.addHelpOption()
 parser.addVersionOption()
 at_startup = QCommandLineOption('at-startup', app.tr('Run at session startup'))
+list_modules = QCommandLineOption('modules', app.tr('List available modules and exit'))
 parser.addOption(at_startup)
+parser.addOption(list_modules)
 
 # Process the actual command line arguments given by the user
 parser.process(app)
 
 # Additional arguments (like module_name)
 #print(parser.positionalArguments())
+if len(parser.positionalArguments()) > 0:
+    module_name = parser.positionalArguments()[0]
 
 # Quit if "Do not run on next sesion start" is checked and application ran with --at-startup
 value_runOnSessionStart = settings.value('Settings/runOnSessionStart', False, type=bool)
@@ -119,10 +125,23 @@ window.moduleList.setModel(window.list_module)
 window.moduleList.selectionModel().currentChanged.connect(window.onSelectionChange)
 
 # Load plugins
+k = 0
 for p in Base.plugins:
     inst = p()
+    if parser.isSet(list_modules):
+        print(inst.name)
     inst.start(window.list_module, window.stack)
+    # Select item by its name
+    if inst.name == module_name:
+        ix = window.list_module.index(k, 0)
+        sm = window.moduleList.selectionModel()
+        # TODO: set focus to selected item and show appropriate stack pane
+        #sm.select(ix, QItemSelectionModel.ClearAndSelect)
+        #window.stack.setCurrentIndex(k+1)
+    k = k+1
 
+if parser.isSet(list_modules):
+    sys.exit(0)
 
 window.splitter.setStretchFactor(0,0)
 window.splitter.setStretchFactor(1,1)

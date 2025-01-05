@@ -14,6 +14,7 @@ class PluginUseful(plugins.Base):
         super().__init__(50)
         self.node = None
         self.useful_widget = None
+        self.name = "useful"
 
     # def start(self, plist, pane):
     #     self.node = QStandardItem(self.tr("Useful Information"))
@@ -24,6 +25,7 @@ class PluginUseful(plugins.Base):
 
     def start(self, plist, pane):
         self.node = QStandardItem(self.tr("Useful Information"))
+        self.node.setData(self.name)
         plist.appendRow([self.node])
 
         # widget = QWidget()

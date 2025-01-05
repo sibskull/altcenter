@@ -15,9 +15,11 @@ class PluginDocumentation2(plugins.Base):
         super().__init__(21)
         self.node = None
         self.useful_widget = None
+        self.name = "documentation"
 
     def start(self, plist, pane):
         self.node = QStandardItem(self.tr("Documentation New"))
+        self.node.setData(self.name)
         plist.appendRow([self.node])
 
         self.text_browser = QTextBrowser()
