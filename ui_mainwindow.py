@@ -16,6 +16,8 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(900, 800)
         MainWindow.setMinimumSize(QtCore.QSize(900, 800))
+        icon = QtGui.QIcon.fromTheme("preferences")
+        MainWindow.setWindowIcon(icon)
         self.verticalLayout = QtWidgets.QVBoxLayout(MainWindow)
         self.verticalLayout.setObjectName("verticalLayout")
         self.splitter = QtWidgets.QSplitter(MainWindow)
