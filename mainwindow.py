@@ -27,6 +27,7 @@ from PyQt5.QtGui import QStandardItemModel
 import os
 import sys
 import locale
+import pathlib
 
 current_file = os.path.abspath(__file__)
 current_dir = os.path.dirname(current_file)
@@ -70,7 +71,7 @@ app.setApplicationName(APPLICATION_NAME)
 app.setApplicationVersion(APPLICATION_VERSION)
 
 # Load settings
-current_config = "altcenter.ini"
+current_config = os.path.join(pathlib.Path.home(), ".config", "altcenter.ini")
 settings = QSettings(current_config, QSettings.IniFormat)
 
 # Load current locale translation
