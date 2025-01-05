@@ -71,8 +71,8 @@ class AboutWidget(QWidget):
         label1.setAlignment(Qt.AlignCenter)
         label1.setWordWrap(True)
         label_font = container.font()
-        label_font.setPointSize(label_font.pointSize() + 14)
-        # label_font.setBold(True)
+        label_font.setPointSize(label_font.pointSize()*1.25)
+        label_font.setBold(True)
         label1.setFont(label_font)
         self.text = []
         self.text.append(os_name)
@@ -85,6 +85,7 @@ class AboutWidget(QWidget):
         # Добавляем метки в контейнер
         container_layout.addWidget(label1)
         container_layout.addWidget(label2)
+        container_layout.addWidget(QLabel())
 
         # Сетка для расположения элементов
         grid_layout = QGridLayout()
