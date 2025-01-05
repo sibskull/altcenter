@@ -182,12 +182,3 @@ class PluginAbout(plugins.Base):
 
         self.about_widget = AboutWidget(main_palette)
         pane.addWidget(self.about_widget)
-
-
-if __name__ == '__main__':
-    from PyQt5.QtWidgets import QApplication
-
-    app = QApplication(sys.argv)
-    window = AboutWidget()
-    window.show()
-    sys.exit(app.exec_())
