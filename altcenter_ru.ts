@@ -4,24 +4,24 @@
 <context>
     <name>AboutWidget</name>
     <message>
-        <location filename="plugins/about.py" line="94"/>
+        <location filename="plugins/about.py" line="95"/>
         <source>Kernel:</source>
         <translation>Ядро:</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="98"/>
+        <location filename="plugins/about.py" line="99"/>
         <source>Display server:</source>
         <translation>Графическая платформа:</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="106"/>
+        <location filename="plugins/about.py" line="107"/>
         <source>Memory (used/total):</source>
         <translation>Память (использовано/всего):</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="107"/>
+        <location filename="plugins/about.py" line="108"/>
         <source>GB</source>
-        <translation>Гб</translation>
+        <translation>ГБ</translation>
     </message>
     <message>
         <location filename="plugins/about.py" line="26"/>
@@ -69,7 +69,7 @@
         <translation>Альт Сервер</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="150"/>
+        <location filename="plugins/about.py" line="151"/>
         <source>Copy text</source>
         <translation>Скопировать текст</translation>
     </message>
@@ -79,57 +79,57 @@
     <message>
         <location filename="plugins/documentation.py" line="33"/>
         <source>Main Resources</source>
-        <translation>Основные ресурсы</translation>
+        <translation type="obsolete">Основные ресурсы</translation>
     </message>
     <message>
         <location filename="plugins/documentation.py" line="34"/>
         <source>Documentation</source>
-        <translation>Документация</translation>
+        <translation type="obsolete">Документация</translation>
     </message>
     <message>
         <location filename="plugins/documentation.py" line="35"/>
         <source>Support</source>
-        <translation>Поддержка</translation>
+        <translation type="obsolete">Поддержка</translation>
     </message>
     <message>
         <location filename="plugins/documentation.py" line="60"/>
         <source>Company Website</source>
-        <translation>Сайт компании</translation>
+        <translation type="obsolete">Сайт компании</translation>
     </message>
     <message>
         <location filename="plugins/documentation.py" line="61"/>
         <source>ALT Linux Wiki Information Resource (RU)</source>
-        <translation>Информационный ресурс ALT Linux Wiki</translation>
+        <translation type="obsolete">Информационный ресурс ALT Linux Wiki</translation>
     </message>
     <message>
         <location filename="plugins/documentation.py" line="62"/>
         <source>Repositories</source>
-        <translation>Репозитории</translation>
+        <translation type="obsolete">Репозитории</translation>
     </message>
     <message>
         <location filename="plugins/documentation.py" line="65"/>
         <source>Product Documentation (RU)</source>
-        <translation>Документация по продуктам</translation>
+        <translation type="obsolete">Документация по продуктам</translation>
     </message>
     <message>
         <location filename="plugins/documentation.py" line="66"/>
         <source>User Manual</source>
-        <translation>Руководство пользователя</translation>
+        <translation type="obsolete">Руководство пользователя</translation>
     </message>
     <message>
         <location filename="plugins/documentation.py" line="69"/>
         <source>Support Request (RU)</source>
-        <translation>Запрос на сопровождение</translation>
+        <translation type="obsolete">Запрос на сопровождение</translation>
     </message>
     <message>
         <location filename="plugins/documentation.py" line="70"/>
         <source>Report a Bug (RU)</source>
-        <translation>Сообщить об ошибке</translation>
+        <translation type="obsolete">Сообщить об ошибке</translation>
     </message>
     <message>
         <location filename="plugins/documentation.py" line="71"/>
         <source>Leave Feedback (RU)</source>
-        <translation>Оставить отзыв</translation>
+        <translation type="obsolete">Оставить отзыв</translation>
     </message>
 </context>
 <context>
@@ -548,17 +548,17 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="ui_mainwindow.py" line="106"/>
+        <location filename="ui_mainwindow.py" line="105"/>
         <source>ALT Center</source>
-        <translation>ALT Center</translation>
+        <translation>Центр Альта</translation>
+    </message>
+    <message>
+        <location filename="ui_mainwindow.py" line="106"/>
+        <source>Do not run on next sesion start</source>
+        <translation>Не загружать в начале следующего сеанса</translation>
     </message>
     <message>
         <location filename="ui_mainwindow.py" line="107"/>
-        <source>Do not run on next sesion start</source>
-        <translation>Не загружать при старте следующей сессии</translation>
-    </message>
-    <message>
-        <location filename="ui_mainwindow.py" line="108"/>
         <source>&amp;Close</source>
         <translation>В&amp;ыход</translation>
     </message>
@@ -631,7 +631,7 @@
 <context>
     <name>PluginAbout</name>
     <message>
-        <location filename="plugins/about.py" line="177"/>
+        <location filename="plugins/about.py" line="179"/>
         <source>About system</source>
         <translation>О системе</translation>
     </message>
@@ -641,236 +641,236 @@
     <message>
         <location filename="plugins/documentation.py" line="182"/>
         <source>Documentation</source>
-        <translation>Документация</translation>
+        <translation type="obsolete">Документация</translation>
     </message>
 </context>
 <context>
     <name>PluginDocumentation2</name>
     <message>
-        <location filename="plugins/documentation2.py" line="20"/>
-        <source>Documentation New</source>
-        <translation type="unfinished"></translation>
+        <location filename="plugins/documentation.py" line="21"/>
+        <source>Documentation</source>
+        <translation>Документация</translation>
     </message>
 </context>
 <context>
     <name>PluginHardware</name>
     <message>
-        <location filename="plugins/hardware.py" line="354"/>
+        <location filename="plugins/hardware.py" line="355"/>
         <source>Hardware</source>
         <translation>Оборудование</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="262"/>
+        <location filename="plugins/hardware.py" line="263"/>
         <source>System</source>
         <translation>Система</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="263"/>
+        <location filename="plugins/hardware.py" line="264"/>
         <source>Computer</source>
         <translation>Компьютер</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="264"/>
+        <location filename="plugins/hardware.py" line="265"/>
         <source>Battery</source>
         <translation>Батарея</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="265"/>
+        <location filename="plugins/hardware.py" line="266"/>
         <source>Processor</source>
         <translation>Процессор</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="266"/>
+        <location filename="plugins/hardware.py" line="267"/>
         <source>Graphics</source>
         <translation>Графический процессор</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="267"/>
+        <location filename="plugins/hardware.py" line="268"/>
         <source>Audio</source>
         <translation>Аудио</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="268"/>
+        <location filename="plugins/hardware.py" line="269"/>
         <source>Kernel</source>
         <translation>Ядро</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="269"/>
+        <location filename="plugins/hardware.py" line="270"/>
         <source>arch</source>
         <translation>архитектура</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="270"/>
+        <location filename="plugins/hardware.py" line="271"/>
         <source>bits</source>
         <translation>бит</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="271"/>
+        <location filename="plugins/hardware.py" line="272"/>
         <source>Desktop</source>
         <translation>Рабочий стол</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="272"/>
+        <location filename="plugins/hardware.py" line="273"/>
         <source>Type</source>
         <translation>Тип</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="273"/>
+        <location filename="plugins/hardware.py" line="274"/>
         <source>Laptop</source>
         <translation>Ноутбук</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="274"/>
+        <location filename="plugins/hardware.py" line="275"/>
         <source>product</source>
         <translation>продукт</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="275"/>
+        <location filename="plugins/hardware.py" line="276"/>
         <source>model</source>
         <translation>модель</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="276"/>
+        <location filename="plugins/hardware.py" line="277"/>
         <source>serial</source>
         <translation>серийный номер</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="277"/>
+        <location filename="plugins/hardware.py" line="278"/>
         <source>date</source>
         <translation>дата выпуска</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="278"/>
+        <location filename="plugins/hardware.py" line="279"/>
         <source>charge</source>
         <translation>заряд</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="279"/>
+        <location filename="plugins/hardware.py" line="280"/>
         <source>condition</source>
         <translation>состояние</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="280"/>
+        <location filename="plugins/hardware.py" line="281"/>
         <source>Wh</source>
         <translation>Вт⋅ч</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="281"/>
+        <location filename="plugins/hardware.py" line="282"/>
         <source>Info</source>
         <translation>Информация</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="282"/>
+        <location filename="plugins/hardware.py" line="283"/>
         <source>core</source>
         <translation>ядро</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="283"/>
+        <location filename="plugins/hardware.py" line="284"/>
         <source>cores</source>
         <translation>ядер</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="284"/>
+        <location filename="plugins/hardware.py" line="285"/>
         <source>cache</source>
         <translation>кэш</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="285"/>
+        <location filename="plugins/hardware.py" line="286"/>
         <source>Speed</source>
         <translation>Частота</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="286"/>
+        <location filename="plugins/hardware.py" line="287"/>
         <source>min</source>
         <translation>мин</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="287"/>
+        <location filename="plugins/hardware.py" line="288"/>
         <source>max</source>
         <translation>макс</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="288"/>
+        <location filename="plugins/hardware.py" line="289"/>
         <source>avg</source>
         <translation>средняя</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="289"/>
+        <location filename="plugins/hardware.py" line="290"/>
         <source>Device</source>
         <translation>Устройство</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="290"/>
+        <location filename="plugins/hardware.py" line="291"/>
         <source>driver</source>
         <translation>драйвер</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="291"/>
+        <location filename="plugins/hardware.py" line="292"/>
         <source>server</source>
         <translation>сервер</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="292"/>
+        <location filename="plugins/hardware.py" line="293"/>
         <source>with</source>
         <translation>c</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="293"/>
+        <location filename="plugins/hardware.py" line="294"/>
         <source>compositor</source>
         <translation>композитор</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="294"/>
+        <location filename="plugins/hardware.py" line="295"/>
         <source>loaded</source>
         <translation>загружен</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="295"/>
+        <location filename="plugins/hardware.py" line="296"/>
         <source>unloaded</source>
         <translation>выгружено</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="296"/>
+        <location filename="plugins/hardware.py" line="297"/>
         <source>resolution</source>
         <translation>разрешение</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="297"/>
+        <location filename="plugins/hardware.py" line="298"/>
         <source>vendor</source>
         <translation>производитель</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="298"/>
+        <location filename="plugins/hardware.py" line="299"/>
         <source>renderer</source>
         <translation>рендерер</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="299"/>
+        <location filename="plugins/hardware.py" line="300"/>
         <source>surfaces</source>
         <translation>поверхности</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="300"/>
+        <location filename="plugins/hardware.py" line="301"/>
         <source>status</source>
         <translation>статус</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="301"/>
+        <location filename="plugins/hardware.py" line="302"/>
         <source>active</source>
         <translation>активен</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="302"/>
+        <location filename="plugins/hardware.py" line="303"/>
         <source>GiB</source>
         <translation>ГБ</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="303"/>
+        <location filename="plugins/hardware.py" line="304"/>
         <source>MiB</source>
         <translation>МБ</translation>
     </message>
     <message>
-        <location filename="plugins/hardware.py" line="304"/>
+        <location filename="plugins/hardware.py" line="305"/>
         <source>MHz</source>
         <translation>МГц</translation>
     </message>
@@ -878,7 +878,7 @@
 <context>
     <name>PluginLicense</name>
     <message>
-        <location filename="plugins/license.py" line="38"/>
+        <location filename="plugins/license.py" line="39"/>
         <source>License</source>
         <translation>Лицензия</translation>
     </message>
@@ -886,7 +886,7 @@
 <context>
     <name>PluginSettings</name>
     <message>
-        <location filename="plugins/settings.py" line="329"/>
+        <location filename="plugins/settings.py" line="250"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
@@ -894,7 +894,7 @@
 <context>
     <name>PluginUseful</name>
     <message>
-        <location filename="plugins/useful.py" line="212"/>
+        <location filename="plugins/useful.py" line="27"/>
         <source>Useful Information</source>
         <translation>Полезная информация</translation>
     </message>
@@ -902,32 +902,32 @@
 <context>
     <name>SettingsWidget</name>
     <message>
-        <location filename="plugins/settings.py" line="30"/>
+        <location filename="plugins/settings.py" line="29"/>
         <source>Daily</source>
         <translation>Ежедневно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="30"/>
+        <location filename="plugins/settings.py" line="29"/>
         <source>Weekly</source>
         <translation>Еженедельно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="30"/>
+        <location filename="plugins/settings.py" line="29"/>
         <source>Monthly</source>
         <translation>Ежемесячно</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="39"/>
         <source>Save Settings</source>
-        <translation type="unfinished">Сохранить настройки</translation>
+        <translation type="obsolete">Сохранить настройки</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="60"/>
         <source>General Settings</source>
-        <translation>Общие настройки</translation>
+        <translation type="obsolete">Общие настройки</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="61"/>
+        <location filename="plugins/settings.py" line="54"/>
         <source>Updates</source>
         <translation>Обновления</translation>
     </message>
@@ -937,69 +937,69 @@
         <translation type="obsolete">🌐 Язык</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="82"/>
+        <location filename="plugins/settings.py" line="70"/>
         <source>ð Notify About Updates</source>
-        <translation type="unfinished">🔔 Уведомлять об обновлениях</translation>
+        <translation>🔔 Уведомлять об обновлениях</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="81"/>
+        <location filename="plugins/settings.py" line="69"/>
         <source>â° Update Frequency</source>
-        <translation type="unfinished">⏰ Частота обновлений</translation>
+        <translation>⏰ Частота обновлений</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="150"/>
+        <location filename="plugins/settings.py" line="132"/>
         <source>System Control Center</source>
         <translation>Центр управления системой</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="152"/>
+        <location filename="plugins/settings.py" line="134"/>
         <source>User account management, system logs, kernel updates.</source>
         <translation>Управление учётными записями, системные журналы, обновлнение ядра.</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="156"/>
+        <location filename="plugins/settings.py" line="138"/>
         <source>System Settings</source>
         <translation>Параметры системы</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="158"/>
+        <location filename="plugins/settings.py" line="140"/>
         <source>General settings: power management, network, date, workspace behavior.</source>
         <translation>Общие настройки: энергосбережение, сеть, дата, поведение рабочей среды.</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="162"/>
         <source>About System</source>
-        <translation>О системе</translation>
+        <translation type="obsolete">О системе</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="164"/>
         <source>Information about installed system.</source>
-        <translation>Информация о установленной системе.</translation>
+        <translation type="obsolete">Информация о установленной системе.</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="168"/>
         <source>Display Settings</source>
-        <translation>Настройки экрана</translation>
+        <translation type="obsolete">Настройки экрана</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="170"/>
         <source>Change display settings.</source>
-        <translation>Изменение настроек экрана.</translation>
+        <translation type="obsolete">Изменение настроек экрана.</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="62"/>
+        <location filename="plugins/settings.py" line="55"/>
         <source>Advanced Settings</source>
         <translation>Расширенные настройки</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="79"/>
         <source>ð Dark Theme</source>
-        <translation type="unfinished">🌙 Тёмная тема</translation>
+        <translation type="obsolete">🌙 Тёмная тема</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="80"/>
+        <location filename="plugins/settings.py" line="68"/>
         <source>ð Enable Auto-update</source>
-        <translation type="unfinished">🔄 Включить автообновление</translation>
+        <translation>🔄 Включить автообновление</translation>
     </message>
 </context>
 <context>
@@ -1108,6 +1108,24 @@
         <location filename="plugins/useful.py" line="136"/>
         <source>Audio</source>
         <translation type="obsolete">Аудио</translation>
+    </message>
+</context>
+<context>
+    <name>app</name>
+    <message>
+        <location filename="mainwindow.py" line="94"/>
+        <source>Run at session startup</source>
+        <translation>Запустить в начале сеанса</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.py" line="95"/>
+        <source>List available modules and exit</source>
+        <translation>Показать список доступных модулей</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.py" line="150"/>
+        <source>ALT Center</source>
+        <translation type="obsolete">Центр Альта</translation>
     </message>
 </context>
 </TS>
