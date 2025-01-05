@@ -164,22 +164,8 @@ class SettingsWidget(QWidget):
                 QPushButton {
                     text-align: left;
                     padding: 5px 10px;
-                    border: 1px solid #2C2C2C;
-                    border-radius: 4px;
                     min-width: 200px;
                     min-height: 40px;
-                    color: white;  /* Белый цвет текста */
-                    background-color: #3D3D3D;  /* Тёмно-серый фон */
-                }
-                QPushButton:hover {
-                    background-color: #4D4D4D;  /* Чуть светлее при наведении */
-                    color: white;
-                    border: 1px solid #2C2C2C;
-                }
-                QPushButton:pressed {
-                    background-color: #2196F3;  /* Синий при нажатии */
-                    color: white;
-                    border: 1px solid #1976D2;
                 }
             """)
 
@@ -189,37 +175,9 @@ class SettingsWidget(QWidget):
 
         # Применем стили
         style = """
-            QGroupBox {
-                font-weight: bold;
-                border: 2px solid #CCCCCC;
-                border-radius: 6px;
-                margin-top: 6px;
-                padding-top: 10px;
-            }
-            QGroupBox::title {
-                subcontrol-origin: margin;
-                left: 10px;
-                padding: 0 3px;
-            }
             QPushButton {
                 text-align: left;
                 padding: 5px 10px;
-                border: 1px solid #2C2C2C;
-                border-radius: 4px;
-                color: white;
-                background-color: #3D3D3D;
-            }
-            QPushButton:hover {
-                background-color: #4D4D4D;
-                border: 1px solid #2C2C2C;
-            }
-            QPushButton:checked {
-                background-color: #2196F3;  /* Оставляем текущий синий цвет для активной кнопки */
-                border: 1px solid #1976D2;
-            }
-            QPushButton:pressed {
-                background-color: #2196F3;
-                border: 1px solid #1976D2;
             }
         """
         updates.setStyleSheet(style)
