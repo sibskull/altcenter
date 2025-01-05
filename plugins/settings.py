@@ -184,9 +184,9 @@ class SettingsWidget(QWidget):
         launch.setStyleSheet(style)
 
         # Добавляем группы в layout
-        layout.addWidget(updates)
-        layout.addStretch()
+        #layout.addWidget(updates)
         layout.addWidget(launch)
+        layout.addStretch()
 
         # Устанавливаем контейнер в область прокрутки
         scroll.setWidget(container)
