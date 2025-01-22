@@ -128,18 +128,18 @@ class SettingsWidget(QWidget):
             # ],
             'en':[
                 {
-                    'icon': 'center.png',
-                    'name': self.tr('System Control Center'),
-                    'command': 'acc',
-                    'tooltip': self.tr('User account management, system logs, kernel updates.')
+                    'icon': 'preferences',
+                    'name': self.tr('User Settings'),
+                    'command': 'systemsettings5',
+                    'tooltip': self.tr('General settings: power management, network, date, workspace behavior')
                 },
                 {
-                    'icon': 'system.png',
-                    'name': self.tr('System Settings'),
-                    'command': 'systemsettings5',
-                    'tooltip': self.tr('General settings: power management, network, date, workspace behavior.')
-                }
-            ]
+                    'icon': 'system',
+                    'name': self.tr('System Control Center'),
+                    'command': 'acc',
+                    'tooltip': self.tr('User account management, system logs, kernel updates')
+                },
+             ]
         }
 
         # Создаем кнопки для каждого приложения
