@@ -24,23 +24,18 @@ from PyQt5.QtCore import QTranslator, QSettings
 from PyQt5.QtCore import QCommandLineParser, QCommandLineOption
 from PyQt5.QtCore import QItemSelectionModel
 # from PyQt5 import uic
-from PyQt5.QtGui import QStandardItemModel
+from PyQt5.QtGui import QStandardItemModel, QPixmap
 
 import os
 import sys
 import locale
 import pathlib
 
-current_file = os.path.abspath(__file__)
-current_dir = os.path.dirname(current_file)
-os.chdir(current_dir)
-
 from ui_mainwindow import Ui_MainWindow
 from plugins import Base
 
-data_dir = "/usr/share/altcenter"
-data_dir = "."
-plugin_path = os.path.join(data_dir, "plugins")
+current_dir = os.path.dirname(os.path.abspath(__file__))
+plugin_path = os.path.join(current_dir, "plugins")
 
 module_name = "about" # First module name
 
@@ -78,9 +73,6 @@ current_config = os.path.join(pathlib.Path.home(), ".config", "altcenter.ini")
 settings = QSettings(current_config, QSettings.IniFormat)
 
 # Load current locale translation
-current_file = os.path.abspath(__file__)
-current_dir = os.path.dirname(current_file)
-
 translator = QTranslator(app)
 tr_file = os.path.join(current_dir, "altcenter_" + locale.getlocale()[0].split( '_' )[0])
 # print( "Load translation from %s.qm" % ( tr_file ) )
@@ -145,6 +137,9 @@ if parser.isSet(list_modules):
 
 window.splitter.setStretchFactor(0,0)
 window.splitter.setStretchFactor(1,1)
+
+# Reset logo by absolute path
+window.altLogo.setPixmap(QPixmap(os.path.join(current_dir, "basealt.png")))
 
 # Show window
 window.show()
