@@ -37,6 +37,7 @@ Available plugins:
 %doc README.md TODO.md
 %_bindir/%name
 %_datadir/%name
+%_desktopdir/%name.desktop
 
 %changelog
 * Wed Jan 22 2025 Andrey Cherepanov <cas@altlinux.org> 1.0-alt0.1
