@@ -947,24 +947,19 @@
         <translation>⏰ Частота обновлений</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="132"/>
-        <source>System Control Center</source>
-        <translation>Центр управления системой</translation>
-    </message>
-    <message>
-        <location filename="plugins/settings.py" line="134"/>
-        <source>User account management, system logs, kernel updates.</source>
-        <translation>Управление учётными записями, системные журналы, обновлнение ядра.</translation>
-    </message>
-    <message>
         <location filename="plugins/settings.py" line="138"/>
-        <source>System Settings</source>
+        <source>System Control Center</source>
         <translation>Параметры системы</translation>
     </message>
     <message>
+        <location filename="plugins/settings.py" line="134"/>
+        <source>General settings: power management, network, date, workspace behavior</source>
+        <translation>Управление параметрами пользователя</translation>
+    </message>
+    <message>
         <location filename="plugins/settings.py" line="140"/>
-        <source>General settings: power management, network, date, workspace behavior.</source>
-        <translation>Общие настройки: энергосбережение, сеть, дата, поведение рабочей среды.</translation>
+        <source>User account management, system logs, kernel updates</source>
+        <translation>Управление параметрами системы</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="162"/>
@@ -1000,6 +995,11 @@
         <location filename="plugins/settings.py" line="68"/>
         <source>ð Enable Auto-update</source>
         <translation>🔄 Включить автообновление</translation>
+    </message>
+    <message>
+        <location filename="plugins/settings.py" line="132"/>
+        <source>User Settings</source>
+        <translation>Параметры пользователя</translation>
     </message>
 </context>
 <context>
@@ -1113,12 +1113,12 @@
 <context>
     <name>app</name>
     <message>
-        <location filename="mainwindow.py" line="94"/>
+        <location filename="mainwindow.py" line="86"/>
         <source>Run at session startup</source>
         <translation>Запустить в начале сеанса</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="95"/>
+        <location filename="mainwindow.py" line="87"/>
         <source>List available modules and exit</source>
         <translation>Показать список доступных модулей</translation>
     </message>
