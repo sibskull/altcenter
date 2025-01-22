@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Altcenter
+GenericName=ALT Center
+GenericName[ru]=Центр Альта
+Comment=Application for show information and configure system
+Comment[ru]=Приложения показа информации и настройки системы
+Exec=altcenter %U
+Icon=preferences
+Categories=Settings;System;
