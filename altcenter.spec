@@ -13,7 +13,7 @@ ExcludeArch: ppc64le armh
 
 BuildRequires(pre): rpm-build-python3
 
-%add_python3_path %_datadir/%name
+%add_python3_req_skip mainwindow my_utils
 
 %description
 This is the grapical plugin-based application for show information and
