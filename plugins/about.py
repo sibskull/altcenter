@@ -71,7 +71,7 @@ class AboutWidget(QWidget):
         label1.setAlignment(Qt.AlignCenter)
         label1.setWordWrap(True)
         label_font = container.font()
-        label_font.setPointSize(label_font.pointSize()*1.25)
+        label_font.setPointSize(int(label_font.pointSize()*1.25))
         label_font.setBold(True)
         label1.setFont(label_font)
         self.text = []
