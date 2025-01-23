@@ -9,7 +9,11 @@ URL: http://www.altlinux.org/altcenter
 
 Source0: %name-%version.tar
 
+%if "%_priority_distbranch" == "p11"
+BuildArch: noarch
+%else
 ExcludeArch: ppc64le armh
+%endif
 
 BuildRequires(pre): rpm-build-python3
 
