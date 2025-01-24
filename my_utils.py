@@ -42,19 +42,76 @@ def get_display_server() -> str:
         return "Not detected"
 
 
-def get_cpu_info_from_proc():
-    with open("/proc/cpuinfo", "r") as f:
+def get_cpu_info_from_proc(file_name = '/proc/cpuinfo'):
+    cpus = {}
+
+    with open(file_name, 'r') as f:
         cpu_info = f.read()
 
-    cpu_name = None
+    # cpu_name = None
+    # for line in cpu_info.splitlines():
+    #     if line.startswith('model name'):
+    #         cpu_name = line.split(':')[1].strip()
+    #         if cpu_name not in cpus:
+    #             cpus[cpu_name] = {}
+    #         continue
+    #
+    #     if line.startswith('core id'):
+    #         core_id = line.split(':')[1].strip()
+    #         # if core_id not in cpu:
+    #         cpus[cpu_name][core_id] = cpus[cpu_name].get(core_id, 0) + 1
+    #
+    # print(cpus)
+    # result = []
+    # for cpu in cpus:
+    #     cores = len(cpus[cpu])
+    #     threads = sum(cpus[cpu].values())
+    #     result.append( (cpu, cores, threads,))
+    #     print(cpu, cores, threads)
+    #     print(result)
+
+    cpu_id, cpu_name, core_id = None, None, None
+
     for line in cpu_info.splitlines():
-        if line.startswith("model name"):
-            cpu_name = line.split(":")[1].strip()
-            break
+        if line.startswith('physical id'):
+            cpu_id = line.split(':')[1].strip()
+            continue
 
-    num_cores = cpu_info.count("processor")
+        if line.startswith('model name'):
+            cpu_name = line.split(':')[1].strip()
+            continue
 
-    return cpu_name, num_cores
+        if line.startswith('core id'):
+            core_id = line.split(':')[1].strip()
+            continue
+
+        if line.strip() == '':
+            if cpu_id != None and cpu_name != None and core_id != None:
+                if cpu_id not in cpus:
+                    cpus[cpu_id] = {}
+                if 'name' not in cpus[cpu_id]:
+                    cpus[cpu_id]['name'] = cpu_name
+                if 'cores' not in cpus[cpu_id]:
+                    cpus[cpu_id]['cores'] = {}
+                cpus[cpu_id]['cores'][core_id] = cpus[cpu_id]['cores'].get(core_id, 0) + 1
+
+                cpu_id, cpu_name, core_id = None, None, None
+
+
+    # print(cpus)
+    # print()
+    result = []
+    for id in cpus:
+        cpu = cpus[id]
+        cores = len(cpu['cores'])
+        threads = sum(cpu['cores'].values())
+        result.append( (cpu['name'], cores, threads,))
+        # print(cpu['name'], cores, threads)
+        # print(result)
+        # cpus[id]['cores'] = cores
+        # cpus[id]['threads'] = threads
+    # print(cpus)
+    return result
 
 
 def get_memory_info_from_free():
@@ -100,6 +157,8 @@ def get_video_info_from_inxi():
 
 
 if __name__ == "__main__":
+    pass
+
     def test_parse_os_release(s) -> str:
         os_info = parse_os_release(s)
         s = os_info['PRETTY_NAME']
