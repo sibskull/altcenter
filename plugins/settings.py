@@ -10,6 +10,12 @@ import json
 import os
 import subprocess
 
+de_settings = { "KDE": "systemsettings",
+                "GNOME": "gnome-control-center",
+                "MATE": "mate-control-center",
+                "XFCE": "xfce4-settings-manager",
+              }
+
 class SettingsWidget(QWidget):
     def __init__(self):
         super().__init__()
@@ -130,7 +136,7 @@ class SettingsWidget(QWidget):
                 {
                     'icon': 'preferences',
                     'name': self.tr('User Settings'),
-                    'command': 'systemsettings5',
+                    'command': '',
                     'tooltip': self.tr('General settings: power management, network, date, workspace behavior')
                 },
                 {
@@ -141,6 +147,11 @@ class SettingsWidget(QWidget):
                 },
              ]
         }
+
+        # Set correct user settings program for current desktop environment
+        current_de = os.environ['XDG_CURRENT_DESKTOP']
+        if current_de in de_settings:
+            apps['en'][0]['command'] = de_settings[current_de]
 
         # Создаем кнопки для каждого приложения
         for i, app in enumerate(apps['en']):
@@ -157,7 +168,11 @@ class SettingsWidget(QWidget):
             button.setIconSize(QSize(32, 32))
             button.setText(app['name'])
             button.setToolTip(app['tooltip'])
-            button.clicked.connect(lambda checked, cmd=app['command']: self.launch_app(cmd))
+            if app['command'] != '':
+                button.clicked.connect(lambda checked, cmd=app['command']: self.launch_app(cmd))
+            else:
+                # Disable button
+                button.setEnabled(False)
 
             # Устанавливаем стиль для кнопки
             button.setStyleSheet("""
