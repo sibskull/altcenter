@@ -67,6 +67,7 @@ class MainWindow(QWidget, Ui_MainWindow):
 app = QApplication(sys.argv) # Create an instance of QtWidgets.QApplication
 app.setApplicationName(APPLICATION_NAME)
 app.setApplicationVersion(APPLICATION_VERSION)
+app.setDesktopFileName("altcenter")
 
 # Load settings
 current_config = os.path.join(pathlib.Path.home(), ".config", "altcenter.ini")
