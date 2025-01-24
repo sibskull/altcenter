@@ -14,8 +14,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(900, 800)
-        MainWindow.setMinimumSize(QtCore.QSize(900, 800))
         icon = QtGui.QIcon.fromTheme("preferences")
         MainWindow.setWindowIcon(icon)
         self.verticalLayout = QtWidgets.QVBoxLayout(MainWindow)
