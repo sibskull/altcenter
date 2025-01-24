@@ -1,3 +1,12 @@
+%ifdef _priority_distbranch
+%define altbranch %_priority_distbranch
+%else
+%define altbranch %(rpm --eval %%_priority_distbranch)
+%endif
+%if "%altbranch" == "%nil"
+%define altbranch sisyphus
+%endif
+
 Name: altcenter
 Version: 1.0
 Release: alt0.3
@@ -9,7 +18,7 @@ URL: http://www.altlinux.org/altcenter
 
 Source0: %name-%version.tar
 
-%if "%_priority_distbranch" == "p11"
+%if "%altbranch" == "p11"
 BuildArch: noarch
 %else
 ExcludeArch: ppc64le armh
