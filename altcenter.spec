@@ -9,7 +9,7 @@
 
 Name: altcenter
 Version: 1.0
-Release: alt0.3
+Release: alt0.4
 Summary: Application for show information and configure system
 
 License: GPL-3.0+
@@ -54,6 +54,10 @@ Available plugins:
 %_sysconfdir/xdg/autostart/%name.desktop
 
 %changelog
+* Fri Jan 24 2025 Andrey Cherepanov <cas@altlinux.org> 1.0-alt0.4
+- Used correct user settings program for current DE (ALT #52797).
+- Unset minimal size for mobile device (ALT #52798).
+
 * Thu Jan 23 2025 Andrey Cherepanov <cas@altlinux.org> 1.0-alt0.3
 - about: fixed using float for setPointSize.
 
