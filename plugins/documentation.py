@@ -24,7 +24,6 @@ class PluginDocumentation2(plugins.Base):
 
         self.text_browser = QTextBrowser()
         self.text_browser.setOpenExternalLinks(True)
-        self.text_browser.setCurrentFont(QFont("monospace", 9))
         self.index = pane.addWidget(self.text_browser)
 
         current_file = os.path.abspath(__file__)
