@@ -3,13 +3,11 @@
 ## Main window
 
 - Open specified module by its name from command line
-- Use system pathes
 
 ## Plugins
 
-- about: use distro-specific URL
+- about: use distro-specific URL and icon from /etc/os-release
 - about: show DE name
-- settings: user (according to DE) and system (acc) settings
 - hardware: use one widget with selection
 
 ## New modules
