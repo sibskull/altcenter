@@ -1,6 +1,6 @@
 # ALT Center
 
-This is the grapical plugin-based application for show information and
+This is the graphical plugin-based application for show information and
 configure system.
 
 Available plugins:
