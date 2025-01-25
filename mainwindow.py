@@ -84,8 +84,8 @@ if translator.load( tr_file ):
 parser = QCommandLineParser()
 parser.addHelpOption()
 parser.addVersionOption()
-at_startup = QCommandLineOption('at-startup', app.tr('Run at session startup'))
-list_modules = QCommandLineOption('modules', app.tr('List available modules and exit'))
+at_startup = QCommandLineOption('at-startup', app.translate('app', 'Run at session startup'))
+list_modules = QCommandLineOption('modules', app.translate('app', 'List available modules and exit'))
 parser.addOption(at_startup)
 parser.addOption(list_modules)
 
