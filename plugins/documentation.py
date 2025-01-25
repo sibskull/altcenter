@@ -1,20 +1,17 @@
 #!/usr/bin/python3
 
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QGroupBox,
-                            QGridLayout, QScrollArea, QTextBrowser)
-from PyQt5.QtGui import QStandardItem, QFont, QTextDocument, QDesktopServices
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QTextBrowser
+from PyQt5.QtGui import QStandardItem, QFont, QTextDocument
 from PyQt5.QtCore import QUrl
 
 import locale, os
 
 import plugins
 
-class PluginDocumentation2(plugins.Base):
+class PluginDocumentation(plugins.Base):
     def __init__(self):
         super().__init__("documentation", 20)
         self.node = None
-        self.useful_widget = None
 
     def start(self, plist, pane):
         self.node = QStandardItem(self.tr("Documentation"))
