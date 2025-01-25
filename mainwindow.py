@@ -1,6 +1,6 @@
 # Application for configure and maintain ALT operating system
 # (c) 2024-2025 Andrey Cherepanov <cas@altlinux.org>
-# (c) 2024 Sergey Shevchenko <Sergey.Shevchenko04@gmail.com>
+# (c) 2024-2025 Sergey Shevchenko <Sergey.Shevchenko04@gmail.com>
 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -37,7 +37,6 @@ from plugins import Base
 current_dir = os.path.dirname(os.path.abspath(__file__))
 plugin_path = os.path.join(current_dir, "plugins")
 
-module_name = "about" # First module name
 
 class MainWindow(QWidget, Ui_MainWindow):
     """Main window"""
@@ -63,6 +62,7 @@ class MainWindow(QWidget, Ui_MainWindow):
         self.settings.setValue('Settings/runOnSessionStart', (state == 2))
         self.settings.sync()
 
+
 # Run application
 app = QApplication(sys.argv) # Create an instance of QtWidgets.QApplication
 app.setApplicationName(APPLICATION_NAME)
@@ -84,8 +84,8 @@ if translator.load( tr_file ):
 parser = QCommandLineParser()
 parser.addHelpOption()
 parser.addVersionOption()
-at_startup = QCommandLineOption('at-startup', app.translate('app', 'Run at session startup'))
-list_modules = QCommandLineOption('modules', app.translate('app', 'List available modules and exit'))
+at_startup = QCommandLineOption('at-startup', app.translate('app', "Run at session startup"))
+list_modules = QCommandLineOption('modules', app.translate('app', "List available modules and exit"))
 parser.addOption(at_startup)
 parser.addOption(list_modules)
 
@@ -96,6 +96,8 @@ parser.process(app)
 #print(parser.positionalArguments())
 if len(parser.positionalArguments()) > 0:
     module_name = parser.positionalArguments()[0]
+else:
+    module_name = 'about'  # First module name
 
 # Quit if "Do not run on next sesion start" is checked and application ran with --at-startup
 value_runOnSessionStart = settings.value('Settings/runOnSessionStart', False, type=bool)
@@ -129,17 +131,18 @@ if parser.isSet(list_modules):
 
 # Load plugins
 k = 0
+selected_index = 0
+
 for p in Base.plugins:
     inst = p()
     inst.start(window.list_module_model, window.stack)
     # Select item by its name
     if inst.getName() == module_name:
-        ix = window.list_module_model.index(k, 0)
-        sm = window.moduleList.selectionModel()
-        # TODO: set focus to selected item and show appropriate stack pane
-        #sm.select(ix, QItemSelectionModel.ClearAndSelect)
-        #window.stack.setCurrentIndex(k+1)
-    k = k+1
+        selected_index = k
+    k = k + 1
+
+index = window.list_module_model.index(selected_index, 0)
+window.moduleList.setCurrentIndex(index)
 
 
 window.splitter.setStretchFactor(0,0)
