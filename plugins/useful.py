@@ -1,36 +1,25 @@
 #!/usr/bin/python3
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFrame
+from PyQt5.QtWidgets import QVBoxLayout, QFrame
 from PyQt5.QtGui import QStandardItem
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 import locale, os, markdown
 
 import plugins
+import my_utils_pyqt5
 
 
 class PluginUseful(plugins.Base):
     def __init__(self):
         super().__init__("useful", 50)
         self.node = None
-        self.useful_widget = None
-
-    # def start(self, plist, pane):
-    #     self.node = QStandardItem(self.tr("Useful Information"))
-    #     plist.appendRow([self.node])
-
-    #     self.useful_widget = UsefulWidget()
-    #     pane.addWidget(self.useful_widget)
 
     def start(self, plist, pane):
         self.node = QStandardItem(self.tr("Useful Information"))
         self.node.setData(self.getName())
         plist.appendRow([self.node])
 
-        # widget = QWidget()
-        # self.setCentralWidget(widget)
-        # layout = QVBoxLayout(widget)
-        # layout.setContentsMargins(0, 0, 0, 0)
         frame = QFrame()
         frame.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Sunken)
 
@@ -42,13 +31,13 @@ class PluginUseful(plugins.Base):
         frame_layout.addWidget(self.text_browser)
 
         # Добавляем QFrame в основной layout
-        # layout.addWidget(frame)
         pane.addWidget(frame)
 
-
-
-        # self.index = pane.addWidget(self.text_browser)
-        # self.index = pane.addWidget(widget)
+        px = my_utils_pyqt5.point_size_to_pixels(pane.font().pointSize())
+        if px > 0:
+            px = px + 1
+        else:
+            px = 14
 
         current_file = os.path.abspath(__file__)
         current_dir = os.path.dirname(current_file)
@@ -87,8 +76,12 @@ class PluginUseful(plugins.Base):
 
         styled_html = f"""
         <style>
+        body {{
+            /*font-family: Monospace, Liberation Mono;*/
+            font-size: {px}px;
+        }}
         code {{
-            /*font-family: Liberation Mono, DejaVu Sans Mono;*/
+            /*font-family: Monospace, Liberation Mono, DejaVu Sans Mono;*/
             color: #101010;
             background-color: #dcdcdc;
             padding: 1px 0px;
@@ -96,7 +89,7 @@ class PluginUseful(plugins.Base):
             border-radius: 2px;
         }}
         pre {{
-            /*font-family: Liberation Mono, DejaVu Sans Mono;*/
+            /*font-family: Monospace, Liberation Mono, DejaVu Sans Mono;*/
             background-color: #dcdcdc;
             margin: 15px;
             padding: 10px 20px;
