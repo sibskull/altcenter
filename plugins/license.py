@@ -30,14 +30,13 @@ class PluginLicense(plugins.Base):
     index = 0
 
     def __init__(self):
-        super().__init__(10)
-        self.name = "license"
+        super().__init__("license", 10)
         pass
 
     def start(self, plist, pane):
         # Licence
         node = QStandardItem(self.tr("License"))
-        node.setData(self.name)
+        node.setData(self.getName())
         plist.appendRow([node])
 
         self.license_info = QTextBrowser()

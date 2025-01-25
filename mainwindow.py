@@ -122,10 +122,10 @@ k = 0
 for p in Base.plugins:
     inst = p()
     if parser.isSet(list_modules):
-        print(inst.name)
+        print(inst.getName())
     inst.start(window.list_module, window.stack)
     # Select item by its name
-    if inst.name == module_name:
+    if inst.getName() == module_name:
         ix = window.list_module.index(k, 0)
         sm = window.moduleList.selectionModel()
         # TODO: set focus to selected item and show appropriate stack pane

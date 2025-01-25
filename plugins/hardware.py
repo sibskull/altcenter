@@ -252,8 +252,7 @@ class HardwareWidget(QWidget):
 
 class PluginHardware(plugins.Base):
     def __init__(self):
-        super().__init__(30)
-        self.name = "hardware"
+        super().__init__("hardware", 30)
         self.node = None
         self.hardware_widget = None
         self.current_language = 'ru'
@@ -353,7 +352,7 @@ class PluginHardware(plugins.Base):
 
     def start(self, plist, pane):
         self.node = QStandardItem(self.tr("Hardware"))
-        self.node.setData(self.name)
+        self.node.setData(self.getName())
         plist.appendRow([self.node])
 
         self.hardware_widget = HardwareWidget()
