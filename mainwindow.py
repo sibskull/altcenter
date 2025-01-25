@@ -113,28 +113,34 @@ window.runOnSessionStart.setChecked(value_runOnSessionStart)
 window.runOnSessionStart.stateChanged.connect(window.onSessionStartChange)
 
 # Set module list model
-window.list_module = QStandardItemModel()
-window.moduleList.setModel(window.list_module)
+window.list_module_model = QStandardItemModel()
+window.moduleList.setModel(window.list_module_model)
 window.moduleList.selectionModel().currentChanged.connect(window.onSelectionChange)
+
+
+# List available modules and exit
+if parser.isSet(list_modules):
+    for p in Base.plugins:
+        inst = p()
+        print(inst.getName())
+
+    sys.exit(0)
+
 
 # Load plugins
 k = 0
 for p in Base.plugins:
     inst = p()
-    if parser.isSet(list_modules):
-        print(inst.getName())
-    inst.start(window.list_module, window.stack)
+    inst.start(window.list_module_model, window.stack)
     # Select item by its name
     if inst.getName() == module_name:
-        ix = window.list_module.index(k, 0)
+        ix = window.list_module_model.index(k, 0)
         sm = window.moduleList.selectionModel()
         # TODO: set focus to selected item and show appropriate stack pane
         #sm.select(ix, QItemSelectionModel.ClearAndSelect)
         #window.stack.setCurrentIndex(k+1)
     k = k+1
 
-if parser.isSet(list_modules):
-    sys.exit(0)
 
 window.splitter.setStretchFactor(0,0)
 window.splitter.setStretchFactor(1,1)
