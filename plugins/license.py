@@ -25,26 +25,19 @@ import locale, os
 
 
 class PluginLicense(plugins.Base):
-    # license_pane = None
-    license_info = None
-    index = 0
-
     def __init__(self):
         super().__init__("license", 10)
-        pass
+        self.node = None
 
     def start(self, plist, pane):
         # Licence
-        node = QStandardItem(self.tr("License"))
-        node.setData(self.getName())
-        plist.appendRow([node])
+        self.node = QStandardItem(self.tr("License"))
+        self.node.setData(self.getName())
+        plist.appendRow([self.node])
 
         self.license_info = QTextBrowser()
         self.license_info.setCurrentFont(QFont("monospace", 9))
         self.index = pane.addWidget(self.license_info)
-
-        # licen = subprocess.check_output("cat /usr/share/alt-notes/license.ru.html", shell=True, text=True)
-        # self.license_info.setHtml(licen)
 
         file_path = "/usr/share/alt-notes/license." + locale.getlocale()[0].split( '_' )[0] + ".html"
 
@@ -58,5 +51,3 @@ class PluginLicense(plugins.Base):
                 self.license_info.setSource(url, QTextDocument.ResourceType.HtmlResource)
             else:
                 self.license_info.setHtml(f"File '{file_path}' not found.")
-
-        pane.setCurrentIndex(self.index)
