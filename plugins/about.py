@@ -170,14 +170,13 @@ class AboutWidget(QWidget):
 
 class PluginAbout(plugins.Base):
     def __init__(self):
-        super().__init__(1)
+        super().__init__("about", 1)
         self.node = None
         self.about_widget = None
-        self.name = "about"
 
     def start(self, plist, pane):
         self.node = QStandardItem(self.tr("About system"))
-        self.node.setData(self.name)
+        self.node.setData(self.getName())
         plist.appendRow([self.node])
 
         main_palette = pane.window().palette()

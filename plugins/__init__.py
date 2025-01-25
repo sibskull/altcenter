@@ -25,11 +25,11 @@ from PyQt5.QtCore import QObject
 class Base(QObject):
     """Base skel for plugin"""
     plugins = []
-    name = ""
 
-    def __init__(self, position):
+    def __init__(self, name: str, position: int):
         super().__init__()
-        self.position = position
+        self._name = name
+        self._position = position
 
     # For every class that inherits from the current
     # the class name will be added to plugins
@@ -40,8 +40,11 @@ class Base(QObject):
     def start(self, plist, pane):
         pass
 
-    def getPosition(self):
-        return self.position
+    def getName(self) -> str:
+        return self._name
+
+    def getPosition(self) -> int:
+        return self._position
 
 
 # Load one module
@@ -49,8 +52,7 @@ def load_module(path):
     name = os.path.split(path)[-1]
     spec = util.spec_from_file_location(name, path)
     module = util.module_from_spec(spec)
-    module.name = name
-    e = spec.loader.exec_module(module)
+    spec.loader.exec_module(module)
     return module
 
 plugin_path = os.path.dirname(os.path.abspath(__file__))
