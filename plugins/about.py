@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import (QApplication, QWidget,
                              QGridLayout, QScrollArea,
                              QSpacerItem, QSizePolicy,
                              QMenu, QAction)
-from PyQt5.QtGui import QStandardItem, QClipboard, QFont
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QStandardItem
+from PyQt5.QtCore import Qt
 
 import os
 import sys
@@ -66,13 +66,15 @@ class AboutWidget(QWidget):
         # Создаем метки
         os_info = my_utils.parse_os_release()
         s = self.translate_os_name(os_info["MY_NAME"])
-        os_name = "{}{}".format(s, os_info["MY_NAME_REST"])
+        os_name = "{}{}".format(s, os_info["MY_NAME_VERSION"])
+        if os_info["MY_NAME_NICK"] != '':
+            os_name = os_name + '\n' + os_info["MY_NAME_NICK"]
+
         label1 = QLabel(os_name)
         label1.setAlignment(Qt.AlignCenter)
         label1.setWordWrap(True)
         label_font = container.font()
-        label_font.setPointSize(int(label_font.pointSize()*1.25))
-        label_font.setBold(True)
+        label_font.setPointSize(int(label_font.pointSize() * 1.75))
         label1.setFont(label_font)
         self.text = []
         self.text.append(os_name)
@@ -90,38 +92,79 @@ class AboutWidget(QWidget):
         # Сетка для расположения элементов
         grid_layout = QGridLayout()
 
+
         # Создаем элементы для сетки
+
+        # DE
+        de, version = my_utils.get_de_info_from_inxi()
+        label_de_name = QLabel(self.tr("DE:"))
+        label_de_value = QLabel(de + ' ' + version)
+        self.text.append('{} {}'.format(label_de_name.text(), label_de_value.text()))
+        label_de_name.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        grid_layout.addWidget(label_de_name, 0, 0)
+        grid_layout.addWidget(label_de_value, 0, 1)
+
+
+        # kernel
         uname = os.uname()
-        grid_label1 = QLabel(self.tr("Kernel:"))
-        grid_label2 = QLabel(uname.release)
-        self.text.append('{} {}'.format(grid_label1.text(), grid_label2.text()))
+        label_kernel_name = QLabel(self.tr("Kernel:"))
+        label_kernel_value = QLabel(uname.release)
+        self.text.append('{} {}'.format(label_kernel_name.text(), label_kernel_value.text()))
+        label_kernel_name.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        grid_layout.addWidget(label_kernel_name, 1, 0)
+        grid_layout.addWidget(label_kernel_value, 1, 1)
 
-        grid_label3 = QLabel(self.tr("Display server:"))
-        grid_label4 = QLabel(my_utils.get_display_server())
-        self.text.append('{} {}'.format(grid_label3.text(), grid_label4.text()))
 
-        # cpu_name, num_cores = my_utils.get_cpu_info_from_proc()
-        # self.formLayout.addRow(self.tr("Processor:"), QLabel("{} x {}".format(num_cores, cpu_name)))
+        # Display server
+        label_ds_name = QLabel(self.tr("Display server:"))
+        label_ds_value = QLabel(my_utils.get_display_server())
+        self.text.append('{} {}'.format(label_ds_name.text(), label_ds_value.text()))
+        label_ds_name.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        grid_layout.addWidget(label_ds_name, 2, 0)
+        grid_layout.addWidget(label_ds_value, 2, 1)
 
+
+        # cpu
+        line: int = 2
+        cpus = my_utils.get_cpu_info_from_proc()
+        title = self.tr("Processor:")
+        is_one_cpu: bool = len(cpus) == 1
+        for cpu in cpus:
+            line = line + 1
+
+            if is_one_cpu:
+                name = title
+            else:
+                name = f'{title[:-1]} #{line - 2}:'
+
+            cpu_name, num_cores, num_threads = cpu
+
+            if num_cores < num_threads:
+                value = '{}({}) x {}'.format(num_cores, num_threads, cpu_name)
+            else:
+                value = '{} x {}'.format(num_cores, cpu_name)
+
+            label_cpu_name = QLabel(name)
+            label_cpu_value = QLabel(value)
+            self.text.append('{} {}'.format(name, value))
+
+            label_cpu_name.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            grid_layout.addWidget(label_cpu_name, line, 0)
+            grid_layout.addWidget(label_cpu_value, line, 1)
+
+
+        # memory
+        line = line + 1
         total_memory, used_memory, free_memory = my_utils.get_memory_info_from_free()
-        grid_label5 = QLabel(self.tr("Memory (used/total):"))
+        label_ram_name = QLabel(self.tr("Memory:"))
         gb = self.tr("GB")
-        s = f"{used_memory / (1024 ** 3):.2f} {gb}  /  {total_memory / (1024 ** 3):.2f} {gb}"
-        grid_label6 = QLabel(s)
-        self.text.append('{} {}\n'.format(grid_label5.text(), grid_label6.text()))
+        s = f"{total_memory / (1024 ** 3):.2f} {gb}"
+        label_ram_value = QLabel(s)
+        self.text.append('{} {}\n'.format(label_ram_name.text(), label_ram_value.text()))
+        label_ram_name.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        grid_layout.addWidget(label_ram_name, line, 0)
+        grid_layout.addWidget(label_ram_value, line, 1)
 
-        # Устанавливаем выравнивание для левого столбца (по правому краю)
-        grid_label1.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        grid_label3.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        grid_label5.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-
-        # Добавляем элементы в сетку
-        grid_layout.addWidget(grid_label1, 0, 0)
-        grid_layout.addWidget(grid_label2, 0, 1)
-        grid_layout.addWidget(grid_label3, 1, 0)
-        grid_layout.addWidget(grid_label4, 1, 1)
-        grid_layout.addWidget(grid_label5, 2, 0)
-        grid_layout.addWidget(grid_label6, 2, 1)
 
         # Добавляем сетку в контейнер
         container_layout.addLayout(grid_layout)
