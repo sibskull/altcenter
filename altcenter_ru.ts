@@ -4,22 +4,17 @@
 <context>
     <name>AboutWidget</name>
     <message>
-        <location filename="plugins/about.py" line="98"/>
+        <location filename="plugins/about.py" line="112"/>
         <source>Kernel:</source>
         <translation>Ядро:</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="102"/>
+        <location filename="plugins/about.py" line="121"/>
         <source>Display server:</source>
         <translation>Графическая платформа:</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="116"/>
-        <source>Memory (used/total):</source>
-        <translation type="obsolete">Память (использовано/всего):</translation>
-    </message>
-    <message>
-        <location filename="plugins/about.py" line="127"/>
+        <location filename="plugins/about.py" line="163"/>
         <source>GB</source>
         <translation>Гб</translation>
     </message>
@@ -69,19 +64,24 @@
         <translation>Альт Сервер</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="173"/>
+        <location filename="plugins/about.py" line="197"/>
         <source>Copy text</source>
         <translation>Скопировать текст</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="108"/>
+        <location filename="plugins/about.py" line="133"/>
         <source>Processor:</source>
         <translation>Процессор:</translation>
     </message>
     <message>
-        <location filename="plugins/about.py" line="126"/>
+        <location filename="plugins/about.py" line="162"/>
         <source>Memory:</source>
         <translation>Память:</translation>
+    </message>
+    <message>
+        <location filename="plugins/about.py" line="102"/>
+        <source>DE:</source>
+        <translation>Среда рабочего стола:</translation>
     </message>
 </context>
 <context>
@@ -600,17 +600,17 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="ui_mainwindow.py" line="105"/>
+        <location filename="ui_mainwindow.py" line="103"/>
         <source>ALT Center</source>
         <translation>Центр Альта</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="106"/>
+        <location filename="ui_mainwindow.py" line="104"/>
         <source>Do not run on next sesion start</source>
         <translation>Не загружать в начале следующего сеанса</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="107"/>
+        <location filename="ui_mainwindow.py" line="105"/>
         <source>&amp;Close</source>
         <translation>В&amp;ыход</translation>
     </message>
@@ -683,7 +683,7 @@
 <context>
     <name>PluginAbout</name>
     <message>
-        <location filename="plugins/about.py" line="200"/>
+        <location filename="plugins/about.py" line="224"/>
         <source>About system</source>
         <translation>О системе</translation>
     </message>
@@ -715,7 +715,7 @@
 <context>
     <name>PluginSettings</name>
     <message>
-        <location filename="plugins/settings.py" line="249"/>
+        <location filename="plugins/settings.py" line="264"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
@@ -731,62 +731,62 @@
 <context>
     <name>SettingsWidget</name>
     <message>
-        <location filename="plugins/settings.py" line="29"/>
+        <location filename="plugins/settings.py" line="35"/>
         <source>Daily</source>
         <translation>Ежедневно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="29"/>
+        <location filename="plugins/settings.py" line="35"/>
         <source>Weekly</source>
         <translation>Еженедельно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="29"/>
+        <location filename="plugins/settings.py" line="35"/>
         <source>Monthly</source>
         <translation>Ежемесячно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="54"/>
+        <location filename="plugins/settings.py" line="60"/>
         <source>Updates</source>
         <translation>Обновления</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="55"/>
+        <location filename="plugins/settings.py" line="61"/>
         <source>Advanced Settings</source>
         <translation>Расширенные настройки</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="68"/>
+        <location filename="plugins/settings.py" line="74"/>
         <source>🔄 Enable Auto-update</source>
         <translation>🔄 Включить автообновление</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="69"/>
+        <location filename="plugins/settings.py" line="75"/>
         <source>⏰ Update Frequency</source>
         <translation>⏰ Частота обновлений</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="70"/>
+        <location filename="plugins/settings.py" line="76"/>
         <source>🔔 Notify About Updates</source>
         <translation>🔔 Уведомлять об обновлениях</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="138"/>
+        <location filename="plugins/settings.py" line="144"/>
         <source>System Control Center</source>
         <translation>Центр управления системой</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="134"/>
+        <location filename="plugins/settings.py" line="140"/>
         <source>General settings: power management, network, date, workspace behavior</source>
         <translation>Общие настройки: энергосбережение, сеть, дата, поведение рабочей среды</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="140"/>
+        <location filename="plugins/settings.py" line="146"/>
         <source>User account management, system logs, kernel updates</source>
         <translation>Управление учётными записями, системные журналы, обновлнение ядра</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="132"/>
+        <location filename="plugins/settings.py" line="138"/>
         <source>User Settings</source>
         <translation>Параметры пользователя</translation>
     </message>
@@ -794,12 +794,12 @@
 <context>
     <name>app</name>
     <message>
-        <location filename="mainwindow.py" line="131"/>
+        <location filename="mainwindow.py" line="135"/>
         <source>Run at session startup</source>
         <translation>Запустить в начале сеанса</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="132"/>
+        <location filename="mainwindow.py" line="136"/>
         <source>List available modules and exit</source>
         <translation>Показать список доступных модулей</translation>
     </message>
