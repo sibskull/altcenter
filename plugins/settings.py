@@ -9,6 +9,7 @@ from PyQt5.QtCore import Qt, QSize
 import json
 import os
 import subprocess
+import re
 
 de_settings = { "KDE": "systemsettings",
                 "GNOME": "gnome-control-center",
@@ -150,6 +151,8 @@ class SettingsWidget(QWidget):
 
         # Set correct user settings program for current desktop environment
         current_de = os.environ['XDG_CURRENT_DESKTOP']
+        # Fix DE like Alt-GNOME:GNOME
+        current_de = re.sub(r"^.*:", "", current_de)
         if current_de in de_settings:
             apps['en'][0]['command'] = de_settings[current_de]
 
