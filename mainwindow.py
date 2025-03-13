@@ -149,7 +149,7 @@ window.splitter.setStretchFactor(0,0)
 window.splitter.setStretchFactor(1,1)
 
 # Reset logo by absolute path
-window.altLogo.setPixmap(QPixmap(os.path.join(current_dir, "basealt.png")))
+# window.altLogo.setPixmap(QPixmap(os.path.join(current_dir, "basealt.png")))
 
 # Show window
 window.show()
