@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget,
                              QGridLayout, QScrollArea,
                              QSpacerItem, QSizePolicy,
                              QMenu, QAction)
-from PyQt5.QtGui import QStandardItem
+from PyQt5.QtGui import QStandardItem, QPixmap
 from PyQt5.QtCore import Qt
 
 import os
@@ -60,11 +60,31 @@ class AboutWidget(QWidget):
         container_layout.setSpacing(10)
 
         # Добавляем Spacer сверху (с помощью QSizePolicy.Expanding)
-        top_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        top_spacer = QSpacerItem(5, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
         container_layout.addItem(top_spacer)
 
-        # Создаем метки
+
+        # Logo and name OS
         os_info = my_utils.parse_os_release()
+
+        label_logo = QLabel(self)
+
+        if 'LOGO' in os_info and os_info['LOGO'] != '':
+            logo_name = os_info['LOGO'] + '.pnggg'
+        else:
+            logo_name = 'basealt.png'
+
+        file_path = os.path.join('/usr/share/icons/hicolor/128x128/apps/', logo_name)
+
+        if os.path.isfile(file_path):
+            pixmap = QPixmap(file_path)
+        else:
+            pixmap = QPixmap('res/basealt.png')
+
+        label_logo.setPixmap(pixmap)
+        label_logo.setAlignment(Qt.AlignCenter)
+
+
         s = self.translate_os_name(os_info["MY_NAME"])
         os_name = "{}{}".format(s, os_info["MY_NAME_VERSION"])
         if os_info["MY_NAME_NICK"] != '':
@@ -85,6 +105,7 @@ class AboutWidget(QWidget):
         self.text.append('https://www.basealt.ru/')
 
         # Добавляем метки в контейнер
+        container_layout.addWidget(label_logo)
         container_layout.addWidget(label1)
         container_layout.addWidget(label2)
         container_layout.addWidget(QLabel())
@@ -226,3 +247,4 @@ class PluginAbout(plugins.Base):
 
         self.about_widget = AboutWidget(main_palette)
         pane.addWidget(self.about_widget)
+
