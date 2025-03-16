@@ -22,7 +22,7 @@ APPLICATION_VERSION = '1.0'
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtCore import QTranslator, QSettings
 from PyQt5.QtCore import QCommandLineParser, QCommandLineOption
-from PyQt5.QtCore import QItemSelectionModel
+
 # from PyQt5 import uic
 from PyQt5.QtGui import QStandardItemModel, QPixmap
 
@@ -33,6 +33,7 @@ import pathlib
 
 from ui_mainwindow import Ui_MainWindow
 from plugins import Base
+import my_utils
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 plugin_path = os.path.join(current_dir, "plugins")
@@ -149,7 +150,10 @@ window.splitter.setStretchFactor(0,0)
 window.splitter.setStretchFactor(1,1)
 
 # Reset logo by absolute path
-window.altLogo.setPixmap(QPixmap(os.path.join(current_dir, "basealt.png")))
+os_info = my_utils.parse_os_release()
+file_path = my_utils.get_alt_logo_path('/usr/share/icons/hicolor/64x64/apps/', os_info, 'res/basealt64.png')
+pixmap = QPixmap(file_path)
+window.altLogo.setPixmap(pixmap)
 
 # Show window
 window.show()

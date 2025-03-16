@@ -69,17 +69,8 @@ class AboutWidget(QWidget):
 
         label_logo = QLabel(self)
 
-        if 'LOGO' in os_info and os_info['LOGO'] != '':
-            logo_name = os_info['LOGO'] + '.pnggg'
-        else:
-            logo_name = 'basealt.png'
-
-        file_path = os.path.join('/usr/share/icons/hicolor/128x128/apps/', logo_name)
-
-        if os.path.isfile(file_path):
-            pixmap = QPixmap(file_path)
-        else:
-            pixmap = QPixmap('res/basealt.png')
+        file_path = my_utils.get_alt_logo_path('/usr/share/icons/hicolor/128x128/apps/', os_info, 'res/basealt128.png')
+        pixmap = QPixmap(file_path)
 
         label_logo.setPixmap(pixmap)
         label_logo.setAlignment(Qt.AlignCenter)
