@@ -214,14 +214,14 @@ def is_in_autostart(app_name) -> bool:
 
 
 def get_alt_logo_path(search_path: str, os_info: dict, default_file: str) -> str:
-    SUPPORTED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.svg']
+    SUPPORTED_EXTENSIONS = ['.svg' ,'.png', '.jpg', '.jpeg']
 
     file_path = default_file
 
     # Определяем путь к логотипу
     if 'LOGO' in os_info and os_info.get('LOGO', ''):
         logo_base = os_info['LOGO']
-        
+
         # Проверяем все расширения в целевой директории
         for ext in SUPPORTED_EXTENSIONS:
             possible_path = os.path.join(search_path, f"{logo_base}{ext}")
