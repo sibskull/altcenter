@@ -24,7 +24,7 @@ from PyQt5.QtCore import QTranslator, QSettings
 from PyQt5.QtCore import QCommandLineParser, QCommandLineOption
 from PyQt5.QtCore import QItemSelectionModel
 # from PyQt5 import uic
-from PyQt5.QtGui import QStandardItemModel, QPixmap
+from PyQt5.QtGui import QStandardItemModel, QIcon
 
 import os
 import sys
@@ -149,7 +149,7 @@ window.splitter.setStretchFactor(0,0)
 window.splitter.setStretchFactor(1,1)
 
 # Reset logo by absolute path
-window.altLogo.setPixmap(QPixmap(os.path.join(current_dir, "basealt.png")))
+window.altLogo.setPixmap(QIcon.fromTheme("basealt").pixmap(64))
 
 # Show window
 window.show()
