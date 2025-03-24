@@ -39,6 +39,24 @@ class AboutWidget(QWidget):
 
         return name
 
+    def translate_os_url(self, name:str) -> str:
+        dictionary = {
+            'ALT' : "https://altlinux.org",
+            'ALT Education' : "https://www.basealt.ru/alt-education",
+            'ALT Workstation' : "https://www.basealt.ru/alt-workstation",
+            'ALT Workstation K' : "https://www.basealt.ru/alt-workstation-k",
+            'ALT Regular' : "https://www.altlinux.org/Regular",
+            'Sisyphus' : "https://altlinux.org",
+            'ALT Server' : "https://www.basealt.ru/alt-server",
+            'ALT Virtualization Server' : "https://www.basealt.ru/alt-virtualization",
+            'ALT Starterkit' : "https://www.altlinux.org/Starterkits",
+		}
+
+        if name in dictionary:
+            name = dictionary[name]
+
+        return name
+
 
     def initUI(self):
         self.setAutoFillBackground(True)
@@ -85,10 +103,13 @@ class AboutWidget(QWidget):
         self.text = []
         self.text.append(os_name)
 
-        label2 = QLabel('<a href="https://www.basealt.ru/">https://www.basealt.ru/</a>')
+        url = self.translate_os_url(os_info["MY_NAME"])
+        label2 = QLabel('')
         label2.setAlignment(Qt.AlignCenter)
         label2.setOpenExternalLinks(True)
-        self.text.append('https://www.basealt.ru/')
+        if url != '':
+            label2.setText('<a href="%s">%s</a>' % (url, url))
+            self.text.append(url)
 
         # Добавляем метки в контейнер
         container_layout.addWidget(label_logo)
