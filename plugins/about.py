@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget,
                              QGridLayout, QScrollArea,
                              QSpacerItem, QSizePolicy,
                              QMenu, QAction)
-from PyQt5.QtGui import QStandardItem
+from PyQt5.QtGui import QStandardItem, QIcon
 from PyQt5.QtCore import Qt
 
 import os
@@ -70,6 +70,12 @@ class AboutWidget(QWidget):
         if os_info["MY_NAME_NICK"] != '':
             os_name = os_name + '\n' + os_info["MY_NAME_NICK"]
 
+        # Product logo
+        label_logo = QLabel(self)
+        label_logo.setAlignment(Qt.AlignCenter)
+        if 'LOGO' in os_info and os_info['LOGO'] != '':
+            label_logo.setPixmap(QIcon.fromTheme(os_info['LOGO']).pixmap(128))
+
         label1 = QLabel(os_name)
         label1.setAlignment(Qt.AlignCenter)
         label1.setWordWrap(True)
@@ -85,6 +91,7 @@ class AboutWidget(QWidget):
         self.text.append('https://www.basealt.ru/')
 
         # Добавляем метки в контейнер
+        container_layout.addWidget(label_logo)
         container_layout.addWidget(label1)
         container_layout.addWidget(label2)
         container_layout.addWidget(QLabel())
@@ -170,7 +177,7 @@ class AboutWidget(QWidget):
         container_layout.addLayout(grid_layout)
 
         # Добавляем Spacer снизу
-        bottom_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        bottom_spacer = QSpacerItem(5, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
         container_layout.addItem(bottom_spacer)
 
         # Добавляем контейнер в scroll_area
