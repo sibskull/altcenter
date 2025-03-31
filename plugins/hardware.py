@@ -1,11 +1,15 @@
 #!/usr/bin/python3
 
 import plugins
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QGroupBox,
-                            QGridLayout, QScrollArea, QTextBrowser)
-from PyQt5.QtGui import QStandardItem, QFont
-from PyQt5.QtCore import QObject
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton,
+                            QScrollArea, QTextBrowser, QInputDialog,
+                            QMessageBox, QLineEdit, QApplication, QLabel, QHBoxLayout)
+from PyQt5.QtGui import QStandardItem
+from PyQt5.QtCore import QObject, Qt
+from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 import subprocess
+import webbrowser
+
 
 class GetSystemInfo(QObject):
     def __init__(self):
@@ -253,19 +257,149 @@ class GetSystemInfo(QObject):
         return system_info
 
 
-class PluginHardware(plugins.Base):
+class BrowserThread(QThread):
+    # Сигнал для запуска браузера
+    open_browser_signal = pyqtSignal(str)
+
+    def __init__(self, url):
+        super().__init__()
+        self.url = url
+
+    def run(self):
+        # Ожидаем сигнал для открытия браузера
+        webbrowser.open(self.url)
+
+
+class HardwareWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)  # Увеличили верхний отступ
+
+        # Верхняя панель с отступом
+        top_panel = QWidget()
+        top_layout = QHBoxLayout(top_panel)
+        top_layout.setContentsMargins(0, 10, 0, 10)  # Добавили вертикальные отступы
+
+        self.link_label = QLabel()
+        # self.link_label.setMinimumHeight(60)
+        self.link_label.setAlignment(Qt.AlignCenter)
+        self.link_label.setTextFormat(Qt.RichText)
+        self.link_label.setOpenExternalLinks(True)
+        # self.link_label.setText('https://www.basealt.ru')
+        self.link_label.setStyleSheet('color: blue; text-decoration: underline;')
+        # self.link_label.setContentsMargins(20,0,20,0)
+        top_layout.addWidget(self.link_label)
+
+        # Увеличенная кнопка
+        btn = QPushButton(self.tr("Upload Hardware Probe"))
+        # btn.setFixedSize(220, 60)  # Ширина 200px, высота 40px
+        btn.clicked.connect(self.authenticate)
+        top_layout.addWidget(btn, 0, Qt.AlignRight)
+
+        main_layout.addWidget(top_panel)
+
+        # Основной текст
+        self.text_browser = QTextBrowser()
+        gsi = GetSystemInfo()
+        self.text_browser.setHtml(gsi.get_system_info())
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(self.text_browser)
+        main_layout.addWidget(scroll)
+
+        self.setLayout(main_layout)
+        self.setMinimumSize(600,800)
+
+        self.browser_thread = None
+        self.link_label.mousePressEvent = self.on_label_click
+
+
+    def on_label_click(self, event):
+        # if self.browser_thread is None or not self.browser_thread.isRunning():
+        if self.link_label.text().startswith('http'):
+            self.browser_thread = BrowserThread(self.link_label.text())
+            # self.browser_thread.open_browser_signal.connect(self.open_browser)
+            self.browser_thread.start()
+
+
+    @pyqtSlot()
+    def authenticate(self):
+        password, ok = QInputDialog.getText(None, 'Sudo Authentication', 'Enter sudo password:', QLineEdit.Password)
+
+        if not ok or password == '':
+            return
+
+        try:
+            # Проверка наличия пакета
+            check_installed = subprocess.run(
+                ['rpm', '-q', 'hw-probe'],
+                capture_output=True,
+                text=True
+            )
+
+            # Если пакет не установлен - устанавливаем
+            if check_installed.returncode != 0:
+                subprocess.run(
+                    ['sudo', '-S', 'apt-get', 'install', '-y', 'hw-probe'],
+                    input=f"{password}\n",
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+
+            # Запуск проверки оборудования
+            result = subprocess.run(
+                # 'sudo -E hw-probe -all',
+                ['sudo', '-S', '-k', 'hw-probe', '-all', '-upload'],
+                input=f"{password}\n",
+                capture_output=True,
+                text=True,
+                check=True
+            )
+
+
+            # Получение ссылки
+            if 'Probe URL:' in result.stdout:
+                url = result.stdout.split('Probe URL:')[1].strip()
+                new_link = f'<a href="{url}">{url}</a><br>'
+                # current_text = self.link_label.text()
+                self.link_label.setText(new_link)
+            else:
+                QMessageBox.critical(
+                    None,
+                    self.tr("Error"),
+                    self.tr("Failed to get probe link\nPlease try again later")
+                )
+
+        except Exception as e:
+            error_msg = self.tr("Unknown error")
+            if isinstance(e, subprocess.CalledProcessError):
+                error_msg = e.stderr.strip() or error_msg
+
+            QMessageBox.critical(
+                None,
+                self.tr("Error"),
+                f"{self.tr('Error occurred')}:\n{error_msg}"
+            )
+
+
+class PluginHardware(plugins.Base, QWidget):
     def __init__(self):
         super().__init__("hardware", 30)
+
         self.node = None
+        self.link_label = None
+        self.text_browser = None
+
 
     def start(self, plist, pane):
         self.node = QStandardItem(self.tr("Hardware"))
         self.node.setData(self.getName())
         plist.appendRow([self.node])
 
-        self.text_browser = QTextBrowser()
-        # self.text_browser.setCurrentFont(QFont("Monospace Regular", 9))
-        gsi = GetSystemInfo()
-        self.text_browser.setHtml(gsi.get_system_info())
-        self.text_browser.setOpenExternalLinks(False)
-        pane.addWidget(self.text_browser)
+        main_widget = HardwareWindow()
+
+        pane.addWidget(main_widget)
