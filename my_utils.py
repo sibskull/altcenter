@@ -1,4 +1,4 @@
-import os, re, subprocess
+import os, re, subprocess, shutil
 from pathlib import Path
 
 
@@ -213,6 +213,68 @@ def is_in_autostart(app_name) -> bool:
         return False
 
 
+def check_package_installed(package: str) -> bool:
+    """Проверяет, установлен ли пакет package через rpm"""
+    try:
+        result = subprocess.run(
+            ['rpm', '-q', package],
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode == 0:
+            # Если package установлен, rpm вернёт название пакета
+            # print(f"✅ '{package}' установлен: {result.stdout.strip()}")
+            return True
+        else:
+            # print(f"❌ {result.stderr.strip()}.")
+            return False
+
+    except FileNotFoundError:
+        # print("⚠ Команда 'rpm' не найдена (возможно, система не на базе RPM).")
+        return False
+
+
+def check_program_available(program: str) -> bool:
+    """Проверяет, доступна ли program в PATH"""
+    program_path = shutil.which(program)
+    if program_path:
+        # print(f"✅ {program} найдена: {program_path}")
+        return True
+    else:
+        # print(f"❌ {program} не найдена в системе.")
+        return False
+
+
+def check_service_active(service: str) -> bool:
+    """Проверяет, запущен ли демон service (без sudo)"""
+    try:
+        result = subprocess.run(
+            ["systemctl", "status", service],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+
+        # if "active (running)" in result.stdout:
+        if result.returncode == 0:
+            # print(f"✅ Демон '{service}' работает.")
+            return True
+        else:
+            # print(f"❌ Демон '{service}' не запущен.")
+            return False
+
+    except FileNotFoundError:
+        # print("⚠ Команда 'systemctl' не найдена (возможно, система без systemd).")
+        return False
+
+
+def check_polkit_enabled() -> bool:
+    return (check_package_installed('polkit')
+        and check_program_available('pkexec')
+        and check_service_active('polkit'))
+
+
 if __name__ == "__main__":
     pass
 
@@ -251,3 +313,5 @@ if __name__ == "__main__":
     # add_to_autostart("altcenter", Path.home() / "Rabota/Python/altcenter/altcenter")    # /usr/bin/myapp")
     # remove_from_autostart("altcenter")
     # is_in_autostart("altcenter")
+
+    # print(check_polkit_enabled())
