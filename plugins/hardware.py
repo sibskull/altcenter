@@ -1,11 +1,17 @@
 #!/usr/bin/python3
 
 import plugins
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QGroupBox,
-                            QGridLayout, QScrollArea, QTextBrowser)
-from PyQt5.QtGui import QStandardItem, QFont
-from PyQt5.QtCore import QObject
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton,
+                            QScrollArea, QTextBrowser, QInputDialog,
+                            QMessageBox, QLineEdit, QApplication, QLabel, QHBoxLayout)
+from PyQt5.QtGui import QStandardItem
+from PyQt5.QtCore import QObject, Qt
+from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 import subprocess
+import webbrowser
+
+import my_utils
+
 
 class GetSystemInfo(QObject):
     def __init__(self):
@@ -253,7 +259,121 @@ class GetSystemInfo(QObject):
         return system_info
 
 
-class PluginHardware(plugins.Base):
+class BrowserThread(QThread):
+    # Сигнал для запуска браузера
+    open_browser_signal = pyqtSignal(str)
+
+    def __init__(self, url):
+        super().__init__()
+        self.url = url
+
+    def run(self):
+        # Ожидаем сигнал для открытия браузера
+        webbrowser.open(self.url)
+
+
+class HardwareWindow(QWidget):
+    def __init__(self, palette = None):
+        super().__init__()
+
+        if palette != None:
+            self.setPalette(palette)
+            pass
+
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+
+
+        if self.is_enabled_hw_probe():
+            top_panel = QWidget()
+            top_layout = QHBoxLayout(top_panel)
+            top_layout.setContentsMargins(15, 10, 15, 10)
+
+            btn = QPushButton(self.tr("Upload Hardware Probe"))
+            btn.setStyleSheet("""
+                QPushButton {
+                    padding: 5px 15px;  /* Отступы сверху/снизу и слева/справа */
+                }
+            """)
+            btn.clicked.connect(self.authenticate)
+            top_layout.addWidget(btn, 0, Qt.AlignLeft)
+
+            self.link_label = QLabel()
+            self.link_label.setAlignment(Qt.AlignRight)
+            self.link_label.setTextFormat(Qt.RichText)
+            self.link_label.setOpenExternalLinks(True)
+            # self.link_label.setText('https://www.basealt.ru/dhsuhgfuseuiuighwuiheiuhwuighuihu')
+            self.link_label.setStyleSheet('color: blue; text-decoration: underline; padding: 5px 10px;')
+            top_layout.addWidget(self.link_label)
+            self.link_label.mousePressEvent = self.on_label_click
+
+            layout.addWidget(top_panel)
+
+
+        # Основной текст
+        self.text_browser = QTextBrowser()
+        gsi = GetSystemInfo()
+        self.text_browser.setHtml(gsi.get_system_info())
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(self.text_browser)
+        layout.addWidget(scroll)
+
+        self.setLayout(layout)
+        # self.setMinimumSize(600,800)
+
+        self.browser_thread = None
+
+
+    def on_label_click(self, event):
+        # if self.browser_thread is None or not self.browser_thread.isRunning():
+        if self.link_label.text().startswith('http'):
+            self.browser_thread = BrowserThread(self.link_label.text())
+            # self.browser_thread.open_browser_signal.connect(self.open_browser)
+            self.browser_thread.start()
+
+
+    def is_enabled_hw_probe(self) -> bool:
+        return my_utils.check_polkit_enabled()  and  my_utils.check_package_installed('hw-probe')
+
+
+    @pyqtSlot()
+    def authenticate(self):
+        try:
+            # Запуск hw-probe с правами root через pkexec
+            result = subprocess.run(
+                ['pkexec', 'hw-probe', '-all', '-upload'],
+                check=True,
+                text=True,
+                capture_output=True
+            )
+
+            # Получение ссылки
+            if 'Probe URL:' in result.stdout:
+                url = result.stdout.split('Probe URL:')[1].strip()
+                new_link = f'<a href="{url}">{url}</a>'
+                self.link_label.setText(new_link)
+            else:
+                QMessageBox.critical(
+                    None,
+                    self.tr("Error"),
+                    self.tr("Failed to get probe link\nPlease try again later")
+                )
+
+        except Exception as e:
+            error_msg = self.tr("Unknown error")
+            if isinstance(e, subprocess.CalledProcessError):
+                error_msg = e.stderr.strip() or error_msg
+
+            QMessageBox.critical(
+                None,
+                self.tr("Error"),
+                f"{self.tr('Error occurred')}:\n{error_msg}"
+            )
+
+
+class PluginHardware(plugins.Base, QWidget):
     def __init__(self):
         super().__init__("hardware", 30)
         self.node = None
@@ -263,9 +383,7 @@ class PluginHardware(plugins.Base):
         self.node.setData(self.getName())
         plist.appendRow([self.node])
 
-        self.text_browser = QTextBrowser()
-        # self.text_browser.setCurrentFont(QFont("Monospace Regular", 9))
-        gsi = GetSystemInfo()
-        self.text_browser.setHtml(gsi.get_system_info())
-        self.text_browser.setOpenExternalLinks(False)
-        pane.addWidget(self.text_browser)
+        main_palette = pane.window().palette()
+        main_widget = HardwareWindow(main_palette)
+
+        pane.addWidget(main_widget)
