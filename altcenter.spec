@@ -9,7 +9,7 @@
 
 Name: altcenter
 Version: 1.0
-Release: alt0.6
+Release: alt0.7
 Summary: Application for show information and configure system
 
 License: GPL-3.0+
@@ -54,6 +54,12 @@ Available plugins:
 %_sysconfdir/xdg/autostart/%name.desktop
 
 %changelog
+* Fri Apr 18 2025 Andrey Cherepanov <cas@altlinux.org> 1.0-alt0.7
+- hardware: added the ability to hardware probe.
+- about: showed URL specified for product and product logo specified in
+  /etc/os-release
+- Used logo from icon theme.
+
 * Fri Feb 07 2025 Andrey Cherepanov <cas@altlinux.org> 1.0-alt0.6
 - about: added info about DE + redesigned plugin.
 - settings: fix DE like Alt-GNOME:GNOME (ALT #52873).
