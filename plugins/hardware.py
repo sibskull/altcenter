@@ -281,14 +281,19 @@ class HardwareWindow(QWidget):
             top_layout = QHBoxLayout(top_panel)
             top_layout.setContentsMargins(15, 10, 15, 10)
 
-            btn = QPushButton(self.tr("Upload Hardware Probe"))
-            btn.setStyleSheet("""
+            self.btn_probe = QPushButton(self.tr("Upload Hardware Probe"))
+            self.btn_probe.setStyleSheet("""
                 QPushButton {
                     padding: 5px 15px;  /* Отступы сверху/снизу и слева/справа */
                 }
             """)
-            btn.clicked.connect(self.authenticate)
-            top_layout.addWidget(btn, 0, Qt.AlignLeft)
+            self.btn_probe.clicked.connect(self.start_hw_probe)
+            top_layout.addWidget(self.btn_probe, 0, Qt.AlignLeft)
+
+            self.proc_probe = QProcess(self)
+            self.proc_probe.finished.connect(self.on_proc_probe_finished)
+            self.proc_probe.readyReadStandardOutput.connect(self.on_probe_stdout_ready)
+            self.proc_probe.readyReadStandardError.connect(self.on_probe_stderr_ready)
 
             self.link_label = QLabel()
             self.link_label.setAlignment(Qt.AlignRight)
@@ -362,21 +367,43 @@ class HardwareWindow(QWidget):
 
 
     @pyqtSlot()
-    def authenticate(self):
-        try:
-            # Запуск hw-probe с правами root через pkexec
-            result = subprocess.run(
-                ['pkexec', 'hw-probe', '-all', '-upload'],
-                check=True,
-                text=True,
-                capture_output=True
-            )
+    def start_hw_probe(self):
+        self.btn_probe.setEnabled(False)
+        self.probe_result = []
+        self.link_label.setText(self.tr("Starting hw-probe..."))
+        self.proc_probe.start('pkexec', ['hw-probe', '-all', '-upload'])
 
+
+    def on_probe_stdout_ready(self):
+        output = self.proc_probe.readAllStandardOutput().data().decode()
+        # print(output)
+        self.probe_result.append(output)
+
+
+    def on_probe_stderr_ready(self):
+        error = self.proc_probe.readAllStandardError().data().decode()
+        # print(error)
+        self.probe_result.append(error)
+
+
+    def on_proc_probe_finished(self, exit_code, exit_status):
+        self.btn_probe.setEnabled(True)
+        self.link_label.setText('')
+        result = ''.join(self.probe_result)
+        # print(result)
+        # print(f"\nProcess finished with exit code {exit_code}")
+        if exit_code != 0:
+            QMessageBox.critical(
+                None,
+                self.tr("Error"),
+                f'{self.tr("Error occurred")}:\n\n{result}'
+            )
+        else:
             # Получение ссылки
-            if 'Probe URL:' in result.stdout:
-                url = result.stdout.split('Probe URL:')[1].strip()
-                new_link = f'<a href="{url}">{url}</a>'
-                self.link_label.setText(new_link)
+            if 'Probe URL:' in result:
+                url = result.split('Probe URL:')[1].strip()
+                link = f'<a href="{url}">{url}</a>'
+                self.link_label.setText(link)
             else:
                 QMessageBox.critical(
                     None,
@@ -384,16 +411,6 @@ class HardwareWindow(QWidget):
                     self.tr("Failed to get probe link\nPlease try again later")
                 )
 
-        except Exception as e:
-            error_msg = self.tr("Unknown error")
-            if isinstance(e, subprocess.CalledProcessError):
-                error_msg = e.stderr.strip() or error_msg
-
-            QMessageBox.critical(
-                None,
-                self.tr("Error"),
-                f"{self.tr('Error occurred')}:\n{error_msg}"
-            )
 
 
 class PluginHardware(plugins.Base, QWidget):
