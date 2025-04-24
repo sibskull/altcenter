@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton,
                             QMessageBox, QLineEdit, QApplication, QLabel, QHBoxLayout)
 from PyQt5.QtGui import QStandardItem
 from PyQt5.QtCore import QObject, Qt
-from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot, QProcess
 import subprocess
 import webbrowser
 
@@ -17,19 +17,11 @@ class GetSystemInfo(QObject):
     def __init__(self):
         super().__init__()
 
-    def get_system_info(self) -> str:
+
+    def get_system_info(self, system_info: str) -> str:
 
         # Получаем информацию о системе через inxi -F
         try:
-            system_info = subprocess.check_output(
-                "inxi -F -c -y -1",
-                shell=True,
-                text=True
-            )
-            # Очищаем от специальных символов
-            # system_info = re.sub(r'', '', system_info)
-            # system_info = re.sub(r'12', '', system_info)
-
             # Расширенный список терминов для разделителей
             separators = [
                 'System:',
@@ -312,8 +304,13 @@ class HardwareWindow(QWidget):
 
         # Основной текст
         self.text_browser = QTextBrowser()
-        gsi = GetSystemInfo()
-        self.text_browser.setHtml(gsi.get_system_info())
+        self.proc_inxi = QProcess(self)
+        self.proc_inxi.finished.connect(self.on_proc_inxi_finished)
+        self.proc_inxi.readyReadStandardOutput.connect(self.on_inxi_stdout_ready)
+        self.proc_inxi.readyReadStandardError.connect(self.on_inxi_stderr_ready)
+        self.get_system_info()
+
+        self.gsi = GetSystemInfo()
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -324,6 +321,32 @@ class HardwareWindow(QWidget):
         # self.setMinimumSize(600,800)
 
         self.browser_thread = None
+
+
+    def on_inxi_stdout_ready(self):
+        output = self.proc_inxi.readAllStandardOutput().data().decode()
+        self.inxi_result.append(output)
+
+
+    def on_inxi_stderr_ready(self):
+        error = self.proc_inxi.readAllStandardError().data().decode()
+        self.inxi_result.append(error)
+
+
+    def on_proc_inxi_finished(self, exit_code, exit_status):
+        if exit_code != 0:
+            s = self.tr('Error getting system information')
+            error = "<br />".join(self.inxi_result)
+            error = error.replace('\n', '<br />')
+            str_error = f"<font color='red'><p>{s}:<br /><br /> {error}</p></font>"
+            self.text_browser.setHtml(str_error)
+        else:
+            self.text_browser.setHtml(self.gsi.get_system_info(''.join(self.inxi_result)))
+
+
+    def get_system_info(self) -> str:
+        self.inxi_result = []
+        self.proc_inxi.start("inxi -F -c -y -1")
 
 
     def on_label_click(self, event):
@@ -387,3 +410,10 @@ class PluginHardware(plugins.Base, QWidget):
         main_widget = HardwareWindow(main_palette)
 
         pane.addWidget(main_widget)
+
+
+if __name__ == '__main__':
+    app = QApplication([])
+    window = HardwareWindow()
+    window.show()
+    app.exec_()
