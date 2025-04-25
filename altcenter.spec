@@ -18,7 +18,7 @@ URL: http://www.altlinux.org/altcenter
 
 Source0: %name-%version.tar
 
-%if "%altbranch" == "p11"
+%if "%altbranch" == "sisyphus" || "%altbranch" == "p11"
 BuildArch: noarch
 %else
 ExcludeArch: ppc64le armh
