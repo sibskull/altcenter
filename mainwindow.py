@@ -19,7 +19,7 @@
 APPLICATION_NAME = 'altcenter'
 APPLICATION_VERSION = '1.0'
 
-from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 from PyQt5.QtCore import QTranslator, QSettings
 from PyQt5.QtCore import QCommandLineParser, QCommandLineOption
 from PyQt5.QtCore import QItemSelectionModel
@@ -53,6 +53,8 @@ class MainWindow(QWidget, Ui_MainWindow):
         self.splitter.setStretchFactor(0,0)
         self.splitter.setStretchFactor(1,1)
 
+        self.block_close = False
+        
     def onSelectionChange(self, index):
         """Slot for change selection"""
         self.stack.setCurrentIndex(index.row() + 1)
@@ -62,6 +64,12 @@ class MainWindow(QWidget, Ui_MainWindow):
         self.settings.setValue('Settings/runOnSessionStart', (state == 2))
         self.settings.sync()
 
+    def closeEvent(self, event):
+        if self.block_close:
+            QMessageBox.warning(self, "Операция выполняется", "Нельзя закрыть окно во время установки или обновления.")
+            event.ignore()
+        else:
+            event.accept()
 
 # Run application
 app = QApplication(sys.argv) # Create an instance of QtWidgets.QApplication
