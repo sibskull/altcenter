@@ -3,22 +3,20 @@
 import plugins
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QPushButton, QMessageBox,
-    QListWidget, QListWidgetItem, QHBoxLayout, QTextEdit
+    QListWidget, QListWidgetItem, QTextEdit, QSplitter
 )
 from PyQt5.QtGui import QStandardItem, QFont, QColor
 from PyQt5.QtCore import Qt, QProcess
 import my_utils
 
-class Components(plugins.Base):
+class AppInstall(plugins.Base):
     def __init__(self):
         super().__init__("components", 90)
         self.node = None
         self.list_widget = None
         self.console = None
+        self.info_panel = None
         self.pkg_mapping = {}
-
-        self.num_packages = 1
-        self.current_package = 0
 
     def start(self, plist, pane):
         self.main_window = pane.window()
@@ -28,17 +26,45 @@ class Components(plugins.Base):
         plist.appendRow([self.node])
 
         main_widget = QWidget()
-        layout = QVBoxLayout(main_widget)
-        layout.setContentsMargins(5, 5, 5, 5)
-        layout.setSpacing(10)
+        main_layout = QVBoxLayout(main_widget)
+        main_layout.setContentsMargins(5, 5, 5, 5)
+        main_layout.setSpacing(10)
+
+        splitter = QSplitter(Qt.Horizontal)
 
         self.list_widget = QListWidget()
         self.list_widget.itemChanged.connect(self.update_install_button_state)
-        layout.addWidget(self.list_widget, 1)
+        self.list_widget.itemClicked.connect(self.show_item_info)
+        splitter.addWidget(self.list_widget)
+
+        self.info_panel = QTextEdit()
+        self.info_panel.setReadOnly(True)
+        self.info_panel.setFont(QFont("Sans", 10))
+        self.info_panel.setPlaceholderText("Информация о выбранном приложении.")
+        self.info_panel.setMinimumWidth(200)
+        self.info_panel.setVisible(False)
+        splitter.addWidget(self.info_panel)
+
+        splitter.setStretchFactor(0, 3)
+        splitter.setStretchFactor(1, 2)
+
+        main_layout.addWidget(splitter, 1)
+
+        self.console = QTextEdit()
+        self.console.setReadOnly(True)
+        self.console.setVisible(False)
+        self.console.setFont(QFont("Courier", 10))
+        main_layout.addWidget(self.console)
+
+        self.btn_install = QPushButton(self.tr("Применить"))
+        self.btn_install.setEnabled(False)
+        self.btn_install.clicked.connect(self.start_installation)
+        self.btn_install.setMinimumHeight(30)
+        main_layout.addWidget(self.btn_install)
 
         # названия ключей из файла
         try:
-            with open("/home/sergey/Rabota/Python/altcenter/res/list.txt", "r") as f:
+            with open("/home/sergey/Rabota/Python/altcenter_sibskull/res/list_components.txt", "r") as f:
                 for line in f:
                     line = line.strip()
                     if not line or ':' not in line:
@@ -59,17 +85,6 @@ class Components(plugins.Base):
                 item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
                 item.setCheckState(Qt.Unchecked)
             self.list_widget.addItem(item)
-
-        self.console = QTextEdit()
-        self.console.setReadOnly(True)
-        self.console.setVisible(False)
-        self.console.setFont(QFont("Courier", 10))
-        layout.addWidget(self.console)
-
-        self.btn_install = QPushButton(self.tr("Применить"))
-        self.btn_install.setEnabled(False)
-        self.btn_install.clicked.connect(self.start_installation)
-        layout.addWidget(self.btn_install)
 
         self.proc_install = QProcess(self)
         self.proc_install.readyReadStandardOutput.connect(self.on_install_output)
@@ -118,11 +133,7 @@ class Components(plugins.Base):
         cursor.movePosition(cursor.End)
 
         fmt = cursor.charFormat()
-        if is_error:
-            fmt.setForeground(QColor("red"))
-        else:
-            fmt.setForeground(QColor("black"))
-
+        fmt.setForeground(QColor("red") if is_error else QColor("black"))
         cursor.setCharFormat(fmt)
         cursor.insertText(text)
         self.console.setTextCursor(cursor)
@@ -155,3 +166,9 @@ class Components(plugins.Base):
     def on_install_error(self):
         error = self.proc_install.readAllStandardError().data().decode()
         self.append_to_console(error, is_error=True)
+
+    def show_item_info(self, item):
+        if item:
+            name = item.text()
+            self.info_panel.setText(f"Информация о: {name}\n\n(Описание будет добавлено позже)")
+            self.info_panel.setVisible(True)
