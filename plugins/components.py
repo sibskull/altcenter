@@ -8,15 +8,20 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QStandardItem, QFont, QColor
 from PyQt5.QtCore import Qt, QProcess
 import my_utils
+import dbus
 
-class AppInstall(plugins.Base):
+class Components(plugins.Base):
     def __init__(self):
         super().__init__("components", 90)
         self.node = None
         self.list_widget = None
         self.console = None
         self.info_panel = None
-        self.pkg_mapping = {}
+        self.pkg_mapping = {}            # Название → ключ
+        self.component_packages = {}     # Ключ → пакеты
+
+        self.num_packages = 1
+        self.current_package = 0
 
     def start(self, plist, pane):
         self.main_window = pane.window()
@@ -40,7 +45,7 @@ class AppInstall(plugins.Base):
         self.info_panel = QTextEdit()
         self.info_panel.setReadOnly(True)
         self.info_panel.setFont(QFont("Sans", 10))
-        self.info_panel.setPlaceholderText("Информация о выбранном приложении.")
+        self.info_panel.setPlaceholderText("Информация о выбранном компоненте.")
         self.info_panel.setMinimumWidth(200)
         self.info_panel.setVisible(False)
         splitter.addWidget(self.info_panel)
@@ -64,7 +69,7 @@ class AppInstall(plugins.Base):
 
         # названия ключей из файла
         try:
-            with open("/home/sergey/Rabota/Python/altcenter_sibskull/res/list_components.txt", "r") as f:
+            with open("/home/sergey/Rabota/Python/altcenter/res/list.txt", "r") as f:
                 for line in f:
                     line = line.strip()
                     if not line or ':' not in line:
@@ -72,8 +77,10 @@ class AppInstall(plugins.Base):
                     name, key = map(str.strip, line.split(':', 1))
                     self.pkg_mapping[name] = key
         except Exception as e:
-            QMessageBox.critical(None, "Ошибка", f"Не удалось загрузить список пакетов:\n{e}")
+            QMessageBox.critical(None, "Ошибка", f"Не удалось загрузить список компонентов:\n{e}")
             return
+
+        self.load_component_packages()
 
         # список
         for name, key in self.pkg_mapping.items():
@@ -92,6 +99,49 @@ class AppInstall(plugins.Base):
         self.proc_install.finished.connect(self.on_install_finished)
 
         self.index = pane.addWidget(main_widget)
+
+    def load_component_packages(self):
+        wanted = set(self.pkg_mapping.values())
+        self.component_packages = {}
+
+        try:
+            bus = dbus.SystemBus()
+            proxy = bus.get_object('org.altlinux.alterator', '/org/altlinux/alterator/global')
+            iface = dbus.Interface(proxy, 'org.altlinux.alterator.batch_components1')
+
+            raw_data, _ = iface.Info()
+            text = bytes(raw_data).decode("utf-8")
+            blocks = text.strip().split("\n\n")
+
+            for raw_block in blocks:
+                lines = raw_block.strip().splitlines()
+                name = None
+                packages = []
+                inside_packages = False
+
+                for line in lines:
+                    line = line.strip()
+
+                    if not line:
+                        continue
+
+                    if line.startswith("name ="):
+                        name = line.split("=", 1)[1].strip().strip('"')
+
+                    elif line.startswith("[packages]"):
+                        inside_packages = True
+
+                    elif inside_packages:
+                        if "=" in line:
+                            pkg = line.split("=")[0].strip()
+                            packages.append(pkg)
+
+                if name and name in wanted:
+                    self.component_packages[name] = packages
+
+        except Exception as e:
+            QMessageBox.critical(None, "Ошибка", f"Ошибка получения данных от alterator:\n{e}")
+
 
     def update_install_button_state(self):
         self.btn_install.setEnabled(any(
@@ -168,7 +218,22 @@ class AppInstall(plugins.Base):
         self.append_to_console(error, is_error=True)
 
     def show_item_info(self, item):
-        if item:
-            name = item.text()
-            self.info_panel.setText(f"Информация о: {name}\n\n(Описание будет добавлено позже)")
-            self.info_panel.setVisible(True)
+        if not item:
+            return
+
+        name = item.text()
+        key = self.pkg_mapping.get(name, name)
+
+        lines = []
+        lines.append(f"Информация о: {name}")
+        lines.append("")
+
+        if key in self.component_packages:
+            lines.append("Этот компонент состоит из:")
+            for pkg in self.component_packages[key]:
+                lines.append(f"  - {pkg}")
+        else:
+            lines.append("Пакеты не найдены или отсутствуют данные.")
+
+        self.info_panel.setText("\n".join(lines))
+        self.info_panel.setVisible(True)
