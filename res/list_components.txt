@@ -8,5 +8,5 @@ education-robotics:education-robotics
 moodle:moodle
 nextcloud:nextcloud
 mediawiki:mediawiki
-yandex:yandex
+yandex-browser-stable:yandex-browser-stable
 fonts-ttf-ms:fonts-ttf-ms

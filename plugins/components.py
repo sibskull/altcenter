@@ -9,6 +9,7 @@ from PyQt5.QtGui import QStandardItem, QFont, QColor
 from PyQt5.QtCore import Qt, QProcess
 import my_utils
 import dbus
+import os
 
 class Components(plugins.Base):
     def __init__(self):
@@ -79,9 +80,12 @@ class Components(plugins.Base):
     def load_components_from_dbus(self):
         self.components_info.clear()
 
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        list_path = os.path.join(base_dir, "..", "res", "list_components.txt")
+
         pkg_order = []
         try:
-            with open("/home/sergey/Rabota/Python/altcenter/res/list.txt", "r", encoding="utf-8") as f:
+            with open(list_path, "r", encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
                     if not line or ':' not in line:
@@ -89,7 +93,7 @@ class Components(plugins.Base):
                     name, key = map(str.strip, line.split(":", 1))
                     pkg_order.append((name, key))
         except Exception as e:
-            QMessageBox.critical(None, "Ошибка", f"Ошибка чтения list.txt:\n{e}")
+            QMessageBox.critical(None, "Ошибка", f"Ошибка чтения list_components.txt:\n{e}")
             return
 
         try:
@@ -176,9 +180,6 @@ class Components(plugins.Base):
 
             for comp in self.components_info:
                 if comp["name"] == name:
-                    # Включаем кнопку, если:
-                    # - компонент НЕ установлен и выбран (для установки)
-                    # - компонент установлен и галочка снята (для удаления)
                     if (not comp["installed"] and checked) or (comp["installed"] and not checked):
                         enable = True
                     break
@@ -197,7 +198,6 @@ class Components(plugins.Base):
                 name = item.text()
                 for comp in self.components_info:
                     if comp["name"] == name and not comp["installed"]:
-                        # Учитываем: если пакетов нет — пробуем установить сам компонент
                         if comp["packages"]:
                             selected.extend(pkg for pkg in comp["packages"]
                                             if not my_utils.check_package_installed(pkg))
