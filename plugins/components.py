@@ -17,11 +17,10 @@ class Components(plugins.Base):
         self.list_widget = None
         self.console = None
         self.info_panel = None
-        self.pkg_mapping = {}            # Название → ключ
-        self.component_packages = {}     # Ключ → пакеты
+        self.btn_install = None
+        self.proc_install = None
 
-        self.num_packages = 1
-        self.current_package = 0
+        self.components_info = []  # name, key, packages, installed
 
     def start(self, plist, pane):
         self.main_window = pane.window()
@@ -33,7 +32,6 @@ class Components(plugins.Base):
         main_widget = QWidget()
         main_layout = QVBoxLayout(main_widget)
         main_layout.setContentsMargins(5, 5, 5, 5)
-        main_layout.setSpacing(10)
 
         splitter = QSplitter(Qt.Horizontal)
 
@@ -45,7 +43,6 @@ class Components(plugins.Base):
         self.info_panel = QTextEdit()
         self.info_panel.setReadOnly(True)
         self.info_panel.setFont(QFont("Sans", 10))
-        self.info_panel.setPlaceholderText("Информация о выбранном компоненте.")
         self.info_panel.setMinimumWidth(200)
         self.info_panel.setVisible(False)
         splitter.addWidget(self.info_panel)
@@ -67,31 +64,8 @@ class Components(plugins.Base):
         self.btn_install.setMinimumHeight(30)
         main_layout.addWidget(self.btn_install)
 
-        # названия ключей из файла
-        try:
-            with open("/home/sergey/Rabota/Python/altcenter/res/list.txt", "r") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or ':' not in line:
-                        continue
-                    name, key = map(str.strip, line.split(':', 1))
-                    self.pkg_mapping[name] = key
-        except Exception as e:
-            QMessageBox.critical(None, "Ошибка", f"Не удалось загрузить список компонентов:\n{e}")
-            return
-
-        self.load_component_packages()
-
-        # список
-        for name, key in self.pkg_mapping.items():
-            item = QListWidgetItem(name)
-            if my_utils.check_package_installed(key):
-                item.setCheckState(Qt.Checked)
-                item.setFlags(item.flags() & ~Qt.ItemIsUserCheckable & ~Qt.ItemIsEnabled)
-            else:
-                item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-                item.setCheckState(Qt.Unchecked)
-            self.list_widget.addItem(item)
+        self.load_components_from_dbus()
+        self.populate_list()
 
         self.proc_install = QProcess(self)
         self.proc_install.readyReadStandardOutput.connect(self.on_install_output)
@@ -100,9 +74,21 @@ class Components(plugins.Base):
 
         self.index = pane.addWidget(main_widget)
 
-    def load_component_packages(self):
-        wanted = set(self.pkg_mapping.values())
-        self.component_packages = {}
+    def load_components_from_dbus(self):
+        self.components_info.clear()
+
+        pkg_mapping = {}
+        try:
+            with open("/home/sergey/Rabota/Python/altcenter/res/list.txt", "r") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or ':' not in line:
+                        continue
+                    name, key = map(str.strip, line.split(':', 1))
+                    pkg_mapping[key] = name
+        except Exception as e:
+            QMessageBox.critical(None, "Ошибка", f"Ошибка чтения list.txt:\n{e}")
+            return
 
         try:
             bus = dbus.SystemBus()
@@ -110,18 +96,18 @@ class Components(plugins.Base):
             iface = dbus.Interface(proxy, 'org.altlinux.alterator.batch_components1')
 
             raw_data, _ = iface.Info()
-            text = bytes(raw_data).decode("utf-8")
+
+            text = bytes(raw_data).replace(b'\x00', b'').decode("utf-8")
             blocks = text.strip().split("\n\n")
 
-            for raw_block in blocks:
-                lines = raw_block.strip().splitlines()
+            for block in blocks:
+                lines = block.strip().splitlines()
                 name = None
                 packages = []
-                inside_packages = False
+                in_packages = False
 
                 for line in lines:
                     line = line.strip()
-
                     if not line:
                         continue
 
@@ -129,19 +115,46 @@ class Components(plugins.Base):
                         name = line.split("=", 1)[1].strip().strip('"')
 
                     elif line.startswith("[packages]"):
-                        inside_packages = True
+                        in_packages = True
+                        continue
 
-                    elif inside_packages:
+                    elif line.startswith("[") and not line.startswith("[packages]"):
+                        in_packages = False
+                        continue
+
+                    elif in_packages:
                         if "=" in line:
-                            pkg = line.split("=")[0].strip()
-                            packages.append(pkg)
+                            pkg_name, value = map(str.strip, line.split("=", 1))
+                            if value == "{}" and pkg_name and "\x00" not in pkg_name:
+                                packages.append(pkg_name)
+                            else:
+                                in_packages = False
+                        else:
+                            in_packages = False
 
-                if name and name in wanted:
-                    self.component_packages[name] = packages
+                if name and name in pkg_mapping:
+                    installed = all(my_utils.check_package_installed(pkg) for pkg in packages)
+                    self.components_info.append({
+                        "name": pkg_mapping[name],
+                        "key": name,
+                        "packages": packages,
+                        "installed": installed
+                    })
 
         except Exception as e:
-            QMessageBox.critical(None, "Ошибка", f"Ошибка получения данных от alterator:\n{e}")
+            QMessageBox.critical(None, "Ошибка", f"Ошибка получения компонентов через D-Bus:\n{e}")
 
+    def populate_list(self):
+        self.list_widget.clear()
+        for comp in self.components_info:
+            item = QListWidgetItem(comp["name"])
+            if comp["installed"]:
+                item.setCheckState(Qt.Checked)
+                item.setFlags(item.flags() & ~Qt.ItemIsUserCheckable & ~Qt.ItemIsEnabled)
+            else:
+                item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+                item.setCheckState(Qt.Unchecked)
+            self.list_widget.addItem(item)
 
     def update_install_button_state(self):
         self.btn_install.setEnabled(any(
@@ -155,9 +168,13 @@ class Components(plugins.Base):
         for i in range(self.list_widget.count()):
             item = self.list_widget.item(i)
             if item.flags() & Qt.ItemIsUserCheckable and item.checkState() == Qt.Checked:
-                pkg = self.pkg_mapping.get(item.text())
-                if pkg:
-                    selected.append(pkg)
+                name = item.text()
+                for comp in self.components_info:
+                    if comp["name"] == name:
+                        selected.extend(
+                            pkg for pkg in comp["packages"]
+                            if not my_utils.check_package_installed(pkg)
+                        )
         return selected
 
     def start_installation(self):
@@ -167,7 +184,7 @@ class Components(plugins.Base):
         packages = self.get_selected_packages()
         self.num_packages = len(packages)
         if self.num_packages == 0:
-            QMessageBox.warning(None, self.tr("Ошибка"), self.tr("Не выбраны приложения!"))
+            QMessageBox.warning(None, self.tr("Ошибка"), self.tr("Все выбранные компоненты уже установлены."))
             return
 
         if not self.console.isVisible():
@@ -181,7 +198,6 @@ class Components(plugins.Base):
     def append_to_console(self, text, is_error=False):
         cursor = self.console.textCursor()
         cursor.movePosition(cursor.End)
-
         fmt = cursor.charFormat()
         fmt.setForeground(QColor("red") if is_error else QColor("black"))
         cursor.setCharFormat(fmt)
@@ -190,20 +206,15 @@ class Components(plugins.Base):
         self.console.ensureCursorVisible()
 
     def refresh_installed_status(self):
-        for i in range(self.list_widget.count()):
-            item = self.list_widget.item(i)
-            key = self.pkg_mapping.get(item.text())
-            if key and my_utils.check_package_installed(key):
-                item.setCheckState(Qt.Checked)
-                item.setFlags(item.flags() & ~Qt.ItemIsUserCheckable & ~Qt.ItemIsEnabled)
+        self.load_components_from_dbus()
+        self.populate_list()
 
     def on_install_finished(self, exit_code, exit_status):
         self.btn_install.setEnabled(True)
-
         if exit_code == 0:
             QMessageBox.information(None, self.tr("Успех"), self.tr("Установка завершена успешно!"))
         else:
-            QMessageBox.critical(None, self.tr("Ошибка"), self.tr("Установка завершилась с ошибкой. Смотрите консоль."))
+            QMessageBox.critical(None, self.tr("Ошибка"), self.tr("Установка завершилась с ошибкой."))
 
         self.refresh_installed_status()
         if hasattr(self.main_window, "block_close"):
@@ -220,20 +231,12 @@ class Components(plugins.Base):
     def show_item_info(self, item):
         if not item:
             return
-
         name = item.text()
-        key = self.pkg_mapping.get(name, name)
-
-        lines = []
-        lines.append(f"Информация о: {name}")
-        lines.append("")
-
-        if key in self.component_packages:
-            lines.append("Этот компонент состоит из:")
-            for pkg in self.component_packages[key]:
-                lines.append(f"  - {pkg}")
-        else:
-            lines.append("Пакеты не найдены или отсутствуют данные.")
-
-        self.info_panel.setText("\n".join(lines))
-        self.info_panel.setVisible(True)
+        for comp in self.components_info:
+            if comp["name"] == name:
+                lines = [f"Информация о: {comp['name']}", "", "Пакеты:"]
+                for pkg in comp["packages"]:
+                    lines.append(f"  - {pkg}")
+                self.info_panel.setText("\n".join(lines))
+                self.info_panel.setVisible(True)
+                break
