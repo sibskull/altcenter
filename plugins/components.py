@@ -25,6 +25,20 @@ class Components(plugins.Base):
 
         self.components_info = []  # name, key, packages, installed
 
+        self.translations = {
+            "education-preschool": self.tr("Preschool education"),
+            "education-highschool": self.tr("High school education"),
+            "education-secondary-vocational": self.tr("Secondary vocational education"),
+            "education-university": self.tr("University education"),
+            "education-teacher": self.tr("For teachers"),
+            "education-server-apps": self.tr("Server applications for education"),
+            "education-robotics": self.tr("Robotics in education"),
+            "moodle": self.tr("Moodle"),
+            "nextcloud": self.tr("Nextcloud"),
+            "mediawiki": self.tr("MediaWiki"),
+            "yandex-browser-stable": self.tr("Yandex Browser"),
+            "fonts-ttf-ms": self.tr("Microsoft TTF Fonts"),
+        }
 
     def start(self, plist, pane):
         self.main_window = pane.window()
@@ -90,10 +104,8 @@ class Components(plugins.Base):
             with open(list_path, "r", encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
-                    if not line or ':' not in line:
-                        continue
-                    name, key = map(str.strip, line.split(":", 1))
-                    pkg_order.append((name, key))
+                    if line:
+                        pkg_order.append(line)
         except Exception as e:
             QMessageBox.critical(None, "Ошибка", f"Ошибка чтения list_components.txt:\n{e}")
             return
@@ -110,7 +122,8 @@ class Components(plugins.Base):
             QMessageBox.critical(None, "Ошибка", f"Ошибка получения данных через D-Bus:\n{e}")
             return
 
-        for display_name, key in pkg_order:
+        for key in pkg_order:
+            display_name = self.translations.get(key, key)
             packages = []
 
             for block in blocks:
