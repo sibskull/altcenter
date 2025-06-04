@@ -76,7 +76,7 @@ class Components(plugins.Base):
         self.console.setFont(QFont("Courier", 10))
         main_layout.addWidget(self.console)
 
-        self.btn_install = QPushButton(self.tr("Применить"))
+        self.btn_install = QPushButton(self.tr("Apply"))
         self.btn_install.setEnabled(False)
         self.btn_install.clicked.connect(self.start_installation)
         self.btn_install.setMinimumHeight(30)
@@ -107,7 +107,7 @@ class Components(plugins.Base):
                     if line:
                         pkg_order.append(line)
         except Exception as e:
-            QMessageBox.critical(None, "Ошибка", f"Ошибка чтения list_components.txt:\n{e}")
+            QMessageBox.critical(None, self.tr("Error"), self.tr("Failed to read list_components.txt:") + f"\n{e}")
             return
 
         try:
@@ -119,7 +119,7 @@ class Components(plugins.Base):
             text = bytes(raw_data).replace(b'\x00', b'').decode("utf-8")
             blocks = text.strip().split("\n\n")
         except Exception as e:
-            QMessageBox.critical(None, "Ошибка", f"Ошибка получения данных через D-Bus:\n{e}")
+            QMessageBox.critical(None, self.tr("Error"), self.tr("Failed to get data via D-Bus:") + f"\n{e}")
             return
 
         for key in pkg_order:
@@ -266,7 +266,7 @@ class Components(plugins.Base):
         remove_packages = self.get_packages_to_remove()
 
         if not install_packages and not remove_packages:
-            QMessageBox.information(None, "Нет изменений", "Вы не выбрали установку или удаление компонентов.")
+            QMessageBox.information(None, self.tr("No changes"), self.tr("You did not select any components for installation or removal."))
             return
 
         if not self.console.isVisible():
@@ -302,9 +302,9 @@ class Components(plugins.Base):
         self.update_install_button_state()
 
         if exit_code == 0:
-            QMessageBox.information(None, self.tr("Успех"), self.tr("Установка завершена успешно!"))
+            QMessageBox.information(None, self.tr("Success"), self.tr("Installation completed successfully!"))
         else:
-            QMessageBox.critical(None, self.tr("Ошибка"), self.tr("Установка завершилась с ошибкой."))
+            QMessageBox.critical(None, self.tr("Error"), self.tr("Installation failed."))
 
         self.refresh_installed_status()
         if hasattr(self.main_window, "block_close"):
@@ -329,15 +329,15 @@ class Components(plugins.Base):
         for comp in self.components_info:
             if comp["name"] == name:
                 lines = []
-                lines.append(f"Информация о: {name}")
+                lines.append(self.tr("Component name: ") + name)
                 lines.append("")
 
                 if comp["packages"]:
-                    lines.append("Этот компонент состоит из:")
+                    lines.append(self.tr("This component consists of:"))
                     for pkg in comp["packages"]:
                         lines.append(f"  - {pkg}")
                 else:
-                    lines.append(f"Данный компонент: {comp['key']}")
+                    lines.append(self.tr("This component: ") + comp["key"])
 
                 self.info_panel.setText("\n".join(lines))
                 self.info_panel.setVisible(True)

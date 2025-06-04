@@ -136,28 +136,8 @@
     </message>
     <message>
         <location filename="plugins/components.py" line="79"/>
-        <source>Применить</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="plugins/components.py" line="307"/>
-        <source>Успех</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="plugins/components.py" line="307"/>
-        <source>Установка завершена успешно!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="plugins/components.py" line="309"/>
-        <source>Ошибка</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="plugins/components.py" line="309"/>
-        <source>Установка завершилась с ошибкой.</source>
-        <translation type="unfinished"></translation>
+        <source>Apply</source>
+        <translation>Применить</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="29"/>
@@ -218,6 +198,66 @@
         <location filename="plugins/components.py" line="40"/>
         <source>Microsoft TTF Fonts</source>
         <translation>Шрифты Microsoft TTF</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="307"/>
+        <source>Error</source>
+        <translation>Ошибка</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="110"/>
+        <source>Failed to read list_components.txt:</source>
+        <translation>Ошибка чтения list_components.txt:</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="122"/>
+        <source>Failed to get data via D-Bus:</source>
+        <translation>Ошибка получения данных через D-Bus:</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="269"/>
+        <source>No changes</source>
+        <translation>Нет изменений</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="269"/>
+        <source>You did not select any components for installation or removal.</source>
+        <translation>Вы не выбрали установку или удаление компонентов.</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="305"/>
+        <source>Success</source>
+        <translation>Успех</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="305"/>
+        <source>Installation completed successfully!</source>
+        <translation>Установка завершена успешно!</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="307"/>
+        <source>Installation failed.</source>
+        <translation>Установка завершилась с ошибкой.</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="332"/>
+        <source>Information about: </source>
+        <translation type="obsolete">Информация о: </translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="336"/>
+        <source>This component consists of:</source>
+        <translation>Этот компонент состоит из:</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="340"/>
+        <source>This component: </source>
+        <translation>Данный компонент: </translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="332"/>
+        <source>Component name: </source>
+        <translation>Название компонента: </translation>
     </message>
 </context>
 <context>
@@ -927,17 +967,17 @@ Please try again later</source>
     </message>
     <message>
         <location filename="plugins/settings.py" line="75"/>
-        <source>&#xf0;&#x9f;&#x94;&#x84; Enable Auto-update</source>
+        <source>ð Enable Auto-update</source>
         <translation type="unfinished">🔄 Включить автообновление</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="76"/>
-        <source>&#xe2;&#x8f;&#xb0; Update Frequency</source>
+        <source>â° Update Frequency</source>
         <translation type="unfinished">⏰ Частота обновлений</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="77"/>
-        <source>&#xf0;&#x9f;&#x94;&#x94; Notify About Updates</source>
+        <source>ð Notify About Updates</source>
         <translation type="unfinished">🔔 Уведомлять об обновлениях</translation>
     </message>
     <message>
