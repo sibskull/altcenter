@@ -261,10 +261,10 @@ class Components(plugins.Base):
 
         if install_packages:
             cmd = ["pkexec", "apt-get", "install", "-y"] + install_packages
-        else:
-            cmd = ["pkexec", "apt-get", "remove", "-y"] + remove_packages
-
-        self.proc_install.start(" ".join(cmd))
+            self.proc_install.start(" ".join(cmd))
+        elif remove_packages:
+            cmd = ["pkexec", "rpm", "-e"] + remove_packages
+            self.proc_install.start(" ".join(cmd))
 
 
     def append_to_console(self, text, is_error=False):
