@@ -21,6 +21,8 @@ class Components(plugins.Base):
         self.btn_install = None
         self.proc_install = None
 
+        self.operation_in_progress = False
+
         self.components_info = []  # name, key, packages, installed
 
 
@@ -168,6 +170,10 @@ class Components(plugins.Base):
 
 
     def update_install_button_state(self):
+        if self.operation_in_progress:
+            self.btn_install.setEnabled(False)
+            return
+
         enable = False
 
         for i in range(self.list_widget.count()):
@@ -237,6 +243,9 @@ class Components(plugins.Base):
 
 
     def start_installation(self):
+        self.operation_in_progress = True
+        self.btn_install.setEnabled(False)
+
         if hasattr(self.main_window, "block_close"):
             self.main_window.block_close = True
 
@@ -249,8 +258,6 @@ class Components(plugins.Base):
 
         if not self.console.isVisible():
             self.console.setVisible(True)
-
-        self.btn_install.setEnabled(False)
 
         if install_packages:
             cmd = ["pkexec", "apt-get", "install", "-y"] + install_packages
@@ -277,7 +284,10 @@ class Components(plugins.Base):
 
 
     def on_install_finished(self, exit_code, exit_status):
-        self.btn_install.setEnabled(True)
+        self.operation_in_progress = False
+        self.refresh_installed_status()
+        self.update_install_button_state()
+
         if exit_code == 0:
             QMessageBox.information(None, self.tr("Успех"), self.tr("Установка завершена успешно!"))
         else:
