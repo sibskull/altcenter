@@ -22,6 +22,9 @@ import traceback
 from importlib import util
 from PyQt5.QtCore import QObject
 
+plugins_skip_list = []
+plugins_skip_file = "/etc/altcenter/skip-plugins"
+
 class Base(QObject):
     """Base skel for plugin"""
     plugins = []
@@ -55,10 +58,17 @@ def load_module(path):
     spec.loader.exec_module(module)
     return module
 
+# Read plugins skip list
+try:
+    with open(plugins_skip_file, "r") as file:
+        plugins_skip_list = list(filter(lambda x: x and not x.startswith("#"), [line.strip() for line in file]))
+except:
+    pass
+
 plugin_path = os.path.dirname(os.path.abspath(__file__))
 for fname in os.listdir(plugin_path):
     if not fname.startswith('.') and \
-       not fname.startswith('__') and fname.endswith('.py'):
+       not fname.startswith('__') and fname.endswith('.py') and not fname[:-3] in plugins_skip_list:
         try:
             load_module(os.path.join(plugin_path, fname))
         except Exception:
