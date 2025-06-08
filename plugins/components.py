@@ -60,7 +60,6 @@ class Components(plugins.Base):
 
         self.info_panel = QTextEdit()
         self.info_panel.setReadOnly(True)
-        self.info_panel.setFont(QFont("Sans", 10))
         self.info_panel.setMinimumWidth(200)
         self.info_panel.setVisible(False)
         splitter.addWidget(self.info_panel)
@@ -73,7 +72,7 @@ class Components(plugins.Base):
         self.console = QTextEdit()
         self.console.setReadOnly(True)
         self.console.setVisible(False)
-        self.console.setFont(QFont("Courier", 10))
+        self.console.setFont(QFont("Monospace", 10))
         main_layout.addWidget(self.console)
 
         self.btn_install = QPushButton(self.tr("Apply"))
