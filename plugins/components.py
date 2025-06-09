@@ -165,10 +165,10 @@ class Components(plugins.Base):
 
         # TODO: need use D-Bus Alterator call
         if install_packages:
-            cmd = ["apt-get", "install", "-y"] + install_packages
+            cmd = ["pkexec", "apt-get", "install", "-y"] + install_packages
             self.proc_install.start(" ".join(cmd))
         elif remove_packages:
-            cmd = ["rpm", "-e"] + remove_packages
+            cmd = ["pkexec", "rpm", "-e"] + remove_packages
             self.proc_install.start(" ".join(cmd))
 
 
