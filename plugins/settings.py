@@ -151,6 +151,8 @@ class SettingsWidget(QWidget):
 
         # Set correct user settings program for current desktop environment
         current_de = os.environ['XDG_CURRENT_DESKTOP']
+        # Fix KDE on Wayland
+        if current_de.startswith("KDE:"): current_de = "KDE"
         # Fix DE like Alt-GNOME:GNOME
         current_de = re.sub(r"^.*:", "", current_de)
         if current_de in de_settings:
