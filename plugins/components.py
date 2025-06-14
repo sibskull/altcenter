@@ -171,7 +171,7 @@ class Components(plugins.Base):
             proc_update.readyReadStandardError.connect(self.on_install_error)
             proc_update.execute("pkexec apt-get update")
             # Install packages
-            cmd = ["pkexec", "apt-get", "install", "-y"] + install_packages
+            cmd = ["pkcon", "install", "-y"] + install_packages
             self.proc_install.start(" ".join(cmd))
         elif remove_packages:
             cmd = ["pkexec", "rpm", "-e"] + remove_packages
