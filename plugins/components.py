@@ -2,8 +2,8 @@
 
 import plugins
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QPushButton,
-    QListWidget, QListWidgetItem, QTextEdit, QSplitter
+    QWidget, QVBoxLayout, QPushButton, QHBoxLayout,
+    QListWidget, QListWidgetItem, QTextEdit, QSplitter, QSizePolicy
 )
 from PyQt5.QtGui import QStandardItem, QFont, QColor
 from PyQt5.QtCore import Qt, QProcess, QTimer
@@ -23,6 +23,8 @@ class Components(plugins.Base):
         self.info_panel = None
         self.btn_install = None
         self.proc_install = None
+        self.btn_apps = None
+        self.btn_appinstall = None
 
         self.operation_in_progress = False
 
@@ -67,6 +69,28 @@ class Components(plugins.Base):
         self.console.setFont(QFont("Monospace", 10))
         main_layout.addWidget(self.console)
 
+        third_apps = any(my_utils.check_package_installed(pkg) for pkg in ["gnome-software", "plasma-discover"])
+        appinstall = my_utils.check_package_installed("appinstall")
+
+        if third_apps or appinstall:
+            buttons_layout = QHBoxLayout()
+
+            if third_apps:
+                self.btn_apps = QPushButton(self.tr("Приложения"))
+                self.btn_apps.clicked.connect(self.launch_apps)
+                self.btn_apps.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+                self.btn_apps.setMinimumHeight(30)
+                buttons_layout.addWidget(self.btn_apps)
+
+            if appinstall:
+                self.btn_appinstall = QPushButton(self.tr("Сторонние приложения"))
+                self.btn_appinstall.clicked.connect(self.launch_appinstall)
+                self.btn_appinstall.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+                self.btn_appinstall.setMinimumHeight(30)
+                buttons_layout.addWidget(self.btn_appinstall)
+
+            main_layout.addLayout(buttons_layout)
+
         self.btn_install = QPushButton(self.tr("Apply"))
         self.btn_install.clicked.connect(self.start_installation)
         self.btn_install.setMinimumHeight(30)
@@ -83,6 +107,18 @@ class Components(plugins.Base):
         self.index = pane.addWidget(main_widget)
 
         self.update_timer.start()
+
+
+    def launch_apps(self):
+        for app in ["plasma-discover", "gnome-software"]:
+            if my_utils.check_package_installed(app):
+                QProcess.startDetached(app)
+                break
+
+
+    def launch_appinstall(self):
+        QProcess.startDetached("appinstall")
+
 
     def load_components_from_dbus(self):
         self.components_info.clear()
