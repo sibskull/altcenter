@@ -2,7 +2,7 @@
 
 import plugins
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QPushButton, QMessageBox,
+    QWidget, QVBoxLayout, QPushButton,
     QListWidget, QListWidgetItem, QTextEdit, QSplitter
 )
 from PyQt5.QtGui import QStandardItem, QFont, QColor
@@ -199,9 +199,9 @@ class Components(plugins.Base):
         self.refresh_installed_status()
 
         if exit_code == 0:
-            QMessageBox.information(None, self.tr("Success"), self.tr("Installation completed successfully!"))
+            self.append_to_console(self.tr("Operation completed successfully."))
         else:
-            QMessageBox.critical(None, self.tr("Error"), self.tr("Installation failed."))
+            self.append_to_console(self.tr("The operation failed with an error."), is_error=True)
 
         self.refresh_installed_status()
         #if hasattr(self.main_window, "block_close"):
