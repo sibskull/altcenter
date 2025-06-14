@@ -262,20 +262,21 @@ class Components(plugins.Base):
         if not item:
             return
 
-        name = item.text()
-        for comp in self.components_info:
-            if comp.name == name:
-                lines = []
-                lines.append(comp.comment)
-                lines.append("")
+        comp_name = item.data(1)  # 🔄 Раньше: item.text()
+        comp = self.component_map.get(comp_name)
 
-                if comp.packages:
-                    lines.append(self.tr("This component consists of:"))
-                    for pkg in comp.packages:
-                        lines.append(f"  - {pkg}")
-                else:
-                    lines.append(self.tr("This component: ") + comp["key"])
+        if comp:
+            lines = []
+            lines.append(comp.comment)
+            lines.append("")
 
-                self.info_panel.setText("\n".join(lines))
-                self.info_panel.setVisible(True)
-                return
+            if comp.packages:
+                lines.append(self.tr("This component consists of:"))
+                for pkg in comp.packages:
+                    lines.append(f"  - {pkg}")
+            else:
+                lines.append(self.tr("This component: ") + comp["key"])
+
+            self.info_panel.setText("\n".join(lines))
+            self.info_panel.setVisible(True)
+            return
