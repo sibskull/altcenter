@@ -130,114 +130,114 @@
 <context>
     <name>Components</name>
     <message>
-        <location filename="plugins/components.py" line="46"/>
+        <location filename="plugins/components.py" line="35"/>
         <source>Components</source>
         <translation>Компоненты</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="79"/>
+        <location filename="plugins/components.py" line="66"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="29"/>
         <source>Preschool education</source>
-        <translation>Дошкольное образование</translation>
+        <translation type="obsolete">Дошкольное образование</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="30"/>
         <source>High school education</source>
-        <translation>Средняя школа</translation>
+        <translation type="obsolete">Средняя школа</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="31"/>
         <source>Secondary vocational education</source>
-        <translation>Среднее профессиональное образование</translation>
+        <translation type="obsolete">Среднее профессиональное образование</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="32"/>
         <source>University education</source>
-        <translation>Высшее образование</translation>
+        <translation type="obsolete">Высшее образование</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="33"/>
         <source>For teachers</source>
-        <translation>Для преподавателей</translation>
+        <translation type="obsolete">Для преподавателей</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="34"/>
         <source>Server applications for education</source>
-        <translation>Серверные приложения для образования</translation>
+        <translation type="obsolete">Серверные приложения для образования</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="35"/>
         <source>Robotics in education</source>
-        <translation>Робототехника</translation>
+        <translation type="obsolete">Робототехника</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="36"/>
         <source>Moodle</source>
-        <translation>Moodle</translation>
+        <translation type="obsolete">Moodle</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="37"/>
         <source>Nextcloud</source>
-        <translation>Nextcloud</translation>
+        <translation type="obsolete">Nextcloud</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="38"/>
         <source>MediaWiki</source>
-        <translation>MediaWiki</translation>
+        <translation type="obsolete">MediaWiki</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="39"/>
         <source>Yandex Browser</source>
-        <translation>Браузер Яндекс</translation>
+        <translation type="obsolete">Браузер Яндекс</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="40"/>
         <source>Microsoft TTF Fonts</source>
-        <translation>Шрифты Microsoft TTF</translation>
+        <translation type="obsolete">Шрифты Microsoft TTF</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="307"/>
         <source>Error</source>
-        <translation>Ошибка</translation>
+        <translation type="obsolete">Ошибка</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="110"/>
         <source>Failed to read list_components.txt:</source>
-        <translation>Ошибка чтения list_components.txt:</translation>
+        <translation type="obsolete">Ошибка чтения list_components.txt:</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="122"/>
         <source>Failed to get data via D-Bus:</source>
-        <translation>Ошибка получения данных через D-Bus:</translation>
+        <translation type="obsolete">Ошибка получения данных через D-Bus:</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="269"/>
         <source>No changes</source>
-        <translation>Нет изменений</translation>
+        <translation type="obsolete">Нет изменений</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="269"/>
         <source>You did not select any components for installation or removal.</source>
-        <translation>Вы не выбрали установку или удаление компонентов.</translation>
+        <translation type="obsolete">Вы не выбрали установку или удаление компонентов.</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="305"/>
         <source>Success</source>
-        <translation>Успех</translation>
+        <translation type="obsolete">Успех</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="305"/>
         <source>Installation completed successfully!</source>
-        <translation>Установка завершена успешно!</translation>
+        <translation type="obsolete">Установка завершена успешно!</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="307"/>
         <source>Installation failed.</source>
-        <translation>Установка завершилась с ошибкой.</translation>
+        <translation type="obsolete">Установка завершилась с ошибкой.</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="332"/>
@@ -245,19 +245,29 @@
         <translation type="obsolete">Информация о: </translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="336"/>
+        <location filename="plugins/components.py" line="227"/>
         <source>This component consists of:</source>
         <translation>Этот компонент состоит из:</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="340"/>
+        <location filename="plugins/components.py" line="231"/>
         <source>This component: </source>
         <translation>Данный компонент: </translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="332"/>
         <source>Component name: </source>
-        <translation>Название компонента: </translation>
+        <translation type="obsolete">Название компонента: </translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="196"/>
+        <source>Operation completed successfully.</source>
+        <translation>Операция успешно завершена.</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="198"/>
+        <source>The operation failed with an error.</source>
+        <translation>Операция завершилась с ошибкой.</translation>
     </message>
 </context>
 <context>

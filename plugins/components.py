@@ -2,11 +2,11 @@
 
 import plugins
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QPushButton, QMessageBox,
-    QListWidget, QListWidgetItem, QTextEdit, QSplitter
+    QWidget, QVBoxLayout, QPushButton, QHBoxLayout,
+    QListWidget, QListWidgetItem, QTextEdit, QSplitter, QSizePolicy
 )
 from PyQt5.QtGui import QStandardItem, QFont, QColor
-from PyQt5.QtCore import Qt, QProcess
+from PyQt5.QtCore import Qt, QProcess, QTimer
 import my_utils
 import dbus
 import os
@@ -23,11 +23,17 @@ class Components(plugins.Base):
         self.info_panel = None
         self.btn_install = None
         self.proc_install = None
+        self.btn_apps = None
+        self.btn_appinstall = None
 
         self.operation_in_progress = False
 
         self.components_info = [] # List of components
         self.component_map = {}
+
+        self.update_timer = QTimer()
+        self.update_timer.setInterval(60000)  # 60 сек
+        self.update_timer.timeout.connect(self.update_checkboxes)
 
     def start(self, plist, pane):
         self.main_window = pane.window()
@@ -63,6 +69,28 @@ class Components(plugins.Base):
         self.console.setFont(QFont("Monospace", 10))
         main_layout.addWidget(self.console)
 
+        third_apps = any(my_utils.check_package_installed(pkg) for pkg in ["gnome-software", "plasma-discover"])
+        appinstall = my_utils.check_package_installed("appinstall")
+
+        if third_apps or appinstall:
+            buttons_layout = QHBoxLayout()
+
+            if third_apps:
+                self.btn_apps = QPushButton(self.tr("Приложения"))
+                self.btn_apps.clicked.connect(self.launch_apps)
+                self.btn_apps.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+                self.btn_apps.setMinimumHeight(30)
+                buttons_layout.addWidget(self.btn_apps)
+
+            if appinstall:
+                self.btn_appinstall = QPushButton(self.tr("Сторонние приложения"))
+                self.btn_appinstall.clicked.connect(self.launch_appinstall)
+                self.btn_appinstall.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+                self.btn_appinstall.setMinimumHeight(30)
+                buttons_layout.addWidget(self.btn_appinstall)
+
+            main_layout.addLayout(buttons_layout)
+
         self.btn_install = QPushButton(self.tr("Apply"))
         self.btn_install.clicked.connect(self.start_installation)
         self.btn_install.setMinimumHeight(30)
@@ -77,6 +105,19 @@ class Components(plugins.Base):
         self.proc_install.finished.connect(self.on_install_finished)
 
         self.index = pane.addWidget(main_widget)
+
+        self.update_timer.start()
+
+
+    def launch_apps(self):
+        for app in ["plasma-discover", "gnome-software"]:
+            if my_utils.check_package_installed(app):
+                QProcess.startDetached(app)
+                break
+
+
+    def launch_appinstall(self):
+        QProcess.startDetached("appinstall")
 
 
     def load_components_from_dbus(self):
@@ -163,6 +204,21 @@ class Components(plugins.Base):
         #print("install_packages: ", install_packages)
         #print("remove_packages: ", remove_packages)
 
+        if remove_packages:
+            test_cmd = ["rpm", "-e", "--test"] + remove_packages
+            process = QProcess()
+            process.start(" ".join(test_cmd))
+            process.waitForFinished()
+
+            stderr_output = process.readAllStandardError().data().decode()
+            failed = set()
+            for line in stderr_output.splitlines():
+                for pkg in remove_packages:
+                    if pkg in line:
+                        failed.add(pkg)
+
+            remove_packages = [pkg for pkg in remove_packages if pkg not in failed]
+
         # TODO: need use D-Bus Alterator call
         if install_packages:
             # Update apt caches before installation
@@ -199,9 +255,9 @@ class Components(plugins.Base):
         self.refresh_installed_status()
 
         if exit_code == 0:
-            QMessageBox.information(None, self.tr("Success"), self.tr("Installation completed successfully!"))
+            self.append_to_console(self.tr("Operation completed successfully."))
         else:
-            QMessageBox.critical(None, self.tr("Error"), self.tr("Installation failed."))
+            self.append_to_console(self.tr("The operation failed with an error."), is_error=True)
 
         self.refresh_installed_status()
         #if hasattr(self.main_window, "block_close"):
@@ -218,24 +274,45 @@ class Components(plugins.Base):
         self.append_to_console(error, is_error=True)
 
 
+    def update_checkboxes(self):
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            comp_name = item.data(1)
+            comp = self.component_map.get(comp_name)
+            if not comp or not comp.packages:
+                continue
+
+            process = QProcess()
+            process.start("rpm -q " + " ".join(comp.packages))
+            process.waitForFinished(3000)
+
+            output = process.readAllStandardOutput().data().decode()
+            all_installed = all(pkg in output for pkg in comp.packages)
+
+            new_state = Qt.Checked if all_installed else Qt.Unchecked
+            if item.checkState() != new_state:
+                item.setCheckState(new_state)
+
+
     def show_item_info(self, item):
         if not item:
             return
 
-        name = item.text()
-        for comp in self.components_info:
-            if comp.name == name:
-                lines = []
-                lines.append(comp.comment)
-                lines.append("")
+        comp_name = item.data(1)  # 🔄 Раньше: item.text()
+        comp = self.component_map.get(comp_name)
 
-                if comp.packages:
-                    lines.append(self.tr("This component consists of:"))
-                    for pkg in comp.packages:
-                        lines.append(f"  - {pkg}")
-                else:
-                    lines.append(self.tr("This component: ") + comp["key"])
+        if comp:
+            lines = []
+            lines.append(comp.comment)
+            lines.append("")
 
-                self.info_panel.setText("\n".join(lines))
-                self.info_panel.setVisible(True)
-                return
+            if comp.packages:
+                lines.append(self.tr("This component consists of:"))
+                for pkg in comp.packages:
+                    lines.append(f"  - {pkg}")
+            else:
+                lines.append(self.tr("This component: ") + comp["key"])
+
+            self.info_panel.setText("\n".join(lines))
+            self.info_panel.setVisible(True)
+            return
