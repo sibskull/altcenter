@@ -165,6 +165,12 @@ class Components(plugins.Base):
 
         # TODO: need use D-Bus Alterator call
         if install_packages:
+            # Update apt caches before installation
+            proc_update = QProcess(self)
+            proc_update.readyReadStandardOutput.connect(self.on_install_output)
+            proc_update.readyReadStandardError.connect(self.on_install_error)
+            proc_update.execute("pkexec apt-get update")
+            # Install packages
             cmd = ["pkexec", "apt-get", "install", "-y"] + install_packages
             self.proc_install.start(" ".join(cmd))
         elif remove_packages:
