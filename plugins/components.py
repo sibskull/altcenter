@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (
     QListWidget, QListWidgetItem, QTextEdit, QSplitter
 )
 from PyQt5.QtGui import QStandardItem, QFont, QColor
-from PyQt5.QtCore import Qt, QProcess
+from PyQt5.QtCore import Qt, QProcess, QTimer
 import my_utils
 import dbus
 import os
@@ -28,6 +28,10 @@ class Components(plugins.Base):
 
         self.components_info = [] # List of components
         self.component_map = {}
+
+        self.update_timer = QTimer()
+        self.update_timer.setInterval(60000)  # 60 сек
+        self.update_timer.timeout.connect(self.update_checkboxes)
 
     def start(self, plist, pane):
         self.main_window = pane.window()
@@ -78,6 +82,7 @@ class Components(plugins.Base):
 
         self.index = pane.addWidget(main_widget)
 
+        self.update_timer.start()
 
     def load_components_from_dbus(self):
         self.components_info.clear()
@@ -231,6 +236,26 @@ class Components(plugins.Base):
     def on_install_error(self):
         error = self.proc_install.readAllStandardError().data().decode()
         self.append_to_console(error, is_error=True)
+
+
+    def update_checkboxes(self):
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            comp_name = item.data(1)
+            comp = self.component_map.get(comp_name)
+            if not comp or not comp.packages:
+                continue
+
+            process = QProcess()
+            process.start("rpm -q " + " ".join(comp.packages))
+            process.waitForFinished(3000)
+
+            output = process.readAllStandardOutput().data().decode()
+            all_installed = all(pkg in output for pkg in comp.packages)
+
+            new_state = Qt.Checked if all_installed else Qt.Unchecked
+            if item.checkState() != new_state:
+                item.setCheckState(new_state)
 
 
     def show_item_info(self, item):
