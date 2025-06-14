@@ -163,6 +163,21 @@ class Components(plugins.Base):
         #print("install_packages: ", install_packages)
         #print("remove_packages: ", remove_packages)
 
+        if remove_packages:
+            test_cmd = ["rpm", "-e", "--test"] + remove_packages
+            process = QProcess()
+            process.start(" ".join(test_cmd))
+            process.waitForFinished()
+
+            stderr_output = process.readAllStandardError().data().decode()
+            failed = set()
+            for line in stderr_output.splitlines():
+                for pkg in remove_packages:
+                    if pkg in line:
+                        failed.add(pkg)
+
+            remove_packages = [pkg for pkg in remove_packages if pkg not in failed]
+
         # TODO: need use D-Bus Alterator call
         if install_packages:
             # Update apt caches before installation
