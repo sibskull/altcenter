@@ -2,7 +2,7 @@
 
 - Сайт компании - [https://basealt.ru](https://basealt.ru)
 - Информационный ресурс ALT Linux Wiki - [https://altlinux.org](https://altlinux.org)
-- Репозитории - [https://packages.altlinux.org/ru](https://packages.altlinux.org/en)
+- Репозитории - [https://packages.altlinux.org/ru](https://packages.altlinux.org/ru)
 
 ### Документация
 
