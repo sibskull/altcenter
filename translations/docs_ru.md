@@ -12,4 +12,4 @@
 
 - Запрос на сопровождение - [https://basealt.ru/sr](https://basealt.ru/sr)
 - Сообщить об ошибке - [https://bugs.altlinux.org](https://bugs.altlinux.org)
-- Оставить отзыв - [https://basealt.ru/product-feedback](https://basealt.ru/en/product-feedback)
+- Оставить отзыв - [https://basealt.ru/product-feedback](https://www.basealt.ru/product-feedback)
