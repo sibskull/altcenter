@@ -22,7 +22,7 @@ APPLICATION_VERSION = '1.0'
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 from PyQt5.QtCore import QTranslator, QSettings
 from PyQt5.QtCore import QCommandLineParser, QCommandLineOption
-from PyQt5.QtCore import QItemSelectionModel
+from PyQt5.QtCore import QLibraryInfo, QLocale
 # from PyQt5 import uic
 from PyQt5.QtGui import QStandardItemModel, QIcon
 
@@ -54,7 +54,7 @@ class MainWindow(QWidget, Ui_MainWindow):
         self.splitter.setStretchFactor(1,1)
 
         self.block_close = False
-        
+
     def onSelectionChange(self, index):
         """Slot for change selection"""
         self.stack.setCurrentIndex(index.row() + 1)
@@ -80,6 +80,19 @@ app.setDesktopFileName("altcenter")
 # Load settings
 current_config = os.path.join(pathlib.Path.home(), ".config", "altcenter.ini")
 settings = QSettings(current_config, QSettings.IniFormat)
+
+# Translation context menu
+_qt_translators = []
+
+qt_domains = ("qtbase", "qtwebengine")
+system_locale = QLocale.system()
+translations_dir = QLibraryInfo.location(QLibraryInfo.TranslationsPath)
+
+for dom in qt_domains:
+    tr = QTranslator()
+    if tr.load(system_locale, dom, "_", translations_dir):
+        app.installTranslator(tr)
+        _qt_translators.append(tr)
 
 # Load current locale translation
 translator = QTranslator(app)
