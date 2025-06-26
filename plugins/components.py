@@ -303,7 +303,8 @@ class Components(plugins.Base):
 
         if comp:
             lines = []
-            lines.append(comp.comment)
+            comment = getattr(comp, "comment", "") or ""
+            lines.append(comment)
             lines.append("")
 
             if comp.packages:
