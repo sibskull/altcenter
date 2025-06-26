@@ -89,7 +89,14 @@ class Components(plugins.Base):
                 self.btn_appinstall.setMinimumHeight(30)
                 buttons_layout.addWidget(self.btn_appinstall)
 
-            main_layout.addLayout(buttons_layout)
+        self.btn_toggle_console = QPushButton(self.tr("Показать консоль"))
+        self.btn_toggle_console.setCheckable(True)
+        self.btn_toggle_console.toggled.connect(self.toggle_console)
+        self.btn_toggle_console.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.btn_toggle_console.setMinimumHeight(30)
+        buttons_layout.addWidget(self.btn_toggle_console)
+
+        main_layout.addLayout(buttons_layout)
 
         self.btn_install = QPushButton(self.tr("Apply"))
         self.btn_install.clicked.connect(self.start_installation)
@@ -118,6 +125,11 @@ class Components(plugins.Base):
 
     def launch_appinstall(self):
         QProcess.startDetached("appinstall")
+
+
+    def toggle_console(self, checked):
+        self.console.setVisible(checked)
+        self.btn_toggle_console.setText(self.tr("Скрыть консоль") if checked else self.tr("Показать консоль"))
 
 
     def load_components_from_dbus(self):
@@ -196,8 +208,8 @@ class Components(plugins.Base):
         for comp in remove_components:
             remove_packages.extend(comp.packages)
 
-        if not self.console.isVisible():
-            self.console.setVisible(True)
+        if not self.btn_toggle_console.isChecked():
+            self.btn_toggle_console.setChecked(True)
 
         #print("install_components: ", install_components)
         #print("remove_components: ", remove_components)
