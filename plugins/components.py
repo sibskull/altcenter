@@ -69,7 +69,7 @@ class Components(plugins.Base):
         self.console.setFont(QFont("Monospace", 10))
         main_layout.addWidget(self.console)
 
-        third_apps = any(my_utils.check_package_installed(pkg) for pkg in ["gnome-software", "plasma-discover"])
+        third_apps = any(my_utils.check_package_installed(pkg) for pkg in ["gnome-software", "plasma-discover", "plasma-discover-core", "plasma5-discover-core"])
         appinstall = my_utils.check_package_installed("appinstall")
 
         if third_apps or appinstall:
@@ -110,10 +110,10 @@ class Components(plugins.Base):
 
 
     def launch_apps(self):
-        for app in ["plasma-discover", "gnome-software"]:
-            if my_utils.check_package_installed(app):
-                QProcess.startDetached(app)
-                break
+        if my_utils.check_package_installed("gnome-software"):
+            QProcess.startDetached("gnome-software")
+        elif my_utils.check_package_installed("plasma-discover-core") or my_utils.check_package_installed("plasma5-discover-core"):
+            QProcess.startDetached("plasma-discover")
 
 
     def launch_appinstall(self):
