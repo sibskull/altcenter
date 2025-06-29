@@ -37,6 +37,8 @@ from plugins import Base
 current_dir = os.path.dirname(os.path.abspath(__file__))
 plugin_path = os.path.join(current_dir, "plugins")
 
+if os.environ.get("XDG_SESSION_TYPE") == "wayland":
+    os.environ["QT_QPA_PLATFORM"] = "xcb"
 
 class MainWindow(QWidget, Ui_MainWindow):
     """Main window"""
