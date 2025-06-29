@@ -10,6 +10,7 @@ Available plugins:
 - hardware
 - settings
 - useful
+- components
 
 ## License
 

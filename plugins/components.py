@@ -69,27 +69,34 @@ class Components(plugins.Base):
         self.console.setFont(QFont("Monospace", 10))
         main_layout.addWidget(self.console)
 
-        third_apps = any(my_utils.check_package_installed(pkg) for pkg in ["gnome-software", "plasma-discover"])
+        third_apps = any(my_utils.check_package_installed(pkg) for pkg in ["gnome-software", "plasma-discover", "plasma-discover-core", "plasma5-discover-core"])
         appinstall = my_utils.check_package_installed("appinstall")
 
         if third_apps or appinstall:
             buttons_layout = QHBoxLayout()
 
             if third_apps:
-                self.btn_apps = QPushButton(self.tr("Приложения"))
+                self.btn_apps = QPushButton(self.tr("Applications"))
                 self.btn_apps.clicked.connect(self.launch_apps)
                 self.btn_apps.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
                 self.btn_apps.setMinimumHeight(30)
                 buttons_layout.addWidget(self.btn_apps)
 
             if appinstall:
-                self.btn_appinstall = QPushButton(self.tr("Сторонние приложения"))
+                self.btn_appinstall = QPushButton(self.tr("Third party applications"))
                 self.btn_appinstall.clicked.connect(self.launch_appinstall)
                 self.btn_appinstall.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
                 self.btn_appinstall.setMinimumHeight(30)
                 buttons_layout.addWidget(self.btn_appinstall)
 
-            main_layout.addLayout(buttons_layout)
+        self.btn_toggle_console = QPushButton(self.tr("Show console"))
+        self.btn_toggle_console.setCheckable(True)
+        self.btn_toggle_console.toggled.connect(self.toggle_console)
+        self.btn_toggle_console.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.btn_toggle_console.setMinimumHeight(30)
+        buttons_layout.addWidget(self.btn_toggle_console)
+
+        main_layout.addLayout(buttons_layout)
 
         self.btn_install = QPushButton(self.tr("Apply"))
         self.btn_install.clicked.connect(self.start_installation)
@@ -110,14 +117,19 @@ class Components(plugins.Base):
 
 
     def launch_apps(self):
-        for app in ["plasma-discover", "gnome-software"]:
-            if my_utils.check_package_installed(app):
-                QProcess.startDetached(app)
-                break
+        if my_utils.check_package_installed("gnome-software"):
+            QProcess.startDetached("gnome-software")
+        elif my_utils.check_package_installed("plasma-discover-core") or my_utils.check_package_installed("plasma5-discover-core"):
+            QProcess.startDetached("plasma-discover")
 
 
     def launch_appinstall(self):
         QProcess.startDetached("appinstall")
+
+
+    def toggle_console(self, checked):
+        self.console.setVisible(checked)
+        self.btn_toggle_console.setText(self.tr("Hide console") if checked else self.tr("Show console"))
 
 
     def load_components_from_dbus(self):
@@ -196,8 +208,8 @@ class Components(plugins.Base):
         for comp in remove_components:
             remove_packages.extend(comp.packages)
 
-        if not self.console.isVisible():
-            self.console.setVisible(True)
+        if not self.btn_toggle_console.isChecked():
+            self.btn_toggle_console.setChecked(True)
 
         #print("install_components: ", install_components)
         #print("remove_components: ", remove_components)
@@ -303,7 +315,8 @@ class Components(plugins.Base):
 
         if comp:
             lines = []
-            lines.append(comp.comment)
+            comment = getattr(comp, "comment", "") or ""
+            lines.append(comment)
             lines.append("")
 
             if comp.packages:
