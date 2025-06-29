@@ -76,20 +76,20 @@ class Components(plugins.Base):
             buttons_layout = QHBoxLayout()
 
             if third_apps:
-                self.btn_apps = QPushButton(self.tr("Приложения"))
+                self.btn_apps = QPushButton(self.tr("Applications"))
                 self.btn_apps.clicked.connect(self.launch_apps)
                 self.btn_apps.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
                 self.btn_apps.setMinimumHeight(30)
                 buttons_layout.addWidget(self.btn_apps)
 
             if appinstall:
-                self.btn_appinstall = QPushButton(self.tr("Сторонние приложения"))
+                self.btn_appinstall = QPushButton(self.tr("Third party applications"))
                 self.btn_appinstall.clicked.connect(self.launch_appinstall)
                 self.btn_appinstall.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
                 self.btn_appinstall.setMinimumHeight(30)
                 buttons_layout.addWidget(self.btn_appinstall)
 
-        self.btn_toggle_console = QPushButton(self.tr("Показать консоль"))
+        self.btn_toggle_console = QPushButton(self.tr("Show console"))
         self.btn_toggle_console.setCheckable(True)
         self.btn_toggle_console.toggled.connect(self.toggle_console)
         self.btn_toggle_console.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -129,7 +129,7 @@ class Components(plugins.Base):
 
     def toggle_console(self, checked):
         self.console.setVisible(checked)
-        self.btn_toggle_console.setText(self.tr("Скрыть консоль") if checked else self.tr("Показать консоль"))
+        self.btn_toggle_console.setText(self.tr("Hide console") if checked else self.tr("Show console"))
 
 
     def load_components_from_dbus(self):
