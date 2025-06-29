@@ -130,12 +130,12 @@
 <context>
     <name>Components</name>
     <message>
-        <location filename="plugins/components.py" line="35"/>
+        <location filename="plugins/components.py" line="41"/>
         <source>Components</source>
         <translation>Компоненты</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="66"/>
+        <location filename="plugins/components.py" line="101"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
@@ -245,12 +245,12 @@
         <translation type="obsolete">Информация о: </translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="227"/>
+        <location filename="plugins/components.py" line="323"/>
         <source>This component consists of:</source>
         <translation>Этот компонент состоит из:</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="231"/>
+        <location filename="plugins/components.py" line="327"/>
         <source>This component: </source>
         <translation>Данный компонент: </translation>
     </message>
@@ -260,14 +260,34 @@
         <translation type="obsolete">Название компонента: </translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="196"/>
+        <location filename="plugins/components.py" line="270"/>
         <source>Operation completed successfully.</source>
         <translation>Операция успешно завершена.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="198"/>
+        <location filename="plugins/components.py" line="272"/>
         <source>The operation failed with an error.</source>
         <translation>Операция завершилась с ошибкой.</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="79"/>
+        <source>Applications</source>
+        <translation>Приложения</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="86"/>
+        <source>Third party applications</source>
+        <translation>Сторонние приложения</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="132"/>
+        <source>Show console</source>
+        <translation>Показать консоль</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="132"/>
+        <source>Hide console</source>
+        <translation>Скрыть консоль</translation>
     </message>
 </context>
 <context>
@@ -814,7 +834,7 @@ Please try again later</source>
     <message>
         <location filename="plugins/hardware.py" line="373"/>
         <source>Starting hw-probe...</source>
-        <translation>Запуск hw-probe</translation>
+        <translation>Запуск hw-probe...</translation>
     </message>
 </context>
 <context>
@@ -935,7 +955,7 @@ Please try again later</source>
 <context>
     <name>PluginSettings</name>
     <message>
-        <location filename="plugins/settings.py" line="267"/>
+        <location filename="plugins/settings.py" line="269"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
@@ -978,17 +998,17 @@ Please try again later</source>
     <message>
         <location filename="plugins/settings.py" line="75"/>
         <source>ð Enable Auto-update</source>
-        <translation type="unfinished">🔄 Включить автообновление</translation>
+        <translation>🔄 Включить автообновление</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="76"/>
         <source>â° Update Frequency</source>
-        <translation type="unfinished">⏰ Частота обновлений</translation>
+        <translation>⏰ Частота обновлений</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="77"/>
         <source>ð Notify About Updates</source>
-        <translation type="unfinished">🔔 Уведомлять об обновлениях</translation>
+        <translation>🔔 Уведомлять об обновлениях</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="145"/>
@@ -1014,12 +1034,12 @@ Please try again later</source>
 <context>
     <name>app</name>
     <message>
-        <location filename="mainwindow.py" line="95"/>
+        <location filename="mainwindow.py" line="108"/>
         <source>Run at session startup</source>
         <translation>Запустить в начале сеанса</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="96"/>
+        <location filename="mainwindow.py" line="109"/>
         <source>List available modules and exit</source>
         <translation>Показать список доступных модулей</translation>
     </message>
