@@ -69,16 +69,21 @@ class Components(plugins.Base):
         self.console.setFont(QFont("Monospace", 10))
         main_layout.addWidget(self.console)
 
-        self.btn_toggle_console = QPushButton(self.tr("Show console"))
-        self.btn_toggle_console.setCheckable(True)
-        self.btn_toggle_console.toggled.connect(self.toggle_console)
-        self.btn_toggle_console.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.btn_toggle_console.setMinimumHeight(30)
+        btn_row = QHBoxLayout()
 
         self.btn_install = QPushButton(self.tr("Apply"))
         self.btn_install.clicked.connect(self.start_installation)
         self.btn_install.setMinimumHeight(30)
-        main_layout.addWidget(self.btn_install)
+
+        self.btn_toggle_console = QPushButton(self.tr("Show console"))
+        self.btn_toggle_console.setCheckable(True)
+        self.btn_toggle_console.toggled.connect(self.toggle_console)
+        self.btn_toggle_console.setMinimumHeight(30)
+
+        btn_row.addWidget(self.btn_install, 3)
+        btn_row.addWidget(self.btn_toggle_console, 1)
+
+        main_layout.addLayout(btn_row)
 
         self.load_components_from_dbus()
         self.populate_list()
