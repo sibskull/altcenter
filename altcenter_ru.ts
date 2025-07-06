@@ -89,42 +89,42 @@
     <message>
         <location filename="plugins/install.py" line="30"/>
         <source>App Install</source>
-        <translation>Загрузка приложений</translation>
+        <translation type="obsolete">Загрузка приложений</translation>
     </message>
     <message>
         <location filename="plugins/install.py" line="64"/>
         <source>Update System</source>
-        <translation>Обновить приложеня</translation>
+        <translation type="obsolete">Обновить приложеня</translation>
     </message>
     <message>
         <location filename="plugins/install.py" line="68"/>
         <source>Install Selected</source>
-        <translation>Установить выбранное</translation>
+        <translation type="obsolete">Установить выбранное</translation>
     </message>
     <message>
         <location filename="plugins/install.py" line="160"/>
         <source>Error</source>
-        <translation>Ошибка</translation>
+        <translation type="obsolete">Ошибка</translation>
     </message>
     <message>
         <location filename="plugins/install.py" line="106"/>
         <source>No applications selected!</source>
-        <translation>Не выбраны приложения!</translation>
+        <translation type="obsolete">Не выбраны приложения!</translation>
     </message>
     <message>
         <location filename="plugins/install.py" line="158"/>
         <source>Success</source>
-        <translation>Успех</translation>
+        <translation type="obsolete">Успех</translation>
     </message>
     <message>
         <location filename="plugins/install.py" line="158"/>
         <source>Operation completed successfully!</source>
-        <translation>Операция успешно завершена!</translation>
+        <translation type="obsolete">Операция успешно завершена!</translation>
     </message>
     <message>
         <location filename="plugins/install.py" line="160"/>
         <source>Operation failed. See console for details.</source>
-        <translation>Операция завершилась неудачей. Подробности смотрите в консоли.</translation>
+        <translation type="obsolete">Операция завершилась неудачей. Подробности смотрите в консоли.</translation>
     </message>
 </context>
 <context>
@@ -135,7 +135,7 @@
         <translation>Компоненты</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="101"/>
+        <location filename="plugins/components.py" line="78"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
@@ -245,12 +245,12 @@
         <translation type="obsolete">Информация о: </translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="323"/>
+        <location filename="plugins/components.py" line="289"/>
         <source>This component consists of:</source>
         <translation>Этот компонент состоит из:</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="327"/>
+        <location filename="plugins/components.py" line="293"/>
         <source>This component: </source>
         <translation>Данный компонент: </translation>
     </message>
@@ -260,32 +260,32 @@
         <translation type="obsolete">Название компонента: </translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="270"/>
+        <location filename="plugins/components.py" line="236"/>
         <source>Operation completed successfully.</source>
         <translation>Операция успешно завершена.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="272"/>
+        <location filename="plugins/components.py" line="238"/>
         <source>The operation failed with an error.</source>
         <translation>Операция завершилась с ошибкой.</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="79"/>
         <source>Applications</source>
-        <translation>Приложения</translation>
+        <translation type="obsolete">Приложения</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="86"/>
         <source>Third party applications</source>
-        <translation>Сторонние приложения</translation>
+        <translation type="obsolete">Сторонние приложения</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="132"/>
+        <location filename="plugins/components.py" line="98"/>
         <source>Show console</source>
         <translation>Показать консоль</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="132"/>
+        <location filename="plugins/components.py" line="98"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
@@ -931,9 +931,14 @@ Please try again later</source>
 <context>
     <name>PluginDocumentation</name>
     <message>
-        <location filename="plugins/documentation.py" line="17"/>
+        <location filename="plugins/documentation.py" line="19"/>
         <source>Documentation</source>
         <translation>Документация</translation>
+    </message>
+    <message>
+        <location filename="plugins/documentation.py" line="34"/>
+        <source>Открыть документацию ALT Linux</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -955,7 +960,7 @@ Please try again later</source>
 <context>
     <name>PluginSettings</name>
     <message>
-        <location filename="plugins/settings.py" line="269"/>
+        <location filename="plugins/settings.py" line="298"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
@@ -971,75 +976,90 @@ Please try again later</source>
 <context>
     <name>SettingsWidget</name>
     <message>
-        <location filename="plugins/settings.py" line="36"/>
+        <location filename="plugins/settings.py" line="38"/>
         <source>Daily</source>
         <translation>Ежедневно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="36"/>
+        <location filename="plugins/settings.py" line="38"/>
         <source>Weekly</source>
         <translation>Еженедельно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="36"/>
+        <location filename="plugins/settings.py" line="38"/>
         <source>Monthly</source>
         <translation>Ежемесячно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="61"/>
+        <location filename="plugins/settings.py" line="63"/>
         <source>Updates</source>
         <translation>Обновления</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="62"/>
+        <location filename="plugins/settings.py" line="64"/>
         <source>Advanced Settings</source>
         <translation>Расширенные настройки</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="75"/>
-        <source>ð Enable Auto-update</source>
-        <translation>🔄 Включить автообновление</translation>
+        <location filename="plugins/settings.py" line="77"/>
+        <source>&#xf0;&#x9f;&#x94;&#x84; Enable Auto-update</source>
+        <translation type="unfinished">🔔 Уведомлять об обновлениях</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="76"/>
         <source>â° Update Frequency</source>
-        <translation>⏰ Частота обновлений</translation>
+        <translation type="obsolete">⏰ Частота обновлений</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="77"/>
-        <source>ð Notify About Updates</source>
-        <translation>🔔 Уведомлять об обновлениях</translation>
-    </message>
-    <message>
-        <location filename="plugins/settings.py" line="145"/>
+        <location filename="plugins/settings.py" line="147"/>
         <source>System Control Center</source>
         <translation>Центр управления системой</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="141"/>
+        <location filename="plugins/settings.py" line="143"/>
         <source>General settings: power management, network, date, workspace behavior</source>
         <translation>Общие настройки: энергосбережение, сеть, дата, поведение рабочей среды</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="147"/>
+        <location filename="plugins/settings.py" line="149"/>
         <source>User account management, system logs, kernel updates</source>
         <translation>Управление учётными записями, системные журналы, обновлнение ядра</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="139"/>
+        <location filename="plugins/settings.py" line="141"/>
         <source>User Settings</source>
         <translation>Параметры пользователя</translation>
+    </message>
+    <message>
+        <location filename="plugins/settings.py" line="78"/>
+        <source>⏰ Update Frequency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="plugins/settings.py" line="79"/>
+        <source>🔔 Notify About Updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="plugins/settings.py" line="157"/>
+        <source>Applications</source>
+        <translation type="unfinished">Приложения</translation>
+    </message>
+    <message>
+        <location filename="plugins/settings.py" line="164"/>
+        <source>Third party applications</source>
+        <translation type="unfinished">Сторонние приложения</translation>
     </message>
 </context>
 <context>
     <name>app</name>
     <message>
-        <location filename="mainwindow.py" line="108"/>
+        <location filename="mainwindow.py" line="110"/>
         <source>Run at session startup</source>
         <translation>Запустить в начале сеанса</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="109"/>
+        <location filename="mainwindow.py" line="111"/>
         <source>List available modules and exit</source>
         <translation>Показать список доступных модулей</translation>
     </message>
