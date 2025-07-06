@@ -1,12 +1,14 @@
 #!/usr/bin/python3
 
-from PyQt5.QtWidgets import QTextBrowser
-from PyQt5.QtGui import QStandardItem, QFont, QTextDocument
+from PyQt5.QtWidgets import QTextBrowser, QPushButton, QVBoxLayout, QWidget
+from PyQt5.QtGui import QStandardItem, QTextDocument, QDesktopServices
 from PyQt5.QtCore import QUrl
 
 import locale, os
 
 import plugins
+
+import my_utils
 
 class PluginDocumentation(plugins.Base):
     def __init__(self):
@@ -20,7 +22,22 @@ class PluginDocumentation(plugins.Base):
 
         self.text_browser = QTextBrowser()
         self.text_browser.setOpenExternalLinks(True)
-        self.index = pane.addWidget(self.text_browser)
+
+        os_info = my_utils.parse_os_release()
+        distro_name = self.get_doc_package_name(os_info.get("MY_NAME"))
+        doc_path = f"/usr/share/doc/{distro_name}/index.html"
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.text_browser)
+
+        if os.path.exists(doc_path):
+            button = QPushButton(self.tr("Открыть документацию ALT Linux"))
+            button.clicked.connect(lambda: QDesktopServices.openUrl(QUrl.fromLocalFile(doc_path)))
+            layout.addWidget(button)
+
+        container = QWidget()
+        container.setLayout(layout)
+        self.index = pane.addWidget(container)
 
         current_file = os.path.abspath(__file__)
         current_dir = os.path.dirname(current_file)
@@ -38,3 +55,12 @@ class PluginDocumentation(plugins.Base):
                 self.text_browser.setSource(url, QTextDocument.ResourceType.MarkdownResource)
             else:
                 self.text_browser.setHtml(f"File '{file_path}' not found.")
+
+    def get_doc_package_name(self, name: str) -> str:
+        mapping = {
+            'ALT Education': 'alt-education',
+            'ALT Workstation': 'alt-workstation',
+            'ALT Workstation K': 'alt-kworkstation',
+        }
+
+        return mapping.get(name)
