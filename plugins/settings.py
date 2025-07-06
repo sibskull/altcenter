@@ -5,11 +5,13 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QGroupBox,
                             QGridLayout, QScrollArea, QCheckBox,
                             QComboBox, QPushButton)
 from PyQt5.QtGui import QStandardItem, QIcon
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, QProcess
 import json
 import os
 import subprocess
 import re
+
+import my_utils
 
 de_settings = { "KDE": "systemsettings",
                 "GNOME": "gnome-control-center",
@@ -149,6 +151,22 @@ class SettingsWidget(QWidget):
              ]
         }
 
+        if any(my_utils.check_package_installed(p) for p in [
+            "gnome-software", "plasma-discover", "plasma-discover-core", "plasma5-discover-core"
+        ]):
+            apps['en'].append({
+                'icon': 'applications-system',
+                'name': self.tr('Applications'),
+                'command': 'gnome-software'
+            })
+
+        if my_utils.check_package_installed("appinstall"):
+            apps['en'].append({
+                'icon': 'system-software-install',
+                'name': self.tr('Third party applications'),
+                'command': 'appinstall'
+            })
+
         # Set correct user settings program for current desktop environment
         current_de = os.environ['XDG_CURRENT_DESKTOP']
         # Fix KDE on Wayland
@@ -172,7 +190,9 @@ class SettingsWidget(QWidget):
 
             button.setIconSize(QSize(32, 32))
             button.setText(app['name'])
-            button.setToolTip(app['tooltip'])
+            if 'tooltip' in app:
+                button.setToolTip(app['tooltip'])
+
             if app['command'] != '':
                 button.clicked.connect(lambda checked, cmd=app['command']: self.launch_app(cmd))
             else:
@@ -216,6 +236,15 @@ class SettingsWidget(QWidget):
 
         # Загружаем сохраненные настройки
         self.loadSettings()
+
+    def launch_apps(self):
+        if my_utils.check_package_installed("gnome-software"):
+            QProcess.startDetached("gnome-software")
+        elif my_utils.check_package_installed("plasma-discover-core") or my_utils.check_package_installed("plasma5-discover-core"):
+            QProcess.startDetached("plasma-discover")
+
+    def launch_appinstall(self):
+        QProcess.startDetached("appinstall")
 
     def loadSettings(self):
         """Загрузка настроек из файла"""
