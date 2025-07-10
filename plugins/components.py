@@ -3,7 +3,7 @@
 import plugins
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QPushButton, QHBoxLayout,
-    QListWidget, QListWidgetItem, QTextEdit, QSplitter, QSizePolicy
+    QListWidget, QListWidgetItem, QTextEdit, QSplitter, QSizePolicy, QApplication
 )
 from PyQt5.QtGui import QStandardItem, QFont, QColor
 from PyQt5.QtCore import Qt, QProcess, QTimer
@@ -160,7 +160,8 @@ class Components(plugins.Base):
 
     def start_installation(self):
         self.operation_in_progress = True
-
+        widget = self.list_widget.window()  # Надёжно получаем главное окно
+        widget.setCursor(Qt.WaitCursor)
         #if hasattr(self.main_window, "block_close"):
         #    self.main_window.block_close = True
 
@@ -234,6 +235,8 @@ class Components(plugins.Base):
 
 
     def on_install_finished(self, exit_code, exit_status):
+        widget = self.list_widget.window()
+        widget.unsetCursor()
         self.operation_in_progress = False
         self.refresh_installed_status()
 
