@@ -3,13 +3,10 @@
 import plugins
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QPushButton, QHBoxLayout,
-    QListWidget, QListWidgetItem, QTextEdit, QSplitter, QSizePolicy, QApplication
+    QListWidget, QListWidgetItem, QTextEdit, QSplitter
 )
 from PyQt5.QtGui import QStandardItem, QFont, QColor
 from PyQt5.QtCore import Qt, QProcess, QTimer
-import my_utils
-import dbus
-import os
 import alterator
 
 list_path = "/etc/altcenter/list-components"
@@ -23,10 +20,6 @@ class Components(plugins.Base):
         self.info_panel = None
         self.btn_install = None
         self.proc_install = None
-        self.btn_apps = None
-        self.btn_appinstall = None
-
-        self.operation_in_progress = False
 
         self.components_info = [] # List of components
         self.component_map = {}
@@ -159,7 +152,6 @@ class Components(plugins.Base):
 
 
     def start_installation(self):
-        self.operation_in_progress = True
         #if hasattr(self.main_window, "block_close"):
         #    self.main_window.block_close = True
 
@@ -236,7 +228,6 @@ class Components(plugins.Base):
 
 
     def on_install_finished(self, exit_code, exit_status):
-        self.operation_in_progress = False
         self.refresh_installed_status()
 
         if exit_code == 0:
