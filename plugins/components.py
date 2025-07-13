@@ -160,8 +160,6 @@ class Components(plugins.Base):
 
     def start_installation(self):
         self.operation_in_progress = True
-        widget = self.list_widget.window()  # Надёжно получаем главное окно
-        widget.setCursor(Qt.WaitCursor)
         #if hasattr(self.main_window, "block_close"):
         #    self.main_window.block_close = True
 
@@ -171,6 +169,9 @@ class Components(plugins.Base):
         if not install_components and not remove_components:
             # self.append_to_console(self.tr("You did not select any components for installation or removal."))
             return
+
+        widget = self.list_widget.window()
+        widget.setCursor(Qt.WaitCursor)
 
         # TODO need smart deploy components. Now only package installation is supported.
         install_packages = []
@@ -235,8 +236,6 @@ class Components(plugins.Base):
 
 
     def on_install_finished(self, exit_code, exit_status):
-        widget = self.list_widget.window()
-        widget.unsetCursor()
         self.operation_in_progress = False
         self.refresh_installed_status()
 
@@ -244,6 +243,9 @@ class Components(plugins.Base):
             self.append_to_console(self.tr("Operation completed successfully."))
         else:
             self.append_to_console(self.tr("The operation failed with an error."), is_error=True)
+
+        widget = self.list_widget.window()
+        widget.unsetCursor()
 
         self.refresh_installed_status()
         #if hasattr(self.main_window, "block_close"):
