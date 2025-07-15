@@ -11,10 +11,16 @@ import alterator
 
 list_path = "/etc/altcenter/list-components"
 
-class Components(plugins.Base):
-    def __init__(self):
-        super().__init__("components", 90)
-        self.node = None
+class ComponentsWindow(QWidget):
+    def __init__(self, main_window = None):
+        super().__init__()
+
+        self.main_window = main_window
+
+        if self.main_window != None:
+            palette = main_window.palette()
+            self.setPalette(palette)
+
         self.list_widget = None
         self.console = None
         self.info_panel = None
@@ -28,16 +34,8 @@ class Components(plugins.Base):
         self.update_timer.setInterval(60000)  # 60 сек
         self.update_timer.timeout.connect(self.update_checkboxes)
 
-    def start(self, plist, pane):
-        self.main_window = pane.window()
-
-        self.node = QStandardItem(self.tr("Components"))
-        self.node.setData(self.getName())
-        plist.appendRow([self.node])
-
-        main_widget = QWidget()
-        main_layout = QVBoxLayout(main_widget)
-        main_layout.setContentsMargins(5, 5, 5, 5)
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
 
         splitter = QSplitter(Qt.Horizontal)
 
@@ -54,13 +52,13 @@ class Components(plugins.Base):
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 2)
 
-        main_layout.addWidget(splitter, 1)
+        layout.addWidget(splitter, 1)
 
         self.console = QTextEdit()
         self.console.setReadOnly(True)
         self.console.setVisible(False)
         self.console.setFont(QFont("Monospace", 10))
-        main_layout.addWidget(self.console)
+        layout.addWidget(self.console)
 
         btn_row = QHBoxLayout()
 
@@ -76,7 +74,7 @@ class Components(plugins.Base):
         btn_row.addWidget(self.btn_install, 3)
         btn_row.addWidget(self.btn_toggle_console, 1)
 
-        main_layout.addLayout(btn_row)
+        layout.addLayout(btn_row)
 
         self.load_components_from_dbus()
         self.populate_list()
@@ -86,10 +84,11 @@ class Components(plugins.Base):
         self.proc_install.readyReadStandardError.connect(self.on_install_error)
         self.proc_install.finished.connect(self.on_install_finished)
 
-        self.index = pane.addWidget(main_widget)
+        # self.index = pane.addWidget(main_widget)
 
         self.update_timer.start()
 
+        self.setLayout(layout)
 
     def toggle_console(self, checked):
         self.console.setVisible(checked)
@@ -228,7 +227,6 @@ class Components(plugins.Base):
 
 
     def on_install_finished(self, exit_code, exit_status):
-        self.refresh_installed_status()
 
         if exit_code == 0:
             self.append_to_console(self.tr("Operation completed successfully."))
@@ -296,3 +294,19 @@ class Components(plugins.Base):
             self.info_panel.setText("\n".join(lines))
             self.info_panel.setVisible(True)
             return
+
+
+class Components(plugins.Base):
+    def __init__(self):
+        super().__init__("components", 90)
+        self.node = None
+
+    def start(self, plist, pane):
+        self.node = QStandardItem(self.tr("Components"))
+        self.node.setData(self.getName())
+        plist.appendRow([self.node])
+
+        main_window = pane.window()
+        main_widget = ComponentsWindow(main_window)
+
+        pane.addWidget(main_widget)
