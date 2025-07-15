@@ -130,14 +130,14 @@
 <context>
     <name>Components</name>
     <message>
-        <location filename="plugins/components.py" line="41"/>
+        <location filename="plugins/components.py" line="305"/>
         <source>Components</source>
         <translation>Компоненты</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="78"/>
         <source>Apply</source>
-        <translation>Применить</translation>
+        <translation type="obsolete">Применить</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="29"/>
@@ -247,12 +247,12 @@
     <message>
         <location filename="plugins/components.py" line="289"/>
         <source>This component consists of:</source>
-        <translation>Этот компонент состоит из:</translation>
+        <translation type="obsolete">Этот компонент состоит из:</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="293"/>
         <source>This component: </source>
-        <translation>Данный компонент: </translation>
+        <translation type="obsolete">Данный компонент: </translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="332"/>
@@ -262,12 +262,12 @@
     <message>
         <location filename="plugins/components.py" line="236"/>
         <source>Operation completed successfully.</source>
-        <translation>Операция успешно завершена.</translation>
+        <translation type="obsolete">Операция успешно завершена.</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="238"/>
         <source>The operation failed with an error.</source>
-        <translation>Операция завершилась с ошибкой.</translation>
+        <translation type="obsolete">Операция завершилась с ошибкой.</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="79"/>
@@ -282,12 +282,50 @@
     <message>
         <location filename="plugins/components.py" line="98"/>
         <source>Show console</source>
-        <translation>Показать консоль</translation>
+        <translation type="obsolete">Показать консоль</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="98"/>
         <source>Hide console</source>
-        <translation>Скрыть консоль</translation>
+        <translation type="obsolete">Скрыть консоль</translation>
+    </message>
+</context>
+<context>
+    <name>ComponentsWindow</name>
+    <message>
+        <location filename="plugins/components.py" line="65"/>
+        <source>Apply</source>
+        <translation type="unfinished">Применить</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="95"/>
+        <source>Show console</source>
+        <translation type="unfinished">Показать консоль</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="95"/>
+        <source>Hide console</source>
+        <translation type="unfinished">Скрыть консоль</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="232"/>
+        <source>Operation completed successfully.</source>
+        <translation type="unfinished">Операция успешно завершена.</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="234"/>
+        <source>The operation failed with an error.</source>
+        <translation type="unfinished">Операция завершилась с ошибкой.</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="288"/>
+        <source>This component consists of:</source>
+        <translation type="unfinished">Этот компонент состоит из:</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="292"/>
+        <source>This component: </source>
+        <translation type="unfinished">Данный компонент: </translation>
     </message>
 </context>
 <context>
