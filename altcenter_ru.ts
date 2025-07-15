@@ -130,7 +130,7 @@
 <context>
     <name>Components</name>
     <message>
-        <location filename="plugins/components.py" line="305"/>
+        <location filename="plugins/components.py" line="303"/>
         <source>Components</source>
         <translation>Компоненты</translation>
     </message>
@@ -308,22 +308,22 @@
         <translation type="unfinished">Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="232"/>
+        <location filename="plugins/components.py" line="230"/>
         <source>Operation completed successfully.</source>
         <translation type="unfinished">Операция успешно завершена.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="234"/>
+        <location filename="plugins/components.py" line="232"/>
         <source>The operation failed with an error.</source>
         <translation type="unfinished">Операция завершилась с ошибкой.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="288"/>
+        <location filename="plugins/components.py" line="286"/>
         <source>This component consists of:</source>
         <translation type="unfinished">Этот компонент состоит из:</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="292"/>
+        <location filename="plugins/components.py" line="290"/>
         <source>This component: </source>
         <translation type="unfinished">Данный компонент: </translation>
     </message>
