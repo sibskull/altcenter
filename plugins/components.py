@@ -201,10 +201,8 @@ class ComponentsWindow(QWidget):
             proc_update = QProcess(self)
             proc_update.readyReadStandardOutput.connect(self.on_install_output)
             proc_update.readyReadStandardError.connect(self.on_install_error)
-            proc_update.execute("pkcon refresh force -p -y")
-            # Install packages
-            cmd = ["pkcon", "install", "-p", "-y"] + install_packages
-            self.proc_install.start(" ".join(cmd))
+            cmd = f"pkcon refresh force -p -y && pkcon install -p -y {' '.join(install_packages)}"
+            self.proc_install.start("sh", ["-c", cmd])
         elif remove_packages:
             cmd = ["pkexec", "rpm", "-e"] + remove_packages
             self.proc_install.start(" ".join(cmd))
@@ -229,7 +227,7 @@ class ComponentsWindow(QWidget):
     def on_install_finished(self, exit_code, exit_status):
 
         if exit_code == 0:
-            self.append_to_console(self.tr("Operation completed successfully."))
+            self.append_to_console(self.tr("Operation completed successfully.") + "\n")
         else:
             self.append_to_console(self.tr("The operation failed with an error."), is_error=True)
 
