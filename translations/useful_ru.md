@@ -25,10 +25,16 @@
 ### Рекомендуемые приложения
 
 - Графика: GIMP, Inkscape
-- Аудио: Audacity, VLC
+- Аудиоредакторы: Audacity
+- Аудиоплееры: Clementine, QMMP, Audacious
 - Офис: LibreOffice, OnlyOffice
 - Общение: Telegram, Element
 - Браузеры: Firefox, Chromium
+- Фото: Rawtherapee, Darktable
+- Органайзеры: KDE5 Korganizer, Osmo, Qorganizer
+- Чтение FB2: Bookworm, Foliate
+- Заметки: Mytetra, CherryTree
+- Видеоплееры: VLC, MPC-QT, SMPlayer, Qmplay2
 
 ### Советы и рекомендации
 
