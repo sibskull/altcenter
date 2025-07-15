@@ -25,10 +25,16 @@ Disk usage:
 ### Recommended Applications
 
 - Graphics: GIMP, Inkscape
-- Audio: Audacity, VLC
+- Audio Editors: Audacity
+- Audio Players: Clementine, QMMP, Audacious
 - Office: LibreOffice, OnlyOffice
 - Communication: Telegram, Element
 - Browsers: Firefox, Chromium
+- Photo: Rawtherapee, Darktable
+- Organizers: KDE5 Korganizer, Osmo, Qorganizer
+- FB2 Reading: Bookworm, Foliate
+- Notes: Mytetra, CherryTree
+- Video Players: VLC, MPC-QT, SMPlayer, Qmplay2
 
 ### Tips and Tricks
 
