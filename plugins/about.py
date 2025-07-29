@@ -4,16 +4,16 @@ from PyQt5.QtWidgets import (QApplication, QWidget,
                              QVBoxLayout, QLabel,
                              QGridLayout, QScrollArea,
                              QSpacerItem, QSizePolicy,
+                             QStackedWidget,
                              QMenu, QAction)
-from PyQt5.QtGui import QStandardItem, QIcon
+from PyQt5.QtGui import QStandardItem, QStandardItemModel, QIcon
 from PyQt5.QtCore import Qt
 
 import os
-import sys
-# import locale
 
 import plugins
 import my_utils
+
 
 class AboutWidget(QWidget):
     def __init__(self, palette):
@@ -240,17 +240,17 @@ class AboutWidget(QWidget):
 
 
 class PluginAbout(plugins.Base):
-    def __init__(self):
-        super().__init__("about", 1)
-        self.node = None
-        self.about_widget = None
+    def __init__(self, plist: QStandardItemModel=None, pane: QStackedWidget = None):
+        super().__init__("about", 1, plist, pane)
 
-    def start(self, plist, pane):
-        self.node = QStandardItem(self.tr("About system"))
-        self.node.setData(self.getName())
-        plist.appendRow([self.node])
+        if self.plist != None and self.pane != None:
+            self.node = QStandardItem(self.tr("About system"))
+            self.node.setData(self.name)
+            self.plist.appendRow([self.node])
+            self.pane.addWidget(QWidget())
 
-        main_palette = pane.window().palette()
 
-        self.about_widget = AboutWidget(main_palette)
-        pane.addWidget(self.about_widget)
+    def _do_start(self, idx: int):
+        main_palette = self.pane.window().palette()
+        main_widget = AboutWidget(main_palette)
+        self.pane.insertWidget(idx, main_widget)

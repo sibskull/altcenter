@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-from PyQt5.QtWidgets import QVBoxLayout, QFrame
-from PyQt5.QtGui import QStandardItem
+from PyQt5.QtWidgets import QVBoxLayout, QFrame, QStackedWidget, QWidget
+from PyQt5.QtGui import QStandardItem, QStandardItemModel
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 import locale, os, markdown
@@ -11,15 +11,18 @@ import my_utils_pyqt5
 
 
 class PluginUseful(plugins.Base):
-    def __init__(self):
-        super().__init__("useful", 50)
-        self.node = None
+    def __init__(self, plist: QStandardItemModel=None, pane: QStackedWidget = None):
+        super().__init__("useful", 50, plist, pane)
+        # self.node = None
 
-    def start(self, plist, pane):
-        self.node = QStandardItem(self.tr("Useful Information"))
-        self.node.setData(self.getName())
-        plist.appendRow([self.node])
+        if self.plist != None and self.pane != None:
+            self.node = QStandardItem(self.tr("Useful Information"))
+            self.node.setData(self.name)
+            self.plist.appendRow([self.node])
+            self.pane.addWidget(QWidget())
 
+
+    def _do_start(self, idx: int):
         frame = QFrame()
         frame.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Sunken)
 
@@ -31,9 +34,9 @@ class PluginUseful(plugins.Base):
         frame_layout.addWidget(self.text_browser)
 
         # Добавляем QFrame в основной layout
-        pane.addWidget(frame)
+        self.pane.insertWidget(idx, frame)
 
-        px = my_utils_pyqt5.point_size_to_pixels(pane.font().pointSize())
+        px = my_utils_pyqt5.point_size_to_pixels(self.pane.font().pointSize())
         if px > 0:
             px = px + 1
         else:

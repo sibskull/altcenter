@@ -59,7 +59,13 @@ class MainWindow(QWidget, Ui_MainWindow):
 
     def onSelectionChange(self, index):
         """Slot for change selection"""
-        self.stack.setCurrentIndex(index.row() + 1)
+        idx = index.row()
+        plugin = plugs[idx]
+        if plugin.started == False:
+            self.stack.removeWidget(self.stack.widget(idx))
+            plugin.run(idx)
+
+        self.stack.setCurrentIndex(idx)
 
     def onSessionStartChange(self, state):
         """Slot to change autostart checkbox change"""
@@ -108,7 +114,7 @@ parser = QCommandLineParser()
 parser.addHelpOption()
 parser.addVersionOption()
 at_startup = QCommandLineOption('at-startup', app.translate('app', "Run at session startup"))
-list_modules = QCommandLineOption('modules', app.translate('app', "List available modules and exit"))
+list_modules = QCommandLineOption(['m', 'modules'], app.translate('app', "List available modules and exit"))
 parser.addOption(at_startup)
 parser.addOption(list_modules)
 
@@ -147,7 +153,7 @@ window.moduleList.selectionModel().currentChanged.connect(window.onSelectionChan
 if parser.isSet(list_modules):
     for p in Base.plugins:
         inst = p()
-        print(inst.getName())
+        print(inst.name)
 
     sys.exit(0)
 
@@ -156,11 +162,14 @@ if parser.isSet(list_modules):
 k = 0
 selected_index = 0
 
+plugs = []
+
 for p in Base.plugins:
-    inst = p()
-    inst.start(window.list_module_model, window.stack)
+    inst = p(window.list_module_model, window.stack)
+    # inst.start(window.list_module_model, window.stack)
+    plugs.append(inst)
     # Select item by its name
-    if inst.getName() == module_name:
+    if inst.name == module_name:
         selected_index = k
     k = k + 1
 
