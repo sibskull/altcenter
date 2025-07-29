@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-from PyQt5.QtWidgets import QTextBrowser, QPushButton, QVBoxLayout, QWidget
-from PyQt5.QtGui import QStandardItem, QTextDocument, QDesktopServices
+from PyQt5.QtWidgets import QTextBrowser, QPushButton, QVBoxLayout, QWidget, QStackedWidget
+from PyQt5.QtGui import QStandardItem, QStandardItemModel, QTextDocument, QDesktopServices
 from PyQt5.QtCore import QUrl
 
 import locale, os
@@ -11,15 +11,17 @@ import plugins
 import my_utils
 
 class PluginDocumentation(plugins.Base):
-    def __init__(self):
-        super().__init__("documentation", 20)
-        self.node = None
+    def __init__(self, plist: QStandardItemModel=None, pane: QStackedWidget = None):
+        super().__init__("documentation", 20, plist, pane)
 
-    def start(self, plist, pane):
-        self.node = QStandardItem(self.tr("Documentation"))
-        self.node.setData(self.getName())
-        plist.appendRow([self.node])
+        if self.plist != None and self.pane != None:
+            self.node = QStandardItem(self.tr("Documentation"))
+            self.node.setData(self.name)
+            self.plist.appendRow([self.node])
+            self.pane.addWidget(QWidget())
 
+
+    def _do_start(self, idx: int):
         self.text_browser = QTextBrowser()
         self.text_browser.setOpenExternalLinks(True)
 
@@ -37,7 +39,7 @@ class PluginDocumentation(plugins.Base):
 
         container = QWidget()
         container.setLayout(layout)
-        self.index = pane.addWidget(container)
+        self.pane.insertWidget(idx, container)
 
         current_file = os.path.abspath(__file__)
         current_dir = os.path.dirname(current_file)
@@ -55,6 +57,7 @@ class PluginDocumentation(plugins.Base):
                 self.text_browser.setSource(url, QTextDocument.ResourceType.MarkdownResource)
             else:
                 self.text_browser.setHtml(f"File '{file_path}' not found.")
+
 
     def get_doc_package_name(self, name: str) -> str:
         mapping = {

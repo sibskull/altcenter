@@ -3,9 +3,10 @@
 import plugins
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QGroupBox,
                             QGridLayout, QScrollArea, QCheckBox,
-                            QComboBox, QPushButton)
-from PyQt5.QtGui import QStandardItem, QIcon
+                            QComboBox, QPushButton, QStackedWidget)
+from PyQt5.QtGui import QStandardItem, QStandardItemModel, QIcon
 from PyQt5.QtCore import Qt, QSize, QProcess
+
 import json
 import os
 import subprocess
@@ -288,16 +289,18 @@ class SettingsWidget(QWidget):
         except Exception as e:
             print(f"Error launching application: {e}")
 
+
 class PluginSettings(plugins.Base):
-    def __init__(self):
-        super().__init__("settings", 40)
-        self.node = None
-        self.settings_widget = None
+    def __init__(self, plist: QStandardItemModel=None, pane: QStackedWidget = None):
+        super().__init__("settings", 40, plist, pane)
 
-    def start(self, plist, pane):
-        self.node = QStandardItem(self.tr("Settings"))
-        self.node.setData(self.getName())
-        plist.appendRow([self.node])
+        if self.plist != None and self.pane != None:
+            self.node = QStandardItem(self.tr("Settings"))
+            self.node.setData(self.name)
+            self.plist.appendRow([self.node])
+            self.pane.addWidget(QWidget())
 
-        self.settings_widget = SettingsWidget()
-        index = pane.addWidget(self.settings_widget)
+
+    def _do_start(self, idx: int):
+        main_widget = SettingsWidget()
+        self.pane.insertWidget(idx, main_widget)

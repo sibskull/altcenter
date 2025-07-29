@@ -19,35 +19,77 @@
 
 import os
 import traceback
+from abc import ABCMeta, abstractmethod
 from importlib import util
 from PyQt5.QtCore import QObject
+from PyQt5.QtWidgets import QStackedWidget
+from PyQt5.QtGui import QStandardItemModel
+
 
 plugins_skip_list = []
 plugins_skip_file = "/etc/altcenter/skip-plugins"
 
-class Base(QObject):
+class MetaQObjectABC(ABCMeta, type(QObject)):
+    ...
+
+class Base(QObject, metaclass=MetaQObjectABC):
     """Base skel for plugin"""
     plugins = []
 
-    def __init__(self, name: str, position: int):
+    def __init__(self, name: str, position: int, plist: QStandardItemModel=None, pane: QStackedWidget = None):
         super().__init__()
         self._name = name
         self._position = position
+        self._plist = plist
+        self._pane = pane
+        self._started = False
 
     # For every class that inherits from the current
     # the class name will be added to plugins
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        cls.plugins.append(cls)
+        Base.plugins.append(cls)
 
-    def start(self, plist, pane):
-        pass
-
-    def getName(self) -> str:
+    @property
+    def name(self) -> str:
         return self._name
 
-    def getPosition(self) -> int:
+    @property
+    def position(self) -> int:
         return self._position
+
+    @property
+    def plist(self):
+        return self._plist
+
+    @property
+    def pane(self):
+        return self._pane
+
+    @property
+    def started(self) -> bool:
+        return self._started
+
+    @started.setter
+    def started(self, value: bool):
+        self._started = value
+
+    @abstractmethod
+    def _do_start(self, idx: int):
+        """
+        Инициализация плагина и формирование его виджета
+
+        Каждый плагин должен реализовать эту функцию, но вызывать её непосредственно нельзя.
+        Для этого есть функция run.
+        """
+        ...
+
+    def run(self, idx: int):
+        """
+        Вызов этой функции приведет к вызову переопределённой функции _do_start и установке флага started
+        """
+        self._do_start(idx)
+        self.started = True
 
 
 # Load one module
@@ -74,4 +116,4 @@ for fname in os.listdir(plugin_path):
         except Exception:
             traceback.print_exc()
 
-Base.plugins.sort(key=lambda x: x().getPosition())
+Base.plugins.sort(key=lambda x: x().position)

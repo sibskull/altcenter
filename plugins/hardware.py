@@ -2,12 +2,12 @@
 
 import plugins
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton,
-                            QScrollArea, QTextBrowser, QInputDialog,
-                            QMessageBox, QLineEdit, QApplication, QLabel, QHBoxLayout)
-from PyQt5.QtGui import QStandardItem
+                            QScrollArea, QTextBrowser, QStackedWidget,
+                            QMessageBox, QApplication, QLabel, QHBoxLayout)
+from PyQt5.QtGui import QStandardItem, QStandardItemModel
 from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot, QProcess
-import subprocess
+# import subprocess
 import webbrowser
 
 import my_utils
@@ -412,21 +412,21 @@ class HardwareWindow(QWidget):
                 )
 
 
-
 class PluginHardware(plugins.Base, QWidget):
-    def __init__(self):
-        super().__init__("hardware", 30)
-        self.node = None
+    def __init__(self, plist: QStandardItemModel=None, pane: QStackedWidget = None):
+        super().__init__("hardware", 30, plist, pane)
 
-    def start(self, plist, pane):
-        self.node = QStandardItem(self.tr("Hardware"))
-        self.node.setData(self.getName())
-        plist.appendRow([self.node])
+        if self.plist != None and self.pane != None:
+            self.node = QStandardItem(self.tr("Hardware"))
+            self.node.setData(self.name)
+            self.plist.appendRow([self.node])
+            self.pane.addWidget(QWidget())
 
-        main_palette = pane.window().palette()
+
+    def _do_start(self, idx: int):
+        main_palette = self.pane.window().palette()
         main_widget = HardwareWindow(main_palette)
-
-        pane.addWidget(main_widget)
+        self.pane.insertWidget(idx, main_widget)
 
 
 if __name__ == '__main__':
