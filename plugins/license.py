@@ -18,26 +18,27 @@
 # Place - Suite 330, Boston, MA  02111-1307, USA.
 
 import plugins
-from PyQt5.QtWidgets import QTextBrowser
-from PyQt5.QtGui import QStandardItem, QFont, QTextDocument
+from PyQt5.QtWidgets import QWidget, QTextBrowser, QStackedWidget
+from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont, QTextDocument
 from PyQt5.QtCore import QUrl
 import locale, os
 
 
 class PluginLicense(plugins.Base):
-    def __init__(self):
-        super().__init__("license", 10)
-        self.node = None
+    def __init__(self, plist: QStandardItemModel=None, pane: QStackedWidget = None):
+        super().__init__("license", 10, plist, pane)
 
-    def start(self, plist, pane):
-        # Licence
-        self.node = QStandardItem(self.tr("License"))
-        self.node.setData(self.getName())
-        plist.appendRow([self.node])
+        if self.plist != None and self.pane != None:
+            self.node = QStandardItem(self.tr("License"))
+            self.node.setData(self.name)
+            self.plist.appendRow([self.node])
+            self.pane.addWidget(QWidget())
 
+
+    def _do_start(self, idx: int):
         self.license_info = QTextBrowser()
         self.license_info.setCurrentFont(QFont("monospace", 9))
-        self.index = pane.addWidget(self.license_info)
+        self._pane.insertWidget(idx, self.license_info)
 
         file_path = "/usr/share/alt-notes/license." + locale.getlocale()[0].split( '_' )[0] + ".html"
 
