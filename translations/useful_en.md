@@ -48,7 +48,4 @@ Disk usage:
 ### Useful articles for advanced users
 
 - APT commands - [https://en.altlinux.org/APT_commands](https://en.altlinux.org/APT_commands)
-- RPM Commands - [https://www.altlinux.org/Команды_RPM](https://www.altlinux.org/Команды_RPM)
 - Kernel update - [https://en.altlinux.org/Kernel_update](https://en.altlinux.org/Kernel_update)
-- Equipment and system diagnostics - [https://www.altlinux.org/Диагностика_оборудования_и_системы](https://www.altlinux.org/Диагностика_оборудования_и_системы)
-- Console commands - [https://www.altlinux.org/Консольные_команды](https://www.altlinux.org/Консольные_команды)
