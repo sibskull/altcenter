@@ -70,8 +70,6 @@ class SettingsWidget(QWidget):
             #     'launch': "Расширенные настройки"
             # }
         }
-
-
         # Определяем метки для элементов
         labels = {
             # 'en': {
@@ -152,13 +150,45 @@ class SettingsWidget(QWidget):
              ]
         }
 
-        if any(my_utils.check_package_installed(p) for p in [
-            "gnome-software", "plasma-discover", "plasma-discover-core", "plasma5-discover-core"
-        ]):
+        # Set correct user settings program for current desktop environment
+        current_de = os.environ.get('XDG_CURRENT_DESKTOP', '')
+        # Fix KDE on Wayland
+        if current_de.startswith("KDE:"): current_de = "KDE"
+        # Fix DE like Alt-GNOME:GNOME
+        current_de = re.sub(r"^.*:", "", current_de)
+        if current_de in de_settings:
+            apps['en'][0]['command'] = de_settings[current_de]
+
+        # Добавляем проверку системы для кнопки «Applications» (GNOME/KDE/MATE/XFCE)
+        # Выбираем подходящий центр приложений в зависимости от DE и наличия пакетов
+        has_discover = (
+            my_utils.check_package_installed("plasma-discover") or
+            my_utils.check_package_installed("plasma-discover-core") or
+            my_utils.check_package_installed("plasma5-discover-core")
+        )
+        has_gs = my_utils.check_package_installed("gnome-software")
+
+        app_center_cmd = ''
+        if current_de == "GNOME" and has_gs:
+            app_center_cmd = "gnome-software"
+        elif current_de == "KDE" and has_discover:
+            app_center_cmd = "plasma-discover"
+        elif current_de in ("MATE", "XFCE"):
+            if has_gs:
+                app_center_cmd = "gnome-software"
+            elif has_discover:
+                app_center_cmd = "plasma-discover"
+        else:
+            if has_gs:
+                app_center_cmd = "gnome-software"
+            elif has_discover:
+                app_center_cmd = "plasma-discover"
+
+        if app_center_cmd:
             apps['en'].append({
                 'icon': 'applications-system',
                 'name': self.tr('Applications'),
-                'command': 'gnome-software'
+                'command': app_center_cmd
             })
 
         if my_utils.check_package_installed("appinstall"):
@@ -167,15 +197,6 @@ class SettingsWidget(QWidget):
                 'name': self.tr('Third party applications'),
                 'command': 'appinstall'
             })
-
-        # Set correct user settings program for current desktop environment
-        current_de = os.environ['XDG_CURRENT_DESKTOP']
-        # Fix KDE on Wayland
-        if current_de.startswith("KDE:"): current_de = "KDE"
-        # Fix DE like Alt-GNOME:GNOME
-        current_de = re.sub(r"^.*:", "", current_de)
-        if current_de in de_settings:
-            apps['en'][0]['command'] = de_settings[current_de]
 
         # Создаем кнопки для каждого приложения
         for i, app in enumerate(apps['en']):
