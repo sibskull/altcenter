@@ -5,7 +5,7 @@ import os
 import json
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit
 from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QProcess
 
 class PoliciesWindow(QWidget):
     def __init__(self, main_window=None):
@@ -73,23 +73,36 @@ class PoliciesWindow(QWidget):
         root.addWidget(self.log)
         self.setLayout(root)
 
-        self.loadPlaceholder()
+        self.loadFromJson()
         self.appendLog(self.tr("работает"))
 
-    def loadPlaceholder(self):
-        self._items = [
-            {"id": "no_password_login", "title": self.tr("Запрет входа в систему без пароля"), "description": self.tr("Отключение автоматического входа без запроса пароля в дисплей-менеджерах.")}
-        ]
+    def pkgRoot(self):
+        return os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+
+    def jsonPath(self):
+        return os.path.join(self.pkgRoot(), "res", "policies.json")
+
+    def loadFromJson(self):
+        self._items = []
+        path = self.jsonPath()
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            for item in data.get("policies", []):
+                self._items.append(item)
+        except Exception:
+            self._items = []
         self.rebuildList()
 
     def rebuildList(self):
         self.list.clear()
         query = self.search.text().strip().lower()
         for item in self._items:
-            if query and query not in item["title"].lower():
+            title = item.get("title", "")
+            if query and query not in title.lower():
                 continue
-            w = QListWidgetItem(item["title"])
-            w.setData(Qt.UserRole, item["id"])
+            w = QListWidgetItem(title)
+            w.setData(Qt.UserRole, item.get("id"))
             w.setFlags(w.flags() | Qt.ItemIsUserCheckable)
             w.setCheckState(Qt.Unchecked)
             self.list.addItem(w)
@@ -136,12 +149,39 @@ class PoliciesWindow(QWidget):
         else:
             self.btn_toggle_console.setText(self.tr("Открыть консоль"))
 
+
     def applySelected(self):
         ids = self.selectedIds()
+        if not ids and self._current_id:
+            ids = [self._current_id]
         if not ids:
             self.appendLog(self.tr("отладка: ничего не выбрано"))
             return
-        self.appendLog(self.tr("отладка: применение недоступно на этом этапе"))
+        started = False
+        for pid in ids:
+            item = self.getItem(pid)
+            if not item:
+                continue
+            scope = item.get("scope", "system")
+            need_root = scope == "system"
+            for step in item.get("apply", []):
+                if step.get("type") != "cmd":
+                    continue
+                args = step.get("run", [])
+                if not args:
+                    continue
+                if need_root:
+                    QProcess.startDetached("pkexec", args)
+                else:
+                    program = args[0]
+                    arguments = args[1:] if len(args) > 1 else []
+                    QProcess.startDetached(program, arguments)
+                self.appendLog(" ".join(args))
+                started = True
+        if started:
+            self.appendLog(self.tr("применение начато"))
+        else:
+            self.appendLog(self.tr("отладка: нет действий"))
 
 class PluginPolicies(plugins.Base):
     def __init__(self, plist: QStandardItemModel = None, pane: QStackedWidget = None):
