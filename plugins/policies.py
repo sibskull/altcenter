@@ -157,7 +157,7 @@ class PoliciesWindow(QWidget):
         if not ids:
             self.appendLog(self.tr("отладка: ничего не выбрано"))
             return
-        started = False
+        started = 0
         for pid in ids:
             item = self.getItem(pid)
             if not item:
@@ -177,9 +177,9 @@ class PoliciesWindow(QWidget):
                     arguments = args[1:] if len(args) > 1 else []
                     QProcess.startDetached(program, arguments)
                 self.appendLog(" ".join(args))
-                started = True
-        if started:
-            self.appendLog(self.tr("применение начато"))
+                started += 1
+        if started > 0:
+            self.appendLog(self.tr("применение начато") + f" ({started})")
         else:
             self.appendLog(self.tr("отладка: нет действий"))
 
