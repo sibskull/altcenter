@@ -13,6 +13,7 @@ class PoliciesWindow(QWidget):
         self.main_window = main_window
         self._items = []
         self._current_id = None
+        self.active_dm = "any"
 
         self.search = QLineEdit()
         self.search.setPlaceholderText(self.tr("Поиск"))
@@ -74,6 +75,8 @@ class PoliciesWindow(QWidget):
         self.setLayout(root)
 
         self.loadFromJson()
+        self.active_dm = self.detectDisplayManager()
+        self.appendLog(self.tr("DM: ") + self.active_dm)
         self.appendLog(self.tr("работает"))
 
     def pkgRoot(self):
@@ -149,6 +152,19 @@ class PoliciesWindow(QWidget):
         else:
             self.btn_toggle_console.setText(self.tr("Открыть консоль"))
 
+    def detectDisplayManager(self):
+        try:
+            path = os.path.realpath("/etc/systemd/system/display-manager.service")
+            base = os.path.basename(path).lower()
+            if "lightdm" in base:
+                return "lightdm"
+            if "gdm" in base:
+                return "gdm"
+            if "sddm" in base:
+                return "sddm"
+        except Exception:
+            pass
+        return "any"
 
     def applySelected(self):
         ids = self.selectedIds()
@@ -158,6 +174,7 @@ class PoliciesWindow(QWidget):
             self.appendLog(self.tr("отладка: ничего не выбрано"))
             return
         started = 0
+        dm = self.active_dm
         for pid in ids:
             item = self.getItem(pid)
             if not item:
@@ -166,6 +183,9 @@ class PoliciesWindow(QWidget):
             need_root = scope == "system"
             for step in item.get("apply", []):
                 if step.get("type") != "cmd":
+                    continue
+                step_dm = step.get("dm", "any")
+                if step_dm != "any" and step_dm != dm:
                     continue
                 args = step.get("run", [])
                 if not args:
