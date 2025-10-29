@@ -5,7 +5,7 @@ import os
 import json
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit
 from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
-from PyQt5.QtCore import Qt, QProcess
+from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment
 
 class PoliciesWindow(QWidget):
     def __init__(self, main_window=None):
@@ -14,6 +14,7 @@ class PoliciesWindow(QWidget):
         self._items = []
         self._current_id = None
         self.active_dm = "any"
+        self.procs = []
 
         self.search = QLineEdit()
         self.search.setPlaceholderText(self.tr("Поиск"))
@@ -166,6 +167,30 @@ class PoliciesWindow(QWidget):
             pass
         return "any"
 
+    def sessionProcessEnvironment(self):
+        env = QProcessEnvironment.systemEnvironment()
+        keys = ("DISPLAY", "XAUTHORITY", "DBUS_SESSION_BUS_ADDRESS", "XDG_RUNTIME_DIR", "WAYLAND_DISPLAY")
+        for k in keys:
+            v = os.environ.get(k)
+            if v and not env.contains(k):
+                env.insert(k, v)
+        return env
+
+    def runRoot(self, args):
+        p = QProcess(self)
+        p.setProcessEnvironment(self.sessionProcessEnvironment())
+        p.setProgram("pkexec")
+        p.setArguments(args)
+        p.setProcessChannelMode(QProcess.MergedChannels)
+        p.finished.connect(lambda code, status, proc=p: self.procs.remove(proc) if proc in self.procs else None)
+        self.procs.append(p)
+        p.start()
+
+    def runUser(self, args):
+        program = args[0]
+        arguments = args[1:] if len(args) > 1 else []
+        QProcess.startDetached(program, arguments)
+
     def applySelected(self):
         ids = self.selectedIds()
         if not ids and self._current_id:
@@ -191,11 +216,9 @@ class PoliciesWindow(QWidget):
                 if not args:
                     continue
                 if need_root:
-                    QProcess.startDetached("pkexec", args)
+                    self.runRoot(args)
                 else:
-                    program = args[0]
-                    arguments = args[1:] if len(args) > 1 else []
-                    QProcess.startDetached(program, arguments)
+                    self.runUser(args)
                 self.appendLog(" ".join(args))
                 started += 1
         if started > 0:
