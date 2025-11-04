@@ -9,21 +9,14 @@
       "dm": "any",
       "description": "Отключение автоматического входа без запроса пароля для LightDM, GDM, SDDM.",
       "apply": [
-        {
-          "type": "cmd",
-          "dm": "lightdm",
-          "run": ["/bin/sh","-c","mkdir -p /etc/lightdm/lightdm.conf.d; printf '[Seat:*]\\nautologin-user=\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-no-autologin.conf; sed -i -r '/^\\s*autologin-user\\s*=.*/d' /etc/lightdm/lightdm.conf 2>/dev/null || true"]
-        },
-        {
-          "type": "cmd",
-          "dm": "gdm",
-          "run": ["/bin/sh","-c","mkdir -p /etc/gdm; if [ -f /etc/gdm/custom.conf ]; then if grep -q '^\\[daemon\\]' /etc/gdm/custom.conf; then if grep -q '^AutomaticLoginEnable=' /etc/gdm/custom.conf; then sed -i -r 's/^\\s*AutomaticLoginEnable\\s*=.*/AutomaticLoginEnable=false/' /etc/gdm/custom.conf; else printf 'AutomaticLoginEnable=false\\n' >> /etc/gdm/custom.conf; fi; else printf '[daemon]\\nAutomaticLoginEnable=false\\n' >> /etc/gdm/custom.conf; fi; else printf '[daemon]\\nAutomaticLoginEnable=false\\n' > /etc/gdm/custom.conf; fi"]
-        },
-        {
-          "type": "cmd",
-          "dm": "sddm",
-          "run": ["/bin/sh","-c","mkdir -p /etc/sddm.conf.d; printf '[Autologin]\\nUser=\\n' > /etc/sddm.conf.d/10-altcenter-no-autologin.conf; sed -i -r '/^\\s*User\\s*=.*/d' /etc/sddm.conf 2>/dev/null || true"]
-        }
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","mkdir -p /etc/lightdm/lightdm.conf.d; printf '[Seat:*]\\nautologin-user=\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-no-autologin.conf; sed -i -r '/^\\s*autologin-user\\s*=.*/d' /etc/lightdm/lightdm.conf 2>/dev/null || true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","mkdir -p /etc/gdm; if [ -f /etc/gdm/custom.conf ]; then if grep -q '^\\[daemon\\]' /etc/gdm/custom.conf; then if grep -q '^AutomaticLoginEnable=' /etc/gdm/custom.conf; then sed -i -r 's/^\\s*AutomaticLoginEnable\\s*=.*/AutomaticLoginEnable=false/' /etc/gdm/custom.conf; else printf 'AutomaticLoginEnable=false\\n' >> /etc/gdm/custom.conf; fi; else printf '[daemon]\\nAutomaticLoginEnable=false\\n' >> /etc/gdm/custom.conf; fi; else printf '[daemon]\\nAutomaticLoginEnable=false\\n' > /etc/gdm/custom.conf; fi"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","mkdir -p /etc/sddm.conf.d; printf '[Autologin]\\nUser=\\n' > /etc/sddm.conf.d/10-altcenter-no-autologin.conf; sed -i -r '/^\\s*User\\s*=.*/d' /etc/sddm.conf 2>/dev/null || true"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-no-autologin.conf 2>/dev/null || true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","sed -i -r '/^\\s*AutomaticLoginEnable\\s*=.*/d' /etc/gdm/custom.conf 2>/dev/null || true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","rm -f /etc/sddm.conf.d/10-altcenter-no-autologin.conf 2>/dev/null || true"]}
       ]
     },
     {
@@ -35,21 +28,14 @@
       "dm": "any",
       "description": "Скрывает список пользователей на экране входа и включает ручной ввод имени (LightDM/GDM/SDDM).",
       "apply": [
-        {
-          "type": "cmd",
-          "dm": "lightdm",
-          "run": ["/bin/sh","-c","mkdir -p /etc/lightdm/lightdm.conf.d; printf '[Seat:*]\\ngreeter-hide-users=true\\ngreeter-show-manual-login=true\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-hide-users.conf; sed -i -r '/^\\s*greeter-hide-users\\s*=.*/d;/^\\s*greeter-show-manual-login\\s*=.*/d' /etc/lightdm/lightdm.conf 2>/dev/null || true"]
-        },
-        {
-          "type": "cmd",
-          "dm": "gdm",
-          "run": ["/bin/sh","-c","mkdir -p /etc/dconf/db/gdm.d /etc/dconf/profile; printf 'user-db:user\\nsystem-db:gdm\\n' > /etc/dconf/profile/gdm; printf '[org/gnome/login-screen]\\ndisable-user-list=true\\n' > /etc/dconf/db/gdm.d/00-login-screen; dconf update"]
-        },
-        {
-          "type": "cmd",
-          "dm": "sddm",
-          "run": ["/bin/sh","-c","mkdir -p /etc/sddm.conf.d; printf '[Users]\\nMinimumUid=100000\\nMaximumUid=999\\nRememberLastUser=false\\n' > /etc/sddm.conf.d/10-altcenter-hide-users.conf; sed -i -r '/^\\s*MinimumUid\\s*=.*/d;/^\\s*MaximumUid\\s*=.*/d;/^\\s*RememberLastUser\\s*=.*/d' /etc/sddm.conf 2>/dev/null || true; rm -f /var/lib/sddm/state.conf 2>/dev/null || true"]
-        }
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","mkdir -p /etc/lightdm/lightdm.conf.d; printf '[Seat:*]\\ngreeter-hide-users=true\\ngreeter-show-manual-login=true\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-hide-users.conf; sed -i -r '/^\\s*greeter-hide-users\\s*=.*/d;/^\\s*greeter-show-manual-login\\s*=.*/d' /etc/lightdm/lightdm.conf 2>/dev/null || true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","mkdir -p /etc/dconf/db/gdm.d /etc/dconf/profile; printf 'user-db:user\\nsystem-db:gdm\\n' > /etc/dconf/profile/gdm; printf '[org/gnome/login-screen]\\ndisable-user-list=true\\n' > /etc/dconf/db/gdm.d/00-login-screen; dconf update"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","mkdir -p /etc/sddm.conf.d; printf '[Users]\\nMinimumUid=100000\\nMaximumUid=999\\nRememberLastUser=false\\n' > /etc/sddm.conf.d/10-altcenter-hide-users.conf; sed -i -r '/^\\s*MinimumUid\\s*=.*/d;/^\\s*MaximumUid\\s*=.*/d;/^\\s*RememberLastUser\\s*=.*/d' /etc/sddm.conf 2>/dev/null || true; rm -f /var/lib/sddm/state.conf 2>/dev/null || true"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-hide-users.conf 2>/dev/null || true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","rm -f /etc/dconf/db/gdm.d/00-login-screen 2>/dev/null || true; dconf update"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","rm -f /etc/sddm.conf.d/10-altcenter-hide-users.conf 2>/dev/null || true; sed -i -r '/^\\s*MinimumUid\\s*=.*/d;/^\\s*MaximumUid\\s*=.*/d;/^\\s*RememberLastUser\\s*=.*/d' /etc/sddm.conf 2>/dev/null || true; rm -f /var/lib/sddm/state.conf 2>/dev/null || true"]}
       ]
     }
   ]
