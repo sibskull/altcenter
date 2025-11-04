@@ -104,15 +104,26 @@ class ComponentsWindow(QWidget):
             with open(list_path, "r") as f:
                 components_order = list(filter(lambda x: x and not x.startswith("#"), [line.strip() for line in f]))
         except:
-            pass
+            components_order = []
 
         # Read all components by D-Bus
-        clist = alterator.Components().fetch()
+        clist = []
+        try:
+            if components_order:
+                clist = alterator.Components().fetch_by_names(components_order)
+            else:
+                clist = alterator.Components().fetch()
+        except:
+            clist = []
+
         self.component_map = {c.name:c for c in clist}
-        for name in components_order:
-            i = self.component_map.get(name, None)
-            if i:
-                self.components_info.append(i)
+        if components_order:
+            for name in components_order:
+                i = self.component_map.get(name, None)
+                if i:
+                    self.components_info.append(i)
+        else:
+            self.components_info.extend(clist)
 
     def populate_list(self):
         self.list_widget.clear()
@@ -120,12 +131,9 @@ class ComponentsWindow(QWidget):
             item = QListWidgetItem(comp.display_name)
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
             item.setData(1, comp.name)
-            if comp.installed:
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
+            item.setCheckState(Qt.Unchecked)
             self.list_widget.addItem(item)
-
+        self.update_checkboxes()
 
     def get_components_to_install(self):
         selected = []
@@ -265,6 +273,7 @@ class ComponentsWindow(QWidget):
             all_installed = all(pkg in output for pkg in comp.packages)
 
             new_state = Qt.Checked if all_installed else Qt.Unchecked
+            comp._installed = all_installed
             if item.checkState() != new_state:
                 item.setCheckState(new_state)
 
