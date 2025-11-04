@@ -200,6 +200,8 @@ class PoliciesWindow(QWidget):
             return
         started = 0
         dm = self.active_dm
+        root_pieces = []
+        user_runs = []
         for pid in ids:
             item = self.getItem(pid)
             if not item:
@@ -215,12 +217,21 @@ class PoliciesWindow(QWidget):
                 args = step.get("run", [])
                 if not args:
                     continue
-                if need_root:
+                if need_root and len(args) >= 3 and args[0] == "/bin/sh" and args[1] == "-c":
+                    root_pieces.append(args[2])
+                elif need_root:
                     self.runRoot(args)
+                    started += 1
                 else:
-                    self.runUser(args)
-                self.appendLog(" ".join(args))
-                started += 1
+                    user_runs.append(args)
+        if root_pieces:
+            script = "set -e; " + " && ".join(root_pieces)
+            args = ["/bin/sh", "-c", script]
+            self.runRoot(args)
+            started += 1
+        for args in user_runs:
+            self.runUser(args)
+            started += 1
         if started > 0:
             self.appendLog(self.tr("применение начато") + f" ({started})")
         else:
