@@ -195,20 +195,24 @@ class PoliciesWindow(QWidget):
         ids = self.selectedIds()
         if not ids and self._current_id:
             ids = [self._current_id]
-        if not ids:
+        if not ids and self.list.count() == 0:
             self.appendLog(self.tr("отладка: ничего не выбрано"))
             return
         started = 0
         dm = self.active_dm
         root_pieces = []
         user_runs = []
-        for pid in ids:
+
+        for i in range(self.list.count()):
+            it = self.list.item(i)
+            pid = it.data(Qt.UserRole)
             item = self.getItem(pid)
             if not item:
                 continue
             scope = item.get("scope", "system")
             need_root = scope == "system"
-            for step in item.get("apply", []):
+            mode = "apply" if it.checkState() == Qt.Checked else "revert"
+            for step in item.get(mode, []):
                 if step.get("type") != "cmd":
                     continue
                 step_dm = step.get("dm", "any")
@@ -229,9 +233,11 @@ class PoliciesWindow(QWidget):
             args = ["/bin/sh", "-c", script]
             self.runRoot(args)
             started += 1
+
         for args in user_runs:
             self.runUser(args)
             started += 1
+
         if started > 0:
             self.appendLog(self.tr("применение начато") + f" ({started})")
         else:
