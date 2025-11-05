@@ -198,6 +198,8 @@ class PoliciesWindow(QWidget):
         QProcess.startDetached(program, arguments)
 
     def applySelected(self):
+        if not self.log.isVisible():
+            self.btn_toggle_console.click()
         ids = self.selectedIds()
         if not ids and self._current_id:
             ids = [self._current_id]
