@@ -77,8 +77,6 @@ class PoliciesWindow(QWidget):
 
         self.loadFromJson()
         self.active_dm = self.detectDisplayManager()
-        self.appendLog(self.tr("DM: ") + self.active_dm)
-        self.appendLog(self.tr("работает"))
 
     def pkgRoot(self):
         return os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -149,7 +147,6 @@ class PoliciesWindow(QWidget):
         self.log.setVisible(not vis)
         if self.log.isVisible():
             self.btn_toggle_console.setText(self.tr("Закрыть консоль"))
-            self.appendLog(self.tr("отладка: консоль открыта"))
         else:
             self.btn_toggle_console.setText(self.tr("Открыть консоль"))
 
@@ -176,13 +173,22 @@ class PoliciesWindow(QWidget):
                 env.insert(k, v)
         return env
 
-    def runRoot(self, args):
+    def runRoot(self, args, messages=None):
         p = QProcess(self)
         p.setProcessEnvironment(self.sessionProcessEnvironment())
         p.setProgram("pkexec")
         p.setArguments(args)
         p.setProcessChannelMode(QProcess.MergedChannels)
-        p.finished.connect(lambda code, status, proc=p: self.procs.remove(proc) if proc in self.procs else None)
+        def _finished(code, status, msgs=messages, proc=p):
+            if code == 0:
+                if msgs:
+                    for t, s in msgs:
+                        self.appendLog(t + " - " + s)
+            else:
+                self.appendLog(self.tr("Политики не активированы, авторизуйтесь чтобы применить политики"))
+            if proc in self.procs:
+                self.procs.remove(proc)
+        p.finished.connect(_finished)
         self.procs.append(p)
         p.start()
 
@@ -196,22 +202,20 @@ class PoliciesWindow(QWidget):
         if not ids and self._current_id:
             ids = [self._current_id]
         if not ids and self.list.count() == 0:
-            self.appendLog(self.tr("отладка: ничего не выбрано"))
             return
-        started = 0
         dm = self.active_dm
         root_pieces = []
-        user_runs = []
-
+        titles_root = []
         for i in range(self.list.count()):
             it = self.list.item(i)
             pid = it.data(Qt.UserRole)
             item = self.getItem(pid)
             if not item:
                 continue
-            scope = item.get("scope", "system")
-            need_root = scope == "system"
+            title = item.get("title", "Политика")
             mode = "apply" if it.checkState() == Qt.Checked else "revert"
+            status = "активировано" if mode == "apply" else "деактивировано"
+            added = False
             for step in item.get(mode, []):
                 if step.get("type") != "cmd":
                     continue
@@ -221,27 +225,16 @@ class PoliciesWindow(QWidget):
                 args = step.get("run", [])
                 if not args:
                     continue
-                if need_root and len(args) >= 3 and args[0] == "/bin/sh" and args[1] == "-c":
+                if len(args) >= 3 and args[0] == "/bin/sh" and args[1] == "-c":
                     root_pieces.append(args[2])
-                elif need_root:
-                    self.runRoot(args)
-                    started += 1
                 else:
-                    user_runs.append(args)
+                    root_pieces.append(" ".join(args))
+                added = True
+            if added:
+                titles_root.append((title, status))
         if root_pieces:
             script = "set -e; " + " && ".join(root_pieces)
-            args = ["/bin/sh", "-c", script]
-            self.runRoot(args)
-            started += 1
-
-        for args in user_runs:
-            self.runUser(args)
-            started += 1
-
-        if started > 0:
-            self.appendLog(self.tr("применение начато") + f" ({started})")
-        else:
-            self.appendLog(self.tr("отладка: нет действий"))
+            self.runRoot(["/bin/sh", "-c", script], titles_root)
 
 class PluginPolicies(plugins.Base):
     def __init__(self, plist: QStandardItemModel = None, pane: QStackedWidget = None):
