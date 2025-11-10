@@ -84,6 +84,14 @@ class PoliciesWindow(QWidget):
     def jsonPath(self):
         return os.path.join(self.pkgRoot(), "res", "policies.json")
 
+    def expectedFiles(self, pid):
+        base = "50-altcenter-" + str(pid)
+        return [
+            "/etc/lightdm/lightdm.conf.d/" + base + ".conf",
+            "/etc/sddm.conf.d/" + base + ".conf",
+            "/etc/dconf/db/gdm.d/" + base,
+        ]
+
     def loadFromJson(self):
         self._items = []
         path = self.jsonPath()
@@ -110,6 +118,14 @@ class PoliciesWindow(QWidget):
             self.list.addItem(w)
         if self.list.count() > 0:
             self.list.setCurrentRow(0)
+        self.updateChecksFromFiles()
+
+    def updateChecksFromFiles(self):
+        for i in range(self.list.count()):
+            it = self.list.item(i)
+            pid = it.data(Qt.UserRole)
+            exists = any(os.path.exists(p) for p in self.expectedFiles(pid))
+            it.setCheckState(Qt.Checked if exists else Qt.Unchecked)
 
     def filterList(self, _):
         self.rebuildList()
@@ -184,6 +200,7 @@ class PoliciesWindow(QWidget):
                 if msgs:
                     for t, s in msgs:
                         self.appendLog(t + " - " + s)
+                self.updateChecksFromFiles()
             else:
                 self.appendLog(self.tr("Политики не активированы, авторизуйтесь чтобы применить политики"))
             if proc in self.procs:
@@ -198,13 +215,10 @@ class PoliciesWindow(QWidget):
         QProcess.startDetached(program, arguments)
 
     def applySelected(self):
+        if self.list.count() == 0:
+            return
         if not self.log.isVisible():
             self.btn_toggle_console.click()
-        ids = self.selectedIds()
-        if not ids and self._current_id:
-            ids = [self._current_id]
-        if not ids and self.list.count() == 0:
-            return
         dm = self.active_dm
         root_pieces = []
         titles_root = []
