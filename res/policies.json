@@ -37,6 +37,25 @@
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","rm -f /etc/dconf/db/gdm.d/50-altcenter-hide-users 2>/dev/null || true; dconf update"]},
         {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","rm -f /etc/sddm.conf.d/50-altcenter-hide-users.conf 2>/dev/null || true; sed -i -r '/^\\s*MinimumUid\\s*=.*/d;/^\\s*MaximumUid\\s*=.*/d;/^\\s*RememberLastUser\\s*=.*/d' /etc/sddm.conf 2>/dev/null || true; rm -f /var/lib/sddm/state.conf 2>/dev/null || true"]}
       ]
-    }
+    },
+    {
+      "id": "no-remote-gui",
+      "title": "Запрет использования удалённых графических сессий",
+      "section": "Настройка авторизации",
+      "subsection": "Настройка параметров политики графического входа",
+      "scope": "system",
+      "dm": "any",
+      "description": "Блокируются TCP:22,3389,5900–5999,6000–6063 и UDP:177;  sshd отключается",
+      "apply": [
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; if command -v nft >/dev/null 2>&1; then nft list table inet altcenter >/dev/null 2>&1 || nft add table inet altcenter; nft list chain inet altcenter input >/dev/null 2>&1 || nft add chain inet altcenter input '{ type filter hook input priority -50; policy accept; }'; nft flush chain inet altcenter input; nft add rule inet altcenter input tcp dport 22 drop comment \"altcenter-no-remote-gui\"; nft add rule inet altcenter input tcp dport 3389 drop comment \"altcenter-no-remote-gui\"; nft add rule inet altcenter input tcp dport 5900-5999 drop comment \"altcenter-no-remote-gui\"; nft add rule inet altcenter input tcp dport 6000-6063 drop comment \"altcenter-no-remote-gui\"; nft add rule inet altcenter input udp dport 177 drop comment \"altcenter-no-remote-gui\"; nft list ruleset > /etc/nftables.conf; fi; true"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d /etc/sddm.conf.d /etc/dconf/db/gdm.d; printf 'tcp:22,3389,5900-5999,6000-6063\\nudp:177\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-no-remote-gui.conf; printf 'tcp:22,3389,5900-5999,6000-6063\\nudp:177\\n' > /etc/sddm.conf.d/50-altcenter-no-remote-gui.conf; printf 'tcp:22,3389,5900-5999,6000-6063\\nudp:177\\n' > /etc/dconf/db/gdm.d/50-altcenter-no-remote-gui"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; systemctl disable --now sshd.service 2>/dev/null || true; systemctl mask sshd.service 2>/dev/null || true"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; if command -v nft >/dev/null 2>&1; then nft list table inet altcenter >/dev/null 2>&1 && nft flush chain inet altcenter input || true; nft delete table inet altcenter 2>/dev/null || true; nft list ruleset > /etc/nftables.conf 2>/dev/null || true; fi; true"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-no-remote-gui.conf 2>/dev/null || true; rm -f /etc/sddm.conf.d/50-altcenter-no-remote-gui.conf 2>/dev/null || true; rm -f /etc/dconf/db/gdm.d/50-altcenter-no-remote-gui 2>/dev/null || true"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; systemctl unmask sshd.service 2>/dev/null || true; systemctl enable --now sshd.service 2>/dev/null || true"]}
+      ]
+    }    
   ]
 }
