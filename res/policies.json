@@ -56,6 +56,44 @@
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-no-remote-gui.conf 2>/dev/null || true; rm -f /etc/sddm.conf.d/50-altcenter-no-remote-gui.conf 2>/dev/null || true; rm -f /etc/dconf/db/gdm.d/50-altcenter-no-remote-gui 2>/dev/null || true"]},
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; systemctl unmask sshd.service 2>/dev/null || true; systemctl enable --now sshd.service 2>/dev/null || true"]}
       ]
-    }    
+    },
+    {
+      "id": "deny-system-accounts",
+      "title": "Запрет входа системных учётных записей (UID 2–999)",
+      "section": "Настройка авторизации",
+      "subsection": "Настройка параметров политики графического входа",
+      "scope": "system",
+      "dm": "any",
+      "description": "В графическом входе разрешаются только UID=0 и UID≥1000; Системные учётные записи скрываются в списках.",
+      "apply": [
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d /etc/sddm.conf.d /etc/dconf/db/gdm.d; printf 'policy:deny-system-accounts\\nUID_MIN=1000\\n[Seat:*]\\nminimum-uid=1000\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-deny-system-accounts.conf; printf 'policy:deny-system-accounts\\nUID_MIN=1000\\n[Users]\\nMinimumUid=1000\\n' > /etc/sddm.conf.d/50-altcenter-deny-system-accounts.conf; printf 'policy:deny-system-accounts\\nUID_MIN=1000\\n' > /etc/dconf/db/gdm.d/50-altcenter-deny-system-accounts"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; for f in /etc/pam.d/lightdm /etc/pam.d/gdm-password /etc/pam.d/sddm; do [ -f \"$f\" ] || continue; grep -Eq '^[[:space:]]*account[[:space:]]+sufficient[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*=\\s*0' \"$f\" || printf '\\naccount sufficient pam_succeed_if.so uid = 0\\n' >> \"$f\"; grep -Eq '^[[:space:]]*account[[:space:]]+(requisite|required)[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*>=[[:space:]]*1000' \"$f\" || printf 'account requisite pam_succeed_if.so uid >= 1000\\n' >> \"$f\"; done"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; for f in /etc/pam.d/lightdm /etc/pam.d/gdm-password /etc/pam.d/sddm; do [ -f \"$f\" ] || continue; sed -ri '/^[[:space:]]*account[[:space:]]+sufficient[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*=\\s*0/d' \"$f\" || true; sed -ri '/^[[:space:]]*account[[:space:]]+(requisite|required)[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*>=[[:space:]]*1000/d' \"$f\" || true; done"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-deny-system-accounts.conf 2>/dev/null || true; rm -f /etc/sddm.conf.d/50-altcenter-deny-system-accounts.conf 2>/dev/null || true; rm -f /etc/dconf/db/gdm.d/50-altcenter-deny-system-accounts 2>/dev/null || true"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true"]}
+      ]
+    },
+    {
+      "id": "no-username-autocomplete",
+      "title": "Запрет автодополнения имени пользователя",
+      "section": "Настройка авторизации",
+      "subsection": "Параметры графического входа",
+      "scope": "system",
+      "dm": "any",
+      "description": "LightDM: настройка применима только к lightdm-gtk-greeter; SDDM: отключается предзаполнение последним пользователем (RememberLastUser=false) и очистка state.conf; GDM: отдельной опции автодополнения нет",
+      "apply": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; f=/etc/lightdm/lightdm-gtk-greeter.conf; mkdir -p /etc/lightdm; [ -f \"$f\" ] || printf '[greeter]\\n' > \"$f\"; grep -q '^\\[greeter\\]' \"$f\" || sed -i '1s/^/[greeter]\\n/' \"$f\"; sed -ri '/^\\[greeter\\]/,/^\\[/{s/^[[:space:]]*enter-username[[:space:]]*=.*/enter-username = false/}' \"$f\"; grep -Eq '^[[:space:]]*enter-username[[:space:]]*=' \"$f\" || printf 'enter-username = false\\n' >> \"$f\"; mkdir -p /etc/lightdm/lightdm.conf.d; printf 'enter-username=false\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-no-username-autocomplete.conf"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; mkdir -p /etc/sddm.conf.d; printf '[Users]\\nRememberLastUser=false\\n' > /etc/sddm.conf.d/50-altcenter-no-username-autocomplete.conf; rm -f /var/lib/sddm/state.conf 2>/dev/null || true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/dconf/db/gdm.d; printf 'policy:no-username-autocomplete\\n' > /etc/dconf/db/gdm.d/50-altcenter-no-username-autocomplete; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; f=/etc/lightdm/lightdm-gtk-greeter.conf; mkdir -p /etc/lightdm; [ -f \"$f\" ] || printf '[greeter]\\n' > \"$f\"; grep -q '^\\[greeter\\]' \"$f\" || sed -i '1s/^/[greeter]\\n/' \"$f\"; sed -ri '/^\\[greeter\\]/,/^\\[/{s/^[[:space:]]*enter-username[[:space:]]*=.*/enter-username = true/}' \"$f\"; grep -Eq '^[[:space:]]*enter-username[[:space:]]*=' \"$f\" || printf 'enter-username = true\\n' >> \"$f\"; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-no-username-autocomplete.conf 2>/dev/null || true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sddm.conf.d/50-altcenter-no-username-autocomplete.conf 2>/dev/null || true; rm -f /var/lib/sddm/state.conf 2>/dev/null || true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/dconf/db/gdm.d/50-altcenter-no-username-autocomplete 2>/dev/null || true; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true"]}
+      ]
+    }      
   ]
 }
