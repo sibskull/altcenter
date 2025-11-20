@@ -94,6 +94,25 @@
         {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sddm.conf.d/50-altcenter-no-username-autocomplete.conf 2>/dev/null || true; rm -f /var/lib/sddm/state.conf 2>/dev/null || true"]},
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/dconf/db/gdm.d/50-altcenter-no-username-autocomplete 2>/dev/null || true; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true"]}
       ]
-    }      
+    },
+    {
+      "id": "deny-root-login",
+      "title": "Запрет графического входа администратора root",
+      "section": "Настройка авторизации",
+      "subsection": "Параметры графического входа",
+      "scope": "system",
+      "dm": "any",
+      "description": "Root (UID=0) блокируется на стадии PAM; удаляются автологины root.",
+      "apply": [
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d /etc/sddm.conf.d /etc/dconf/db/gdm.d; printf 'policy:deny-root-login\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-deny-root-login.conf; printf 'policy:deny-root-login\\n' > /etc/sddm.conf.d/50-altcenter-deny-root-login.conf; printf 'policy:deny-root-login\\n' > /etc/dconf/db/gdm.d/50-altcenter-deny-root-login"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; for f in /etc/pam.d/lightdm /etc/pam.d/gdm-password /etc/pam.d/sddm; do [ -f \"$f\" ] || continue; grep -Eq '^[[:space:]]*account[[:space:]]+requisite[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*!=[[:space:]]*0' \"$f\" || printf '\\naccount requisite pam_succeed_if.so uid != 0\\n' >> \"$f\"; done"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; for f in /etc/lightdm/lightdm.conf /etc/lightdm/lightdm.conf.d/*.conf; do [ -f \"$f\" ] && sed -ri '/^\\s*autologin-user\\s*=\\s*root\\s*$/d' \"$f\" || true; done; for f in /etc/sddm.conf /etc/sddm.conf.d/*.conf; do [ -f \"$f\" ] && sed -ri '/^\\s*User\\s*=\\s*root\\s*$/d' \"$f\" || true; done; rm -f /var/lib/sddm/state.conf 2>/dev/null || true; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; for f in /etc/pam.d/lightdm /etc/pam.d/gdm-password /etc/pam.d/sddm; do [ -f \"$f\" ] || continue; sed -ri '/^[[:space:]]*account[[:space:]]+requisite[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*!=[[:space:]]*0/d' \"$f\" || true; done"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-deny-root-login.conf 2>/dev/null || true; rm -f /etc/sddm.conf.d/50-altcenter-deny-root-login.conf 2>/dev/null || true; rm -f /etc/dconf/db/gdm.d/50-altcenter-deny-root-login 2>/dev/null || true; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; :"]}
+      ]
+    }
   ]
 }
