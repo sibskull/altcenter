@@ -113,6 +113,25 @@
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-deny-root-login.conf 2>/dev/null || true; rm -f /etc/sddm.conf.d/50-altcenter-deny-root-login.conf 2>/dev/null || true; rm -f /etc/dconf/db/gdm.d/50-altcenter-deny-root-login 2>/dev/null || true; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true"]},
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; :"]}
       ]
-    }
+    },
+    {
+      "id": "sudo-always-ask-password",
+      "title": "Запрос пароля при каждом sudo",
+      "section": "Настройка авторизации",
+      "subsection": "Дополнительные настройки",
+      "scope": "system",
+      "dm": "any",
+      "description": "Всегда запрашивать пароль sudo (timestamp_timeout=0). При откате возвращается стандартное поведение.",
+      "apply": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/sudoers.d /etc/lightdm/lightdm.conf.d; t=$(mktemp); printf 'Defaults timestamp_timeout=0\\n' > \"$t\"; if command -v visudo >/dev/null 2>&1; then visudo -c -f \"$t\" || true; fi; install -m 440 \"$t\" /etc/sudoers.d/50-altcenter-sudo-always-ask-password; rm -f \"$t\"; printf 'sudo:timestamp_timeout=0\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-sudo-always-ask-password.conf; for d in /run/sudo/ts /var/run/sudo/ts; do [ -d \"$d\" ] && rm -f \"$d\"/* 2>/dev/null || true; done; true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/sudoers.d /etc/dconf/db/gdm.d; t=$(mktemp); printf 'Defaults timestamp_timeout=0\\n' > \"$t\"; if command -v visudo >/dev/null 2>&1; then visudo -c -f \"$t\" || true; fi; install -m 440 \"$t\" /etc/sudoers.d/50-altcenter-sudo-always-ask-password; rm -f \"$t\"; printf 'sudo:timestamp_timeout=0\\n' > /etc/dconf/db/gdm.d/50-altcenter-sudo-always-ask-password; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true; true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; mkdir -p /etc/sudoers.d /etc/sddm.conf.d; t=$(mktemp); printf 'Defaults timestamp_timeout=0\\n' > \"$t\"; if command -v visudo >/dev/null 2>&1; then visudo -c -f \"$t\" || true; fi; install -m 440 \"$t\" /etc/sudoers.d/50-altcenter-sudo-always-ask-password; rm -f \"$t\"; printf 'sudo:timestamp_timeout=0\\n' > /etc/sddm.conf.d/50-altcenter-sudo-always-ask-password.conf; for d in /run/sudo/ts /var/run/sudo/ts; do [ -d \"$d\" ] && rm -f \"$d\"/* 2>/dev/null || true; done; true"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; rm -f /etc/sudoers.d/50-altcenter-sudo-always-ask-password 2>/dev/null || true; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-sudo-always-ask-password.conf 2>/dev/null || true; true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/sudoers.d/50-altcenter-sudo-always-ask-password 2>/dev/null || true; rm -f /etc/dconf/db/gdm.d/50-altcenter-sudo-always-ask-password 2>/dev/null || true; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true; true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sudoers.d/50-altcenter-sudo-always-ask-password 2>/dev/null || true; rm -f /etc/sddm.conf.d/50-altcenter-sudo-always-ask-password.conf 2>/dev/null || true; true"]}
+      ]
+    }      
   ]
 }
