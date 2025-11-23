@@ -15,6 +15,7 @@ class PoliciesWindow(QWidget):
         self._current_id = None
         self.active_dm = "any"
         self.procs = []
+        self.apply_counter = 0
 
         self.search = QLineEdit()
         self.search.setPlaceholderText(self.tr("Поиск"))
@@ -203,6 +204,7 @@ class PoliciesWindow(QWidget):
                 self.updateChecksFromFiles()
             else:
                 self.appendLog(self.tr("Политики не активированы, авторизуйтесь чтобы применить политики"))
+            self.appendLog("")
             if proc in self.procs:
                 self.procs.remove(proc)
         p.finished.connect(_finished)
@@ -220,6 +222,7 @@ class PoliciesWindow(QWidget):
         if not self.log.isVisible():
             self.btn_toggle_console.click()
         dm = self.active_dm
+        self.apply_counter += 1
         root_pieces = []
         titles_root = []
         for i in range(self.list.count()):
@@ -249,8 +252,14 @@ class PoliciesWindow(QWidget):
             if added:
                 titles_root.append((title, status))
         if root_pieces:
+            summary = str(self.apply_counter) + " " + self.tr("применение")
+            self.appendLog(summary)
             script = "set -e; " + " && ".join(root_pieces)
             self.runRoot(["/bin/sh", "-c", script], titles_root)
+        else:
+            summary = str(self.apply_counter) + " " + self.tr("применение") + ": " + self.tr("изменений нет")
+            self.appendLog(summary)
+            self.appendLog("")
 
 class PluginPolicies(plugins.Base):
     def __init__(self, plist: QStandardItemModel = None, pane: QStackedWidget = None):
