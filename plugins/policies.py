@@ -16,6 +16,8 @@ class PoliciesWindow(QWidget):
         self.active_dm = "any"
         self.procs = []
         self.apply_counter = 0
+        self._last_states = {}
+        self._baseline_ready = False
 
         self.search = QLineEdit()
         self.search.setPlaceholderText(self.tr("Поиск"))
@@ -120,6 +122,13 @@ class PoliciesWindow(QWidget):
         if self.list.count() > 0:
             self.list.setCurrentRow(0)
         self.updateChecksFromFiles()
+        if not self._baseline_ready:
+            st = {}
+            for i in range(self.list.count()):
+                it = self.list.item(i)
+                st[it.data(Qt.UserRole)] = (it.checkState() == Qt.Checked)
+            self._last_states = st
+            self._baseline_ready = True
 
     def updateChecksFromFiles(self):
         for i in range(self.list.count()):
@@ -202,6 +211,11 @@ class PoliciesWindow(QWidget):
                     for t, s in msgs:
                         self.appendLog(t + " - " + s)
                 self.updateChecksFromFiles()
+                st = {}
+                for i in range(self.list.count()):
+                    it = self.list.item(i)
+                    st[it.data(Qt.UserRole)] = (it.checkState() == Qt.Checked)
+                self._last_states = st
             else:
                 self.appendLog(self.tr("Политики не активированы, авторизуйтесь чтобы применить политики"))
             self.appendLog("")
@@ -231,8 +245,13 @@ class PoliciesWindow(QWidget):
             item = self.getItem(pid)
             if not item:
                 continue
+            cur_checked = (it.checkState() == Qt.Checked)
+            prev_checked = self._last_states.get(pid, False)
+            should_process = (cur_checked != prev_checked)
+            if not should_process:
+                continue
             title = item.get("title", "Политика")
-            mode = "apply" if it.checkState() == Qt.Checked else "revert"
+            mode = "apply" if cur_checked else "revert"
             status = "активировано" if mode == "apply" else "деактивировано"
             added = False
             for step in item.get(mode, []):
