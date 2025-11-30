@@ -132,6 +132,25 @@
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/sudoers.d/50-altcenter-sudo-always-ask-password 2>/dev/null || true; rm -f /etc/dconf/db/gdm.d/50-altcenter-sudo-always-ask-password 2>/dev/null || true; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true; true"]},
         {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sudoers.d/50-altcenter-sudo-always-ask-password 2>/dev/null || true; rm -f /etc/sddm.conf.d/50-altcenter-sudo-always-ask-password.conf 2>/dev/null || true; true"]}
       ]
-    }      
+    },
+    {
+      "id": "limit-parallel-sessions",
+      "title": "Ограничение параллельных сеансов",
+      "section": "Настройка учетных записей и управление доступом",
+      "subsection": "Ограничение числа параллельных сеансов",
+      "scope": "system",
+      "dm": "any",
+      "description": "Включает pam_limits и задаёт @users hard maxlogins=1; root не затрагивается.",
+      "apply": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/security/limits.d /etc/lightdm/lightdm.conf.d; printf '@users hard maxlogins 1\\n' > /etc/security/limits.d/50-altcenter-limit-parallel-sessions.conf; for f in /etc/pam.d/login /etc/pam.d/sshd /etc/pam.d/lightdm /etc/pam.d/lightdm-autologin; do [ -f \"$f\" ] || continue; grep -Eq '^[[:space:]]*session[[:space:]]+.*pam_limits\\.so' \"$f\" || printf '\\nsession required pam_limits.so # altcenter-limit-parallel-sessions\\n' >> \"$f\"; done; printf 'maxlogins=1\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-limit-parallel-sessions.conf; true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/security/limits.d /etc/dconf/db/gdm.d; printf '@users hard maxlogins 1\\n' > /etc/security/limits.d/50-altcenter-limit-parallel-sessions.conf; for f in /etc/pam.d/login /etc/pam.d/sshd /etc/pam.d/gdm-password; do [ -f \"$f\" ] || continue; grep -Eq '^[[:space:]]*session[[:space:]]+.*pam_limits\\.so' \"$f\" || printf '\\nsession required pam_limits.so # altcenter-limit-parallel-sessions\\n' >> \"$f\"; done; printf 'maxlogins=1\\n' > /etc/dconf/db/gdm.d/50-altcenter-limit-parallel-sessions; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true; true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; mkdir -p /etc/security/limits.d /etc/sddm.conf.d; printf '@users hard maxlogins 1\\n' > /etc/security/limits.d/50-altcenter-limit-parallel-sessions.conf; for f in /etc/pam.d/login /etc/pam.d/sshd /etc/pam.d/sddm; do [ -f \"$f\" ] || continue; grep -Eq '^[[:space:]]*session[[:space:]]+.*pam_limits\\.so' \"$f\" || printf '\\nsession required pam_limits.so # altcenter-limit-parallel-sessions\\n' >> \"$f\"; done; printf 'maxlogins=1\\n' > /etc/sddm.conf.d/50-altcenter-limit-parallel-sessions.conf; true"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; rm -f /etc/security/limits.d/50-altcenter-limit-parallel-sessions.conf 2>/dev/null || true; for f in /etc/pam.d/login /etc/pam.d/sshd /etc/pam.d/lightdm /etc/pam.d/lightdm-autologin; do [ -f \"$f\" ] || continue; sed -ri '/pam_limits\\.so.*altcenter-limit-parallel-sessions/d' \"$f\" || true; done; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-limit-parallel-sessions.conf 2>/dev/null || true; true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/security/limits.d/50-altcenter-limit-parallel-sessions.conf 2>/dev/null || true; for f in /etc/pam.d/login /etc/pam.d/sshd /etc/pam.d/gdm-password; do [ -f \"$f\" ] || continue; sed -ri '/pam_limits\\.so.*altcenter-limit-parallel-sessions/d' \"$f\" || true; done; rm -f /etc/dconf/db/gdm.d/50-altcenter-limit-parallel-sessions 2>/dev/null || true; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true; true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/security/limits.d/50-altcenter-limit-parallel-sessions.conf 2>/dev/null || true; for f in /etc/pam.d/login /etc/pam.d/sshd /etc/pam.d/sddm; do [ -f \"$f\" ] || continue; sed -ri '/pam_limits\\.so.*altcenter-limit-parallel-sessions/d' \"$f\" || true; done; rm -f /etc/sddm.conf.d/50-altcenter-limit-parallel-sessions.conf 2>/dev/null || true; true"]}
+      ]
+    } 
   ]
 }
