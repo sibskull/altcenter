@@ -3,11 +3,13 @@
     {
       "id": "no-autologin",
       "title": "Запрет входа в систему без пароля",
+      "title_en": "Disallow login without a password",
       "section": "Настройка авторизации",
       "subsection": "Параметры графического входа",
       "scope": "system",
       "dm": "any",
       "description": "Отключение автоматического входа без запроса пароля для LightDM, GDM, SDDM.",
+      "description_en": "Disable automatic login without a password prompt for LightDM, GDM, and SDDM.",
       "apply": [
         {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","mkdir -p /etc/lightdm/lightdm.conf.d; printf '[Seat:*]\\nautologin-user=\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-no-autologin.conf; sed -i -r '/^\\s*autologin-user\\s*=.*/d' /etc/lightdm/lightdm.conf 2>/dev/null || true"]},
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","mkdir -p /etc/gdm; if [ -f /etc/gdm/custom.conf ]; then if grep -q '^\\[daemon\\]' /etc/gdm/custom.conf; then if grep -q '^AutomaticLoginEnable=' /etc/gdm/custom.conf; then sed -i -r 's/^\\s*AutomaticLoginEnable\\s*=.*/AutomaticLoginEnable=false/' /etc/gdm/custom.conf; else printf 'AutomaticLoginEnable=false\\n' >> /etc/gdm/custom.conf; fi; else printf '[daemon]\\nAutomaticLoginEnable=false\\n' >> /etc/gdm/custom.conf; fi; else printf '[daemon]\\nAutomaticLoginEnable=false\\n' > /etc/gdm/custom.conf; fi; touch /etc/gdm/50-altcenter-no-autologin"]},
@@ -22,11 +24,13 @@
     {
       "id": "hide-users",
       "title": "Скрыть список пользователей на экране входа",
+      "title_en": "Hide the user list on the login screen",
       "section": "Настройка авторизации",
       "subsection": "Параметры графического входа",
       "scope": "system",
       "dm": "any",
       "description": "Скрывает список пользователей на экране входа и включает ручной ввод имени (LightDM/GDM/SDDM).",
+      "description_en": "Hides the user list on the login screen and enables manual username entry (LightDM/GDM/SDDM).",
       "apply": [
         {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","mkdir -p /etc/lightdm/lightdm.conf.d; printf '[Seat:*]\\ngreeter-hide-users=true\\ngreeter-show-manual-login=true\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-hide-users.conf; sed -i -r '/^\\s*greeter-hide-users\\s*=.*/d;/^\\s*greeter-show-manual-login\\s*=.*/d' /etc/lightdm/lightdm.conf 2>/dev/null || true"]},
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","mkdir -p /etc/dconf/db/gdm.d /etc/dconf/profile; printf 'user-db:user\\nsystem-db:gdm\\n' > /etc/dconf/profile/gdm; printf '[org/gnome/login-screen]\\ndisable-user-list=true\\n' > /etc/dconf/db/gdm.d/50-altcenter-hide-users; dconf update"]},
@@ -41,11 +45,13 @@
     {
       "id": "no-remote-gui",
       "title": "Запрет использования удалённых графических сессий",
+      "title_en": "Disable remote graphical sessions",
       "section": "Настройка авторизации",
       "subsection": "Настройка параметров политики графического входа",
       "scope": "system",
       "dm": "any",
       "description": "Блокируются TCP:22,3389,5900–5999,6000–6063 и UDP:177;  sshd отключается",
+      "description_en": "Block TCP ports 22, 3389, 5900–5999, 6000–6063 and UDP 177; disable the sshd service.",
       "apply": [
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; if command -v nft >/dev/null 2>&1; then nft list table inet altcenter >/dev/null 2>&1 || nft add table inet altcenter; nft list chain inet altcenter input >/dev/null 2>&1 || nft add chain inet altcenter input '{ type filter hook input priority -50; policy accept; }'; nft flush chain inet altcenter input; nft add rule inet altcenter input tcp dport 22 drop comment \"altcenter-no-remote-gui\"; nft add rule inet altcenter input tcp dport 3389 drop comment \"altcenter-no-remote-gui\"; nft add rule inet altcenter input tcp dport 5900-5999 drop comment \"altcenter-no-remote-gui\"; nft add rule inet altcenter input tcp dport 6000-6063 drop comment \"altcenter-no-remote-gui\"; nft add rule inet altcenter input udp dport 177 drop comment \"altcenter-no-remote-gui\"; nft list ruleset > /etc/nftables.conf; fi; true"]},
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d /etc/sddm.conf.d /etc/dconf/db/gdm.d; printf 'tcp:22,3389,5900-5999,6000-6063\\nudp:177\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-no-remote-gui.conf; printf 'tcp:22,3389,5900-5999,6000-6063\\nudp:177\\n' > /etc/sddm.conf.d/50-altcenter-no-remote-gui.conf; printf 'tcp:22,3389,5900-5999,6000-6063\\nudp:177\\n' > /etc/dconf/db/gdm.d/50-altcenter-no-remote-gui"]},
@@ -60,11 +66,13 @@
     {
       "id": "deny-system-accounts",
       "title": "Запрет входа системных учётных записей (UID 2–999)",
+      "title_en": "Disallow logins for system accounts (UID 2–999)",
       "section": "Настройка авторизации",
       "subsection": "Настройка параметров политики графического входа",
       "scope": "system",
       "dm": "any",
       "description": "В графическом входе разрешаются только UID=0 и UID≥1000; Системные учётные записи скрываются в списках.",
+      "description_en": "Only UID 0 and UID ≥ 1000 are allowed at graphical login; system accounts are hidden from lists.",
       "apply": [
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d /etc/sddm.conf.d /etc/dconf/db/gdm.d; printf 'policy:deny-system-accounts\\nUID_MIN=1000\\n[Seat:*]\\nminimum-uid=1000\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-deny-system-accounts.conf; printf 'policy:deny-system-accounts\\nUID_MIN=1000\\n[Users]\\nMinimumUid=1000\\n' > /etc/sddm.conf.d/50-altcenter-deny-system-accounts.conf; printf 'policy:deny-system-accounts\\nUID_MIN=1000\\n' > /etc/dconf/db/gdm.d/50-altcenter-deny-system-accounts"]},
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; for f in /etc/pam.d/lightdm /etc/pam.d/gdm-password /etc/pam.d/sddm; do [ -f \"$f\" ] || continue; grep -Eq '^[[:space:]]*account[[:space:]]+sufficient[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*=\\s*0' \"$f\" || printf '\\naccount sufficient pam_succeed_if.so uid = 0\\n' >> \"$f\"; grep -Eq '^[[:space:]]*account[[:space:]]+(requisite|required)[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*>=[[:space:]]*1000' \"$f\" || printf 'account requisite pam_succeed_if.so uid >= 1000\\n' >> \"$f\"; done"]},
@@ -79,11 +87,13 @@
     {
       "id": "no-username-autocomplete",
       "title": "Запрет автодополнения имени пользователя",
+      "title_en": "Disable username auto-completion",
       "section": "Настройка авторизации",
       "subsection": "Параметры графического входа",
       "scope": "system",
       "dm": "any",
       "description": "LightDM: настройка применима только к lightdm-gtk-greeter; SDDM: отключается предзаполнение последним пользователем (RememberLastUser=false) и очистка state.conf; GDM: отдельной опции автодополнения нет",
+      "description_en": "LightDM: applies only to lightdm-gtk-greeter; SDDM: disables pre-filling the last user (RememberLastUser=false) and clears state.conf; GDM: no dedicated auto-completion option.",
       "apply": [
         {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; f=/etc/lightdm/lightdm-gtk-greeter.conf; mkdir -p /etc/lightdm; [ -f \"$f\" ] || printf '[greeter]\\n' > \"$f\"; grep -q '^\\[greeter\\]' \"$f\" || sed -i '1s/^/[greeter]\\n/' \"$f\"; sed -ri '/^\\[greeter\\]/,/^\\[/{s/^[[:space:]]*enter-username[[:space:]]*=.*/enter-username = false/}' \"$f\"; grep -Eq '^[[:space:]]*enter-username[[:space:]]*=' \"$f\" || printf 'enter-username = false\\n' >> \"$f\"; mkdir -p /etc/lightdm/lightdm.conf.d; printf 'enter-username=false\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-no-username-autocomplete.conf"]},
         {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; mkdir -p /etc/sddm.conf.d; printf '[Users]\\nRememberLastUser=false\\n' > /etc/sddm.conf.d/50-altcenter-no-username-autocomplete.conf; rm -f /var/lib/sddm/state.conf 2>/dev/null || true"]},
@@ -98,11 +108,13 @@
     {
       "id": "deny-root-login",
       "title": "Запрет графического входа администратора root",
+      "title_en": "Disallow graphical login for root",
       "section": "Настройка авторизации",
       "subsection": "Параметры графического входа",
       "scope": "system",
       "dm": "any",
       "description": "Root (UID=0) блокируется на стадии PAM; удаляются автологины root.",
+      "description_en": "Root (UID 0) is blocked at the PAM stage; any root autologin settings are removed.",
       "apply": [
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d /etc/sddm.conf.d /etc/dconf/db/gdm.d; printf 'policy:deny-root-login\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-deny-root-login.conf; printf 'policy:deny-root-login\\n' > /etc/sddm.conf.d/50-altcenter-deny-root-login.conf; printf 'policy:deny-root-login\\n' > /etc/dconf/db/gdm.d/50-altcenter-deny-root-login"]},
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; for f in /etc/pam.d/lightdm /etc/pam.d/gdm-password /etc/pam.d/sddm; do [ -f \"$f\" ] || continue; grep -Eq '^[[:space:]]*account[[:space:]]+requisite[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*!=[[:space:]]*0' \"$f\" || printf '\\naccount requisite pam_succeed_if.so uid != 0\\n' >> \"$f\"; done"]},
@@ -117,11 +129,13 @@
     {
       "id": "sudo-always-ask-password",
       "title": "Запрос пароля при каждом sudo",
+      "title_en": "Always require a password for sudo",
       "section": "Настройка авторизации",
       "subsection": "Дополнительные настройки",
       "scope": "system",
       "dm": "any",
-      "description": "Всегда запрашивать пароль sudo (timestamp_timeout=0). При откате возвращается стандартное поведение.",
+      "description": "Всегда запрашивать пароль sudo (timestamp_timeout=0).",
+      "description_en": "Always prompt for a sudo password (timestamp_timeout=0).",
       "apply": [
         {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/sudoers.d /etc/lightdm/lightdm.conf.d; t=$(mktemp); printf 'Defaults timestamp_timeout=0\\n' > \"$t\"; if command -v visudo >/dev/null 2>&1; then visudo -c -f \"$t\" || true; fi; install -m 440 \"$t\" /etc/sudoers.d/50-altcenter-sudo-always-ask-password; rm -f \"$t\"; printf 'sudo:timestamp_timeout=0\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-sudo-always-ask-password.conf; for d in /run/sudo/ts /var/run/sudo/ts; do [ -d \"$d\" ] && rm -f \"$d\"/* 2>/dev/null || true; done; true"]},
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/sudoers.d /etc/dconf/db/gdm.d; t=$(mktemp); printf 'Defaults timestamp_timeout=0\\n' > \"$t\"; if command -v visudo >/dev/null 2>&1; then visudo -c -f \"$t\" || true; fi; install -m 440 \"$t\" /etc/sudoers.d/50-altcenter-sudo-always-ask-password; rm -f \"$t\"; printf 'sudo:timestamp_timeout=0\\n' > /etc/dconf/db/gdm.d/50-altcenter-sudo-always-ask-password; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true; true"]},
@@ -136,11 +150,13 @@
     {
       "id": "limit-parallel-sessions",
       "title": "Ограничение параллельных сеансов",
+      "title_en": "Limit concurrent sessions",
       "section": "Настройка учетных записей и управление доступом",
       "subsection": "Ограничение числа параллельных сеансов",
       "scope": "system",
       "dm": "any",
       "description": "Включает pam_limits и задаёт @users hard maxlogins=1; root не затрагивается.",
+      "description_en": "Enables pam_limits and sets @users hard maxlogins=1; root is not affected.",
       "apply": [
         {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/security/limits.d /etc/lightdm/lightdm.conf.d; printf '@users hard maxlogins 1\\n' > /etc/security/limits.d/50-altcenter-limit-parallel-sessions.conf; for f in /etc/pam.d/login /etc/pam.d/sshd /etc/pam.d/lightdm /etc/pam.d/lightdm-autologin; do [ -f \"$f\" ] || continue; grep -Eq '^[[:space:]]*session[[:space:]]+.*pam_limits\\.so' \"$f\" || printf '\\nsession required pam_limits.so # altcenter-limit-parallel-sessions\\n' >> \"$f\"; done; printf 'maxlogins=1\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-limit-parallel-sessions.conf; true"]},
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/security/limits.d /etc/dconf/db/gdm.d; printf '@users hard maxlogins 1\\n' > /etc/security/limits.d/50-altcenter-limit-parallel-sessions.conf; for f in /etc/pam.d/login /etc/pam.d/sshd /etc/pam.d/gdm-password; do [ -f \"$f\" ] || continue; grep -Eq '^[[:space:]]*session[[:space:]]+.*pam_limits\\.so' \"$f\" || printf '\\nsession required pam_limits.so # altcenter-limit-parallel-sessions\\n' >> \"$f\"; done; printf 'maxlogins=1\\n' > /etc/dconf/db/gdm.d/50-altcenter-limit-parallel-sessions; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true; true"]},
@@ -155,11 +171,13 @@
     {
       "id": "idle-lock",
       "title": "Блокировка сеанса после простоя",
+      "title_en": "Lock the session after idle",
       "section": "Настройка учетных записей и управление доступом",
       "subsection": "Настройка параметров блокирования сеанса",
       "scope": "system",
       "dm": "any",
       "description": "MATE: включаем lock-enabled, idle-activation-enabled, lock-delay=0, idle-delay=10; dconf-профиль и locks; для shell — TMOUT=900; при наличии — включаем timeoutd.",
+      "description_en": "MATE: enable lock-enabled and idle-activation-enabled, set lock-delay=0 and idle-delay=10; install dconf profile and locks. Shells: set TMOUT=900. If available, enable timeoutd.",
       "apply": [
         {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/dconf/profile /etc/dconf/db/local.d /etc/dconf/db/local.d/locks; [ -f /etc/dconf/profile/user ] || printf 'user-db:user\\nsystem-db:local\\n' > /etc/dconf/profile/user; printf '[org/mate/screensaver]\\nlock-enabled=true\\nidle-activation-enabled=true\\nlock-delay=uint32 0\\nidle-delay=uint32 10\\n' > /etc/dconf/db/local.d/50-altcenter-idle-lock; printf '/org/mate/screensaver/lock-enabled\\n/org/mate/screensaver/idle-activation-enabled\\n/org/mate/screensaver/lock-delay\\n/org/mate/screensaver/idle-delay\\n' > /etc/dconf/db/local.d/locks/50-altcenter-idle-lock; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true; printf '# altcenter idle-lock\\nTMOUT=${TMOUT:-900}; [ \\\"$TMOUT\\\" -eq 0 ] 2>/dev/null && TMOUT=900; export TMOUT; readonly TMOUT 2>/dev/null || true\\n' > /etc/profile.d/50-altcenter-idle-timeout.sh; chmod 0644 /etc/profile.d/50-altcenter-idle-timeout.sh; systemctl list-unit-files | grep -q '^timeoutd\\\\.service' && systemctl enable --now timeoutd.service 2>/dev/null || true; true"]},
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/dconf/profile /etc/dconf/db/local.d /etc/dconf/db/local.d/locks; [ -f /etc/dconf/profile/user ] || printf 'user-db:user\\nsystem-db:local\\n' > /etc/dconf/profile/user; printf '[org/mate/screensaver]\\nlock-enabled=true\\nidle-activation-enabled=true\\nlock-delay=uint32 0\\nidle-delay=uint32 10\\n' > /etc/dconf/db/local.d/50-altcenter-idle-lock; printf '/org/mate/screensaver/lock-enabled\\n/org/mate/screensaver/idle-activation-enabled\\n/org/mate/screensaver/lock-delay\\n/org/mate/screensaver/idle-delay\\n' > /etc/dconf/db/local.d/locks/50-altcenter-idle-lock; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true; printf '# altcenter idle-lock\\nTMOUT=${TMOUT:-900}; [ \\\"$TMOUT\\\" -eq 0 ] 2>/dev/null && TMOUT=900; export TMOUT; readonly TMOUT 2>/dev/null || true\\n' > /etc/profile.d/50-altcenter-idle-timeout.sh; chmod 0644 /etc/profile.d/50-altcenter-idle-timeout.sh; systemctl list-unit-files | grep -q '^timeoutd\\\\.service' && systemctl enable --now timeoutd.service 2>/dev/null || true; true"]},
@@ -174,11 +192,13 @@
     {
       "id": "lock-hide-session-info",
       "title": "Скрыть данные сеанса на экране блокировки",
+      "title_en": "Hide session data on the lock screen",
       "section": "Настройка учетных записей и управление доступом",
       "subsection": "Блокирование сеанса: параметры экрана блокировки",
       "scope": "system",
       "dm": "any",
       "description": "LightDM(KDE): скрыть имя пользователя, кнопки действий и медиа-контролы + отключить уведомления на лочскрине; GDM(GNOME): запрет уведомлений на лочскрине и переключения пользователей; SDDM(KDE): скрыть имя и кнопки на экране блокировки + отключить уведомления.",
+      "description_en": "LightDM(MATE): disable user switching; GDM(GNOME): disable lock-screen notifications and user switching; SDDM(KDE): hide username and action buttons on the lock screen.",
       "apply": [
         { "type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/dconf/db/local.d /etc/dconf/db/local.d/locks; printf '[org/gnome/desktop/notifications]\\nshow-in-lock-screen=false\\n\\n[org/gnome/desktop/lockdown]\\ndisable-user-switching=true\\n' > /etc/dconf/db/local.d/50-altcenter-lock-hide-session-info; printf '/org/gnome/desktop/notifications/show-in-lock-screen\\n/org/gnome/desktop/lockdown/disable-user-switching\\n' > /etc/dconf/db/local.d/locks/50-altcenter-lock-hide-session-info; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true; true"]},
         { "type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/xdg; if [ -f /etc/xdg/kscreenlockerrc ] && ! grep -q '^# altcenter-lock-hide-session-info' /etc/xdg/kscreenlockerrc 2>/dev/null; then cp -a /etc/xdg/kscreenlockerrc /etc/xdg/kscreenlockerrc.altcenter.bak; fi; if grep -q '^\\[Greeter\\]' /etc/xdg/kscreenlockerrc 2>/dev/null; then sed -ri '/^\\[Greeter\\]/,/^\\[/{s/^[[:space:]]*ShowUserName[[:space:]]*=.*/ShowUserName=false/; s/^[[:space:]]*ShowActionButtons[[:space:]]*=.*/ShowActionButtons=false/; s/^[[:space:]]*MediaControls[[:space:]]*=.*/MediaControls=false/}' /etc/xdg/kscreenlockerrc; else printf '# altcenter-lock-hide-session-info\\n[Greeter]\\nShowUserName=false\\nShowActionButtons=false\\nMediaControls=false\\n' >> /etc/xdg/kscreenlockerrc; fi; if [ -f /etc/xdg/plasmanotifyrc ] && ! grep -q '^# altcenter-lock-hide-session-info' /etc/xdg/plasmanotifyrc 2>/dev/null; then cp -a /etc/xdg/plasmanotifyrc /etc/xdg/plasmanotifyrc.altcenter.bak; fi; if grep -q '^\\[Notifications\\]' /etc/xdg/plasmanotifyrc 2>/dev/null; then sed -ri '/^\\[Notifications\\]/,/^\\[/{s/^[[:space:]]*ShowInLockScreen[[:space:]]*=.*/ShowInLockScreen=false/}' /etc/xdg/plasmanotifyrc; else printf '# altcenter-lock-hide-session-info\\n[Notifications]\\nShowInLockScreen=false\\n' >> /etc/xdg/plasmanotifyrc; fi; true"]},
@@ -193,11 +213,13 @@
     {
       "id":"no-sleep-modes",
       "title":"Отключить спящие режимы (suspend/hibernate)",
+      "title_en":"Disable sleep modes (suspend/hibernate)",
       "section":"Настройка учетных записей и управление доступом",
       "subsection":"Блокирование сеанса: энергосбережение",
       "scope":"system",
       "dm":"any",
       "description":"Маскирование sleep/suspend/hibernate/hybrid-sleep, игнор событий в logind, запрет polkit; профили GNOME/MATE/KDE отключают автосон.",
+      "description_en":"Mask sleep/suspend/hibernate/hybrid-sleep targets, ignore events in logind, deny via polkit; GNOME/MATE/KDE profiles disable auto-suspend.",
       "apply":[
         {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/systemd/logind.conf.d /etc/polkit-1/rules.d /etc/dconf/db/local.d /etc/dconf/db/local.d/locks /etc/xdg; printf '[Login]\\nHandleLidSwitch=ignore\\nHandleLidSwitchExternalPower=ignore\\nHandleSuspendKey=ignore\\nHandleHibernateKey=ignore\\n' > /etc/systemd/logind.conf.d/50-altcenter-no-sleep.conf; systemctl daemon-reload; systemctl mask --now sleep.target suspend.target hibernate.target hybrid-sleep.target 2>/dev/null || true; printf 'polkit.addRule(function(a,s){ if((/^org\\\\.freedesktop\\\\.login1\\\\./).test(a.id) && /(suspend|hibernate|hybrid-sleep)/.test(a.id)) return polkit.Result.NO; if((/^org\\\\.freedesktop\\\\.UPower\\\\./).test(a.id) && /(Suspend|Hibernate)/.test(a.id)) return polkit.Result.NO; });\\n' > /etc/polkit-1/rules.d/50-altcenter-no-sleep.rules; printf '[org/mate/power-manager]\\nsleep-computer-ac=uint32 0\\nsleep-computer-battery=uint32 0\\n' > /etc/dconf/db/local.d/50-altcenter-no-sleep; printf '/org/mate/power-manager/sleep-computer-ac\\n/org/mate/power-manager/sleep-computer-battery\\n' > /etc/dconf/db/local.d/locks/50-altcenter-no-sleep; printf '# altcenter-no-sleep\\n[AC][SuspendSession]\\nidleTime=0\\nsuspendType=0\\n[Battery][SuspendSession]\\nidleTime=0\\nsuspendType=0\\n[AC][DPMS]\\nidleTime=0\\n[Battery][DPMS]\\nidleTime=0\\n' > /etc/xdg/powermanagementprofilesrc; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true; systemctl reload-or-restart systemd-logind 2>/dev/null || true; true"]},
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/systemd/logind.conf.d /etc/polkit-1/rules.d /etc/dconf/db/local.d /etc/dconf/db/local.d/locks; printf '[Login]\\nHandleLidSwitch=ignore\\nHandleLidSwitchExternalPower=ignore\\nHandleSuspendKey=ignore\\nHandleHibernateKey=ignore\\n' > /etc/systemd/logind.conf.d/50-altcenter-no-sleep.conf; systemctl daemon-reload; systemctl mask --now sleep.target suspend.target hibernate.target hybrid-sleep.target 2>/dev/null || true; printf 'polkit.addRule(function(a,s){ if((/^org\\\\.freedesktop\\\\.login1\\\\./).test(a.id) && /(suspend|hibernate|hybrid-sleep)/.test(a.id)) return polkit.Result.NO; if((/^org\\\\.freedesktop\\\\.UPower\\\\./).test(a.id) && /(Suspend|Hibernate)/.test(a.id)) return polkit.Result.NO; });\\n' > /etc/polkit-1/rules.d/50-altcenter-no-sleep.rules; printf '[org/gnome/settings-daemon/plugins/power]\\nsleep-inactive-ac-type=\\'nothing\\'\\nsleep-inactive-battery-type=\\'nothing\\'\\n' > /etc/dconf/db/local.d/50-altcenter-no-sleep; printf '/org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type\\n/org/gnome/settings-daemon/plugins/power/sleep-inactive-battery-type\\n' > /etc/dconf/db/local.d/locks/50-altcenter-no-sleep; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true; systemctl reload-or-restart systemd-logind 2>/dev/null || true; true"]},

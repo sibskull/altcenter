@@ -33,7 +33,7 @@ class PluginDocumentation(plugins.Base):
         layout.addWidget(self.text_browser)
 
         if os.path.exists(doc_path):
-            button = QPushButton(self.tr("Открыть документацию ALT Linux"))
+            button = QPushButton(self.tr("Open ALT Linux documentation"))
             button.clicked.connect(lambda: QDesktopServices.openUrl(QUrl.fromLocalFile(doc_path)))
             layout.addWidget(button)
 

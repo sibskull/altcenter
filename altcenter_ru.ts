@@ -130,7 +130,7 @@
 <context>
     <name>Components</name>
     <message>
-        <location filename="plugins/components.py" line="303"/>
+        <location filename="plugins/components.py" line="311"/>
         <source>Components</source>
         <translation>Компоненты</translation>
     </message>
@@ -295,37 +295,37 @@
     <message>
         <location filename="plugins/components.py" line="65"/>
         <source>Apply</source>
-        <translation type="unfinished">Применить</translation>
+        <translation>Применить</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="95"/>
         <source>Show console</source>
-        <translation type="unfinished">Показать консоль</translation>
+        <translation>Показать консоль</translation>
     </message>
     <message>
         <location filename="plugins/components.py" line="95"/>
         <source>Hide console</source>
-        <translation type="unfinished">Скрыть консоль</translation>
+        <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="230"/>
+        <location filename="plugins/components.py" line="238"/>
         <source>Operation completed successfully.</source>
-        <translation type="unfinished">Операция успешно завершена.</translation>
+        <translation>Операция успешно завершена.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="232"/>
+        <location filename="plugins/components.py" line="240"/>
         <source>The operation failed with an error.</source>
-        <translation type="unfinished">Операция завершилась с ошибкой.</translation>
+        <translation>Операция завершилась с ошибкой.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="286"/>
+        <location filename="plugins/components.py" line="295"/>
         <source>This component consists of:</source>
-        <translation type="unfinished">Этот компонент состоит из:</translation>
+        <translation>Этот компонент состоит из:</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="290"/>
+        <location filename="plugins/components.py" line="299"/>
         <source>This component: </source>
-        <translation type="unfinished">Данный компонент: </translation>
+        <translation>Данный компонент: </translation>
     </message>
 </context>
 <context>
@@ -961,7 +961,7 @@ Please try again later</source>
 <context>
     <name>PluginAbout</name>
     <message>
-        <location filename="plugins/about.py" line="249"/>
+        <location filename="plugins/about.py" line="247"/>
         <source>About system</source>
         <translation>О системе</translation>
     </message>
@@ -969,20 +969,20 @@ Please try again later</source>
 <context>
     <name>PluginDocumentation</name>
     <message>
-        <location filename="plugins/documentation.py" line="19"/>
+        <location filename="plugins/documentation.py" line="18"/>
         <source>Documentation</source>
         <translation>Документация</translation>
     </message>
     <message>
-        <location filename="plugins/documentation.py" line="34"/>
-        <source>Открыть документацию ALT Linux</source>
-        <translation type="unfinished"></translation>
+        <location filename="plugins/documentation.py" line="36"/>
+        <source>Open ALT Linux documentation</source>
+        <translation>Открыть документацию ALT Linux</translation>
     </message>
 </context>
 <context>
     <name>PluginHardware</name>
     <message>
-        <location filename="plugins/hardware.py" line="422"/>
+        <location filename="plugins/hardware.py" line="420"/>
         <source>Hardware</source>
         <translation>Оборудование</translation>
     </message>
@@ -990,15 +990,23 @@ Please try again later</source>
 <context>
     <name>PluginLicense</name>
     <message>
-        <location filename="plugins/license.py" line="34"/>
+        <location filename="plugins/license.py" line="32"/>
         <source>License</source>
         <translation>Лицензия</translation>
     </message>
 </context>
 <context>
+    <name>PluginPolicies</name>
+    <message>
+        <location filename="plugins/policies.py" line="287"/>
+        <source>Policy</source>
+        <translation>Политики</translation>
+    </message>
+</context>
+<context>
     <name>PluginSettings</name>
     <message>
-        <location filename="plugins/settings.py" line="298"/>
+        <location filename="plugins/settings.py" line="319"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
@@ -1012,92 +1020,140 @@ Please try again later</source>
     </message>
 </context>
 <context>
+    <name>PoliciesWindow</name>
+    <message>
+        <location filename="plugins/policies.py" line="23"/>
+        <source>Search</source>
+        <translation>Поиск</translation>
+    </message>
+    <message>
+        <location filename="plugins/policies.py" line="177"/>
+        <source>Show console</source>
+        <translation>Показать консоль</translation>
+    </message>
+    <message>
+        <location filename="plugins/policies.py" line="40"/>
+        <source>Apply</source>
+        <translation>Применить</translation>
+    </message>
+    <message>
+        <location filename="plugins/policies.py" line="175"/>
+        <source>Hide console</source>
+        <translation>Скрыть консоль</translation>
+    </message>
+    <message>
+        <location filename="plugins/policies.py" line="220"/>
+        <source>Policies are not activated; authenticate to apply policies</source>
+        <translation>Политики не активированы, авторизуйтесь чтобы применить политики</translation>
+    </message>
+    <message>
+        <location filename="plugins/policies.py" line="253"/>
+        <source>Policy</source>
+        <translation>Политики</translation>
+    </message>
+    <message>
+        <location filename="plugins/policies.py" line="255"/>
+        <source>activated</source>
+        <translation>активировано</translation>
+    </message>
+    <message>
+        <location filename="plugins/policies.py" line="255"/>
+        <source>deactivated</source>
+        <translation>деактивировано</translation>
+    </message>
+    <message>
+        <location filename="plugins/policies.py" line="279"/>
+        <source>apply</source>
+        <translation>применение</translation>
+    </message>
+    <message>
+        <location filename="plugins/policies.py" line="279"/>
+        <source>no changes</source>
+        <translation>изменений нет</translation>
+    </message>
+</context>
+<context>
     <name>SettingsWidget</name>
     <message>
-        <location filename="plugins/settings.py" line="38"/>
+        <location filename="plugins/settings.py" line="39"/>
         <source>Daily</source>
         <translation>Ежедневно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="38"/>
+        <location filename="plugins/settings.py" line="39"/>
         <source>Weekly</source>
         <translation>Еженедельно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="38"/>
+        <location filename="plugins/settings.py" line="39"/>
         <source>Monthly</source>
         <translation>Ежемесячно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="63"/>
+        <location filename="plugins/settings.py" line="64"/>
         <source>Updates</source>
         <translation>Обновления</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="64"/>
+        <location filename="plugins/settings.py" line="65"/>
         <source>Advanced Settings</source>
         <translation>Расширенные настройки</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="77"/>
-        <source>&#xf0;&#x9f;&#x94;&#x84; Enable Auto-update</source>
-        <translation type="unfinished">🔔 Уведомлять об обновлениях</translation>
+        <source>⏰ Update Frequency</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="76"/>
-        <source>â° Update Frequency</source>
-        <translation type="obsolete">⏰ Частота обновлений</translation>
+        <source>ð Enable Auto-update</source>
+        <translation type="unfinished">⏰ Частота обновлений</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="147"/>
+        <location filename="plugins/settings.py" line="146"/>
         <source>System Control Center</source>
         <translation>Центр управления системой</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="143"/>
+        <location filename="plugins/settings.py" line="142"/>
         <source>General settings: power management, network, date, workspace behavior</source>
         <translation>Общие настройки: энергосбережение, сеть, дата, поведение рабочей среды</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="149"/>
+        <location filename="plugins/settings.py" line="148"/>
         <source>User account management, system logs, kernel updates</source>
         <translation>Управление учётными записями, системные журналы, обновлнение ядра</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="141"/>
+        <location filename="plugins/settings.py" line="140"/>
         <source>User Settings</source>
         <translation>Параметры пользователя</translation>
     </message>
     <message>
         <location filename="plugins/settings.py" line="78"/>
-        <source>⏰ Update Frequency</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="plugins/settings.py" line="79"/>
         <source>🔔 Notify About Updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="157"/>
+        <location filename="plugins/settings.py" line="188"/>
         <source>Applications</source>
-        <translation type="unfinished">Приложения</translation>
+        <translation>Приложения</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="164"/>
+        <location filename="plugins/settings.py" line="195"/>
         <source>Third party applications</source>
-        <translation type="unfinished">Сторонние приложения</translation>
+        <translation>Сторонние приложения</translation>
     </message>
 </context>
 <context>
     <name>app</name>
     <message>
-        <location filename="mainwindow.py" line="110"/>
+        <location filename="mainwindow.py" line="116"/>
         <source>Run at session startup</source>
         <translation>Запустить в начале сеанса</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="111"/>
+        <location filename="mainwindow.py" line="117"/>
         <source>List available modules and exit</source>
         <translation>Показать список доступных модулей</translation>
     </message>
