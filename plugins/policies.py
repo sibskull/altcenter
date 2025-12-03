@@ -5,7 +5,7 @@ import os
 import json
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit
 from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
-from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment
+from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
 
 class PoliciesWindow(QWidget):
     def __init__(self, main_window=None):
@@ -20,7 +20,7 @@ class PoliciesWindow(QWidget):
         self._baseline_ready = False
 
         self.search = QLineEdit()
-        self.search.setPlaceholderText(self.tr("Поиск"))
+        self.search.setPlaceholderText(self.tr("Search"))
         self.search.textChanged.connect(self.filterList)
 
         self.list = QListWidget()
@@ -36,8 +36,8 @@ class PoliciesWindow(QWidget):
         self.info_text.setMinimumHeight(120)
         self.info_text.setMaximumHeight(220)
 
-        self.btn_toggle_console = QPushButton(self.tr("Открыть консоль"))
-        self.btn_apply = QPushButton(self.tr("Применить"))
+        self.btn_toggle_console = QPushButton(self.tr("Show console"))
+        self.btn_apply = QPushButton(self.tr("Apply"))
         self.btn_toggle_console.clicked.connect(self.toggleConsole)
         self.btn_apply.clicked.connect(self.applySelected)
 
@@ -86,6 +86,19 @@ class PoliciesWindow(QWidget):
 
     def jsonPath(self):
         return os.path.join(self.pkgRoot(), "res", "policies.json")
+    
+    def currentLanguage(self) -> str:
+        return QLocale().name().split('_')[0].lower()
+
+    def loc(self, item: dict, base_key: str) -> str:
+        lang = self.currentLanguage()
+        if lang == "ru":
+            return item.get(base_key, "")
+        return item.get(f"{base_key}_{lang}", item.get(base_key, ""))
+
+    def loc_text(self, item: dict) -> tuple[str, str]:
+        print(self.loc(item, "title"), self.loc(item, "description"))
+        return self.loc(item, "title"), self.loc(item, "description")
 
     def expectedFiles(self, pid):
         base = "50-altcenter-" + str(pid)
@@ -111,7 +124,7 @@ class PoliciesWindow(QWidget):
         self.list.clear()
         query = self.search.text().strip().lower()
         for item in self._items:
-            title = item.get("title", "")
+            title = self.loc(item, "title")
             if query and query not in title.lower():
                 continue
             w = QListWidgetItem(title)
@@ -152,8 +165,9 @@ class PoliciesWindow(QWidget):
         data = self.getItem(pid)
         if not data:
             return
-        self.info_title.setText(data.get("title", ""))
-        self.info_text.setPlainText(data.get("description", ""))
+        t, d = self.loc_text(data)
+        self.info_title.setText(t)
+        self.info_text.setPlainText(d)
         if not self.right_panel.isVisible():
             self.right_panel.setVisible(True)
 
@@ -172,9 +186,9 @@ class PoliciesWindow(QWidget):
         vis = self.log.isVisible()
         self.log.setVisible(not vis)
         if self.log.isVisible():
-            self.btn_toggle_console.setText(self.tr("Закрыть консоль"))
+            self.btn_toggle_console.setText(self.tr("Hide console"))
         else:
-            self.btn_toggle_console.setText(self.tr("Открыть консоль"))
+            self.btn_toggle_console.setText(self.tr("Show console"))
 
     def detectDisplayManager(self):
         try:
@@ -217,7 +231,7 @@ class PoliciesWindow(QWidget):
                     st[it.data(Qt.UserRole)] = (it.checkState() == Qt.Checked)
                 self._last_states = st
             else:
-                self.appendLog(self.tr("Политики не активированы, авторизуйтесь чтобы применить политики"))
+                self.appendLog(self.tr("Policies are not activated; authenticate to apply policies"))
             self.appendLog("")
             if proc in self.procs:
                 self.procs.remove(proc)
@@ -250,9 +264,9 @@ class PoliciesWindow(QWidget):
             should_process = (cur_checked != prev_checked)
             if not should_process:
                 continue
-            title = item.get("title", "Политика")
+            title = item.get("title", self.tr("Policy"))
             mode = "apply" if cur_checked else "revert"
-            status = "активировано" if mode == "apply" else "деактивировано"
+            status = self.tr("activated") if mode == "apply" else self.tr("deactivated")
             added = False
             for step in item.get(mode, []):
                 if step.get("type") != "cmd":
@@ -271,12 +285,12 @@ class PoliciesWindow(QWidget):
             if added:
                 titles_root.append((title, status))
         if root_pieces:
-            summary = str(self.apply_counter) + " " + self.tr("применение")
+            summary = str(self.apply_counter) + " " + self.tr("apply")
             self.appendLog(summary)
             script = "set -e; " + " && ".join(root_pieces)
             self.runRoot(["/bin/sh", "-c", script], titles_root)
         else:
-            summary = str(self.apply_counter) + " " + self.tr("применение") + ": " + self.tr("изменений нет")
+            summary = str(self.apply_counter) + " " + self.tr("apply") + ": " + self.tr("no changes")
             self.appendLog(summary)
             self.appendLog("")
 
@@ -284,7 +298,7 @@ class PluginPolicies(plugins.Base):
     def __init__(self, plist: QStandardItemModel = None, pane: QStackedWidget = None):
         super().__init__("policies", 80, plist, pane)
         if self.plist != None and self.pane != None:
-            self.node = QStandardItem(self.tr("Политики"))
+            self.node = QStandardItem(self.tr("Policy"))
             self.node.setData(self.name)
             self.plist.appendRow([self.node])
             self.pane.addWidget(QWidget())
