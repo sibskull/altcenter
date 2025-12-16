@@ -264,7 +264,7 @@ class PoliciesWindow(QWidget):
             should_process = (cur_checked != prev_checked)
             if not should_process:
                 continue
-            title = item.get("title", self.tr("Policy"))
+            title = self.loc(item, "title") or self.tr("Policy")
             mode = "apply" if cur_checked else "revert"
             status = self.tr("activated") if mode == "apply" else self.tr("deactivated")
             added = False
