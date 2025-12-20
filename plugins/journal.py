@@ -13,7 +13,14 @@ class JournalsWidget(QWidget):
         self.main_window = main_window
         self.limit = 100
         self.limit_values = [10, 20, 50, 100, 200, 500, 1000]
+        self.page = 0
+
         self.proc = None
+        self.stdout_buf = []
+        self.stderr_buf = []
+        self.loading = False
+        self.has_more_older = False
+        self.current_fetch_lines = 0
 
         self.text = None
         self.btn_prev = None
@@ -41,11 +48,9 @@ class JournalsWidget(QWidget):
         bottom = QHBoxLayout()
 
         self.btn_prev = QPushButton(self.tr("Back"))
-        self.btn_prev.setEnabled(True)
         self.btn_prev.clicked.connect(self.on_prev_clicked)
 
         self.btn_next = QPushButton(self.tr("Forward"))
-        self.btn_next.setEnabled(True)
         self.btn_next.clicked.connect(self.on_next_clicked)
 
         bottom.addStretch(1)
@@ -63,11 +68,12 @@ class JournalsWidget(QWidget):
             self.combo_limit.setCurrentIndex(idx)
 
         self.combo_limit.currentIndexChanged.connect(self.on_limit_changed)
-
         bottom.addWidget(self.combo_limit)
 
         layout.addLayout(bottom)
         self.setLayout(layout)
+
+        self.update_nav_buttons()
 
     def initProcess(self):
         self.proc = QProcess(self)
@@ -78,43 +84,99 @@ class JournalsWidget(QWidget):
         env = QProcessEnvironment.systemEnvironment()
         self.proc.setProcessEnvironment(env)
 
+    def update_nav_buttons(self):
+        self.btn_next.setEnabled((self.page > 0) and (not self.loading))
+        self.btn_prev.setEnabled(self.has_more_older and (not self.loading))
+
     def on_limit_changed(self, idx: int):
         v = self.combo_limit.currentData()
         if v != None:
             self.limit = int(v)
+            self.page = 0
             self.loadJournal()
 
     def on_prev_clicked(self):
-        pass
+        if self.loading:
+            return
+        self.page += 1
+        self.loadJournal()
 
     def on_next_clicked(self):
-        pass
+        if self.loading:
+            return
+        if self.page > 0:
+            self.page -= 1
+            self.loadJournal()
 
     def loadJournal(self):
         if self.proc != None and self.proc.state() != QProcess.NotRunning:
             self.proc.kill()
             self.proc.waitForFinished(1000)
 
-        self.text.clear()
-        self.proc.start("journalctl", ["-b", "--no-pager", "-n", str(self.limit)])
+        self.loading = True
+        self.update_nav_buttons()
 
-    def append_to_console(self, text, is_error=False):
-        if not text:
-            return
-        self.text.moveCursor(self.text.textCursor().End)
-        self.text.insertPlainText(text)
-        self.text.moveCursor(self.text.textCursor().End)
+        self.text.clear()
+        self.stdout_buf = []
+        self.stderr_buf = []
+
+        fetch_lines = self.limit * (self.page + 1)
+        self.current_fetch_lines = fetch_lines
+
+        req_lines = fetch_lines + 1
+        self.proc.start("journalctl", ["-b", "--no-pager", "-n", str(req_lines)])
 
     def on_journal_output(self):
         output = self.proc.readAllStandardOutput().data().decode(errors="replace")
-        self.append_to_console(output)
+        if output:
+            self.stdout_buf.append(output)
 
     def on_journal_error(self):
         error = self.proc.readAllStandardError().data().decode(errors="replace")
-        self.append_to_console(error, is_error=True)
+        if error:
+            self.stderr_buf.append(error)
 
     def on_journal_finished(self, exit_code, exit_status):
-        pass
+        out = "".join(self.stdout_buf)
+        err = "".join(self.stderr_buf)
+
+        lines = out.splitlines(True)
+
+        if len(lines) > self.current_fetch_lines:
+            self.has_more_older = True
+            lines = lines[1:]
+        else:
+            self.has_more_older = False
+
+        total = len(lines)
+        if total <= 0:
+            self.page = 0
+            view = ""
+        else:
+            max_page = (total - 1) // self.limit
+            if self.page > max_page:
+                self.page = max_page
+
+            start = total - self.limit * (self.page + 1)
+            end = total - self.limit * self.page
+            if start < 0:
+                start = 0
+            if end < 0:
+                end = 0
+            if end > total:
+                end = total
+
+            view = "".join(lines[start:end])
+
+        if err:
+            if view and not view.endswith("\n"):
+                view += "\n"
+            view += err
+
+        self.text.setPlainText(view)
+
+        self.loading = False
+        self.update_nav_buttons()
 
 
 class PluginJournals(plugins.Base):
