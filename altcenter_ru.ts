@@ -876,6 +876,54 @@ Please try again later</source>
     </message>
 </context>
 <context>
+    <name>JournalsWidget</name>
+    <message>
+        <location filename="plugins/journal.py" line="41"/>
+        <source>Kernel</source>
+        <translation>Ядро</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="42"/>
+        <source>Auth</source>
+        <translation>Авторизация</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="43"/>
+        <source>SSH</source>
+        <translation>SSH</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="44"/>
+        <source>Network</source>
+        <translation>Сеть</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="52"/>
+        <source>Filters:</source>
+        <translation>Фильтры:</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="180"/>
+        <source>Select filters</source>
+        <translation>Выбранные фильтры</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="76"/>
+        <source>Back</source>
+        <translation>Назад</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="79"/>
+        <source>Forward</source>
+        <translation>Вперед</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="87"/>
+        <source>Lines:</source>
+        <translation>Строки:</translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <location filename="ui_mainwindow.py" line="103"/>
@@ -988,6 +1036,14 @@ Please try again later</source>
     </message>
 </context>
 <context>
+    <name>PluginJournals</name>
+    <message>
+        <location filename="plugins/journal.py" line="308"/>
+        <source>System logs</source>
+        <translation>Системные журналы</translation>
+    </message>
+</context>
+<context>
     <name>PluginLicense</name>
     <message>
         <location filename="plugins/license.py" line="32"/>
@@ -998,7 +1054,7 @@ Please try again later</source>
 <context>
     <name>PluginPolicies</name>
     <message>
-        <location filename="plugins/policies.py" line="287"/>
+        <location filename="plugins/policies.py" line="301"/>
         <source>Policy</source>
         <translation>Политики</translation>
     </message>
@@ -1027,7 +1083,7 @@ Please try again later</source>
         <translation>Поиск</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="177"/>
+        <location filename="plugins/policies.py" line="191"/>
         <source>Show console</source>
         <translation>Показать консоль</translation>
     </message>
@@ -1037,37 +1093,37 @@ Please try again later</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="175"/>
+        <location filename="plugins/policies.py" line="189"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="220"/>
+        <location filename="plugins/policies.py" line="234"/>
         <source>Policies are not activated; authenticate to apply policies</source>
         <translation>Политики не активированы, авторизуйтесь чтобы применить политики</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="253"/>
+        <location filename="plugins/policies.py" line="267"/>
         <source>Policy</source>
         <translation>Политики</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="255"/>
+        <location filename="plugins/policies.py" line="269"/>
         <source>activated</source>
         <translation>активировано</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="255"/>
+        <location filename="plugins/policies.py" line="269"/>
         <source>deactivated</source>
         <translation>деактивировано</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="279"/>
+        <location filename="plugins/policies.py" line="293"/>
         <source>apply</source>
         <translation>применение</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="279"/>
+        <location filename="plugins/policies.py" line="293"/>
         <source>no changes</source>
         <translation>изменений нет</translation>
     </message>
