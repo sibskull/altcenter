@@ -3,9 +3,9 @@
 import plugins
 import os
 import json
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QToolButton, QCheckBox
 from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
-from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
+from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment, QLocale, QPoint
 
 class JournalsWidget(QWidget):
     def __init__(self, main_window = None):
@@ -27,13 +27,39 @@ class JournalsWidget(QWidget):
         self.btn_next = None
         self.combo_limit = None
 
+        self.btn_filters = None
+        self.filters_popup = None
+        self.filter_checks = []
+        self.filter_items = []
+
         self.initUI()
         self.initProcess()
         self.loadJournal()
 
     def initUI(self):
+        self.filter_items = [
+            ("kernel", self.tr("Kernel")),
+            ("auth", self.tr("Auth")),
+            ("ssh", self.tr("SSH")),
+            ("network", self.tr("Network")),
+        ]
+
         layout = QVBoxLayout()
         layout.setContentsMargins(10, 10, 10, 10)
+
+        top = QHBoxLayout()
+
+        top.addWidget(QLabel(self.tr("Filters:")))
+
+        self.btn_filters = QToolButton()
+        self.btn_filters.setText(self.tr("Select filters"))
+        self.btn_filters.clicked.connect(self.toggle_filters_popup)
+        top.addWidget(self.btn_filters, 0, Qt.AlignLeft)
+
+        top.addStretch(1)
+        layout.addLayout(top)
+
+        self.initFiltersPopup()
 
         self.text = QTextEdit()
         self.text.setReadOnly(True)
@@ -57,6 +83,7 @@ class JournalsWidget(QWidget):
         bottom.addWidget(self.btn_prev)
         bottom.addWidget(self.btn_next)
 
+        bottom.addSpacing(10)
         bottom.addWidget(QLabel(self.tr("Lines:")))
 
         self.combo_limit = QComboBox()
@@ -74,6 +101,44 @@ class JournalsWidget(QWidget):
         self.setLayout(layout)
 
         self.update_nav_buttons()
+
+    def initFiltersPopup(self):
+        self.filters_popup = QWidget(self, Qt.Popup)
+        popup_layout = QVBoxLayout()
+        popup_layout.setContentsMargins(8, 8, 8, 8)
+        popup_layout.setSpacing(4)
+
+        self.filter_checks = []
+        for key, title in self.filter_items:
+            cb = QCheckBox(title)
+            cb.setProperty("filter_key", key)
+            cb.stateChanged.connect(self.on_filters_changed)
+            popup_layout.addWidget(cb)
+            self.filter_checks.append(cb)
+
+        self.filters_popup.setLayout(popup_layout)
+        self.filters_popup.adjustSize()
+
+    def toggle_filters_popup(self):
+        if self.filters_popup.isVisible():
+            self.filters_popup.hide()
+            return
+
+        self.filters_popup.adjustSize()
+        pos = self.btn_filters.mapToGlobal(QPoint(0, self.btn_filters.height()))
+        self.filters_popup.move(pos)
+        self.filters_popup.show()
+
+    def on_filters_changed(self, state):
+        selected = []
+        for cb in self.filter_checks:
+            if cb.isChecked():
+                selected.append(cb.text())
+
+        if selected:
+            self.btn_filters.setText(", ".join(selected))
+        else:
+            self.btn_filters.setText(self.tr("Select filters"))
 
     def initProcess(self):
         self.proc = QProcess(self)
