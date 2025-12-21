@@ -129,16 +129,60 @@ class JournalsWidget(QWidget):
         self.filters_popup.move(pos)
         self.filters_popup.show()
 
-    def on_filters_changed(self, state):
+    def get_selected_filter_keys(self):
         selected = []
         for cb in self.filter_checks:
             if cb.isChecked():
-                selected.append(cb.text())
+                k = cb.property("filter_key")
+                if k != None:
+                    selected.append(str(k))
+        return selected
 
-        if selected:
-            self.btn_filters.setText(", ".join(selected))
+    def build_filter_matches(self, keys):
+        match_list = []
+
+        if "kernel" in keys:
+            match_list.append("_TRANSPORT=kernel")
+
+        if "ssh" in keys:
+            match_list.append("_SYSTEMD_UNIT=sshd.service")
+            match_list.append("_SYSTEMD_UNIT=ssh.service")
+            match_list.append("SYSLOG_IDENTIFIER=sshd")
+
+        if "network" in keys:
+            match_list.append("_SYSTEMD_UNIT=NetworkManager.service")
+            match_list.append("SYSLOG_IDENTIFIER=NetworkManager")
+
+        if "auth" in keys:
+            match_list.append("SYSLOG_IDENTIFIER=sudo")
+            match_list.append("SYSLOG_IDENTIFIER=su")
+            match_list.append("SYSLOG_IDENTIFIER=polkitd")
+            match_list.append("_SYSTEMD_UNIT=systemd-logind.service")
+
+        uniq = []
+        s = set()
+        for m in match_list:
+            if m not in s:
+                s.add(m)
+                uniq.append(m)
+
+        return uniq
+
+    def apply_filters_text(self):
+        selected_titles = []
+        for cb in self.filter_checks:
+            if cb.isChecked():
+                selected_titles.append(cb.text())
+
+        if selected_titles:
+            self.btn_filters.setText(", ".join(selected_titles))
         else:
             self.btn_filters.setText(self.tr("Select filters"))
+
+    def on_filters_changed(self, state):
+        self.apply_filters_text()
+        self.page = 0
+        self.loadJournal()
 
     def initProcess(self):
         self.proc = QProcess(self)
@@ -189,7 +233,19 @@ class JournalsWidget(QWidget):
         self.current_fetch_lines = fetch_lines
 
         req_lines = fetch_lines + 1
-        self.proc.start("journalctl", ["-b", "--no-pager", "-n", str(req_lines)])
+
+        args = ["-b", "--no-pager", "-n", str(req_lines)]
+
+        keys = self.get_selected_filter_keys()
+        matches = self.build_filter_matches(keys)
+
+        if matches:
+            for i, m in enumerate(matches):
+                if i > 0:
+                    args.append("+")
+                args.append(m)
+
+        self.proc.start("journalctl", args)
 
     def on_journal_output(self):
         output = self.proc.readAllStandardOutput().data().decode(errors="replace")
