@@ -32,6 +32,8 @@ class JournalsWidget(QWidget):
         self.filter_checks = []
         self.filter_items = []
 
+        self.edit_query = None
+
         self.initUI()
         self.initProcess()
         self.loadJournal()
@@ -55,6 +57,14 @@ class JournalsWidget(QWidget):
         self.btn_filters.setText(self.tr("Select filters"))
         self.btn_filters.clicked.connect(self.toggle_filters_popup)
         top.addWidget(self.btn_filters, 0, Qt.AlignLeft)
+
+        top.addSpacing(10)
+        top.addWidget(QLabel(self.tr("Text:")))
+
+        self.edit_query = QLineEdit()
+        self.edit_query.setPlaceholderText(self.tr("Type to filter..."))
+        self.edit_query.setClearButtonEnabled(True)
+        top.addWidget(self.edit_query, 1)
 
         top.addStretch(1)
         layout.addLayout(top)
