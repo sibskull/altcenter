@@ -41,9 +41,16 @@ class JournalsWidget(QWidget):
     def initUI(self):
         self.filter_items = [
             ("kernel", self.tr("Kernel")),
-            ("auth", self.tr("Auth")),
-            ("ssh", self.tr("SSH")),
-            ("network", self.tr("Network")),
+            ("sshd.service", "sshd.service"),
+            ("NetworkManager.service", "NetworkManager.service"),
+            ("systemd-logind.service", "systemd-logind.service"),
+            ("polkit.service", "polkit.service"),
+            ("lightdm.service", "lightdm.service"),
+            ("wpa_supplicant.service", "wpa_supplicant.service"),
+            ("udisks2.service", "udisks2.service"),
+            ("packagekit.service", "packagekit.service"),
+            ("xrdp.service", "xrdp.service"),
+            ("dbus.service", "dbus.service"),
         ]
 
         layout = QVBoxLayout()
@@ -154,20 +161,9 @@ class JournalsWidget(QWidget):
         if "kernel" in keys:
             match_list.append("_TRANSPORT=kernel")
 
-        if "ssh" in keys:
-            match_list.append("_SYSTEMD_UNIT=sshd.service")
-            match_list.append("_SYSTEMD_UNIT=ssh.service")
-            match_list.append("SYSLOG_IDENTIFIER=sshd")
-
-        if "network" in keys:
-            match_list.append("_SYSTEMD_UNIT=NetworkManager.service")
-            match_list.append("SYSLOG_IDENTIFIER=NetworkManager")
-
-        if "auth" in keys:
-            match_list.append("SYSLOG_IDENTIFIER=sudo")
-            match_list.append("SYSLOG_IDENTIFIER=su")
-            match_list.append("SYSLOG_IDENTIFIER=polkitd")
-            match_list.append("_SYSTEMD_UNIT=systemd-logind.service")
+        for k in keys:
+            if k.endswith(".service"):
+                match_list.append(f"_SYSTEMD_UNIT={k}")
 
         uniq = []
         s = set()
