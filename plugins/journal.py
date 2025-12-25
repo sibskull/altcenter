@@ -21,6 +21,7 @@ class JournalsWidget(QWidget):
         self.loading = False
         self.has_more_older = False
         self.current_fetch_lines = 0
+        self.rescan_target = 0
 
         self.text = None
         self.btn_prev = None
@@ -71,6 +72,8 @@ class JournalsWidget(QWidget):
         self.edit_query = QLineEdit()
         self.edit_query.setPlaceholderText(self.tr("Type to filter..."))
         self.edit_query.setClearButtonEnabled(True)
+        self.edit_query.returnPressed.connect(self.on_query_apply)
+        self.edit_query.textChanged.connect(self.on_query_text_changed)
         top.addWidget(self.edit_query, 1)
 
         top.addStretch(1)
@@ -190,6 +193,15 @@ class JournalsWidget(QWidget):
         self.page = 0
         self.loadJournal()
 
+    def on_query_apply(self):
+        self.page = 0
+        self.loadJournal()
+
+    def on_query_text_changed(self, text):
+        if text.strip() == "":
+            self.page = 0
+            self.loadJournal()
+
     def initProcess(self):
         self.proc = QProcess(self)
         self.proc.readyReadStandardOutput.connect(self.on_journal_output)
@@ -223,7 +235,7 @@ class JournalsWidget(QWidget):
             self.page -= 1
             self.loadJournal()
 
-    def loadJournal(self):
+    def loadJournal(self, forced_fetch_lines=None):
         if self.proc != None and self.proc.state() != QProcess.NotRunning:
             self.proc.kill()
             self.proc.waitForFinished(1000)
@@ -235,7 +247,22 @@ class JournalsWidget(QWidget):
         self.stdout_buf = []
         self.stderr_buf = []
 
-        fetch_lines = self.limit * (self.page + 1)
+        q = ""
+        if self.edit_query != None:
+            q = self.edit_query.text().strip()
+
+        base_fetch = self.limit * (self.page + 1)
+        fetch_lines = base_fetch
+
+        if q and forced_fetch_lines == None:
+            min_fetch = self.limit * 10
+            if fetch_lines < min_fetch:
+                fetch_lines = min_fetch
+
+        if forced_fetch_lines != None:
+            fetch_lines = int(forced_fetch_lines)
+
+        self.rescan_target = base_fetch
         self.current_fetch_lines = fetch_lines
 
         req_lines = fetch_lines + 1
@@ -267,13 +294,30 @@ class JournalsWidget(QWidget):
         out = "".join(self.stdout_buf)
         err = "".join(self.stderr_buf)
 
-        lines = out.splitlines(True)
+        lines_all = out.splitlines(True)
 
-        if len(lines) > self.current_fetch_lines:
+        if len(lines_all) > self.current_fetch_lines:
             self.has_more_older = True
-            lines = lines[1:]
+            lines_all = lines_all[1:]
         else:
             self.has_more_older = False
+
+        q = ""
+        if self.edit_query != None:
+            q = self.edit_query.text().strip()
+
+        lines = lines_all
+        if q:
+            ql = q.lower()
+            filtered = []
+            for ln in lines:
+                if ql in ln.lower():
+                    filtered.append(ln)
+            lines = filtered
+
+            if self.has_more_older and len(lines) < self.rescan_target:
+                self.loadJournal(self.current_fetch_lines * 2)
+                return
 
         total = len(lines)
         if total <= 0:
