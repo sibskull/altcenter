@@ -13,7 +13,12 @@ class JournalsWidget(QWidget):
         self.main_window = main_window
 
         self.proc = None
+        self.proc_vacuum = None
+
         self.usage_value = None
+        self.vacuum_value = None
+        self.btn_vacuum = None
+        self.lbl_vacuum_status = None
 
         self.initUI()
         self.loadUsage()
@@ -33,6 +38,25 @@ class JournalsWidget(QWidget):
 
         top.addStretch(1)
         layout.addLayout(top)
+
+        vacuum = QHBoxLayout()
+
+        vacuum.addWidget(QLabel(self.tr("Vacuum to size (MB):")))
+
+        self.vacuum_value = QLineEdit()
+        self.vacuum_value.setText("0")
+        vacuum.addWidget(self.vacuum_value, 1)
+
+        self.btn_vacuum = QPushButton(self.tr("Vacuum"))
+        self.btn_vacuum.clicked.connect(self.on_vacuum_clicked)
+        vacuum.addWidget(self.btn_vacuum)
+
+        self.lbl_vacuum_status = QLabel("")
+        self.lbl_vacuum_status.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        vacuum.addWidget(self.lbl_vacuum_status)
+
+        vacuum.addStretch(1)
+        layout.addLayout(vacuum)
 
         layout.addStretch(1)
         self.setLayout(layout)
@@ -63,6 +87,46 @@ class JournalsWidget(QWidget):
             self.usage_value.setText(err)
         else:
             self.usage_value.setText(self.tr("Failed to read log usage."))
+
+    def on_vacuum_clicked(self):
+        if self.proc_vacuum != None and self.proc_vacuum.state() != QProcess.NotRunning:
+            return
+
+        t = self.vacuum_value.text().strip()
+        try:
+            mb = int(t)
+        except:
+            self.lbl_vacuum_status.setText(self.tr("Enter a numeric value"))
+            return
+
+        if mb < 0:
+            self.lbl_vacuum_status.setText(self.tr("Enter a numeric value"))
+            return
+
+        self.lbl_vacuum_status.setText("")
+        self.btn_vacuum.setEnabled(False)
+
+        self.proc_vacuum = QProcess(self)
+        env = QProcessEnvironment.systemEnvironment()
+        self.proc_vacuum.setProcessEnvironment(env)
+        self.proc_vacuum.finished.connect(self.on_vacuum_finished)
+
+        self.proc_vacuum.start("pkexec", ["journalctl", f"--vacuum-size={mb}M"])
+
+    def on_vacuum_finished(self, exit_code, exit_status):
+        err = self.proc_vacuum.readAllStandardError().data().decode(errors="replace").strip()
+
+        self.btn_vacuum.setEnabled(True)
+
+        if exit_code == 0:
+            self.lbl_vacuum_status.setText(self.tr("Done"))
+            self.loadUsage()
+            return
+
+        if err:
+            self.lbl_vacuum_status.setText(err)
+        else:
+            self.lbl_vacuum_status.setText(self.tr("Failed"))
 
 
 class PluginJournals(plugins.Base):
