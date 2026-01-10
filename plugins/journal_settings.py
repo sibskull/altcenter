@@ -3,7 +3,7 @@
 import plugins
 import os
 import json
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox
 from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
 from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
 
@@ -19,6 +19,11 @@ class JournalsWidget(QWidget):
         self.vacuum_value = None
         self.btn_vacuum = None
         self.lbl_vacuum_status = None
+
+        self.retention_value = None
+        self.retention_unit = None
+        self.btn_retention = None
+        self.lbl_retention_status = None
 
         self.initUI()
         self.loadUsage()
@@ -57,6 +62,30 @@ class JournalsWidget(QWidget):
 
         vacuum.addStretch(1)
         layout.addLayout(vacuum)
+
+        retention = QHBoxLayout()
+
+        retention.addWidget(QLabel(self.tr("Retention time:")))
+
+        self.retention_value = QLineEdit()
+        self.retention_value.setText("")
+        retention.addWidget(self.retention_value, 1)
+
+        self.retention_unit = QComboBox()
+        self.retention_unit.addItem(self.tr("Day"))
+        self.retention_unit.addItem(self.tr("Week"))
+        self.retention_unit.addItem(self.tr("Month"))
+        retention.addWidget(self.retention_unit)
+
+        self.btn_retention = QPushButton(self.tr("Apply"))
+        retention.addWidget(self.btn_retention)
+
+        self.lbl_retention_status = QLabel("")
+        self.lbl_retention_status.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        retention.addWidget(self.lbl_retention_status)
+
+        retention.addStretch(1)
+        layout.addLayout(retention)
 
         layout.addStretch(1)
         self.setLayout(layout)
