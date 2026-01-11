@@ -14,6 +14,7 @@ class JournalsWidget(QWidget):
 
         self.proc = None
         self.proc_vacuum = None
+        self.proc_retention = None
 
         self.usage_value = None
         self.vacuum_value = None
@@ -78,6 +79,7 @@ class JournalsWidget(QWidget):
         retention.addWidget(self.retention_unit)
 
         self.btn_retention = QPushButton(self.tr("Apply"))
+        self.btn_retention.clicked.connect(self.on_retention_clicked)
         retention.addWidget(self.btn_retention)
 
         self.lbl_retention_status = QLabel("")
@@ -156,6 +158,54 @@ class JournalsWidget(QWidget):
             self.lbl_vacuum_status.setText(err)
         else:
             self.lbl_vacuum_status.setText(self.tr("Failed"))
+
+    def on_retention_clicked(self):
+        if self.proc_retention != None and self.proc_retention.state() != QProcess.NotRunning:
+            return
+
+        t = self.retention_value.text().strip()
+        try:
+            n = int(t)
+        except:
+            self.lbl_retention_status.setText(self.tr("Enter a numeric value"))
+            return
+
+        if n < 0:
+            self.lbl_retention_status.setText(self.tr("Enter a numeric value"))
+            return
+
+        unit = self.retention_unit.currentText()
+        days = n
+
+        if unit == self.tr("Week"):
+            days = n * 7
+        elif unit == self.tr("Month"):
+            days = n * 30
+
+        self.lbl_retention_status.setText("")
+        self.btn_retention.setEnabled(False)
+
+        self.proc_retention = QProcess(self)
+        env = QProcessEnvironment.systemEnvironment()
+        self.proc_retention.setProcessEnvironment(env)
+        self.proc_retention.finished.connect(self.on_retention_finished)
+
+        self.proc_retention.start("pkexec", ["journalctl", f"--vacuum-time={days}days"])
+
+    def on_retention_finished(self, exit_code, exit_status):
+        err = self.proc_retention.readAllStandardError().data().decode(errors="replace").strip()
+
+        self.btn_retention.setEnabled(True)
+
+        if exit_code == 0:
+            self.lbl_retention_status.setText(self.tr("Done"))
+            self.loadUsage()
+            return
+
+        if err:
+            self.lbl_retention_status.setText(err)
+        else:
+            self.lbl_retention_status.setText(self.tr("Failed"))
 
 
 class PluginJournals(plugins.Base):
