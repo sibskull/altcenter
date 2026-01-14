@@ -26,6 +26,12 @@ class JournalsWidget(QWidget):
         self.btn_retention = None
         self.lbl_retention_status = None
 
+        self.systemmaxuse_value = None
+        self.btn_systemmaxuse = None
+        self.lbl_systemmaxuse_status = None
+
+        self.proc_systemmaxuse = None
+
         self.initUI()
         self.loadUsage()
 
@@ -88,6 +94,25 @@ class JournalsWidget(QWidget):
 
         retention.addStretch(1)
         layout.addLayout(retention)
+
+        systemmaxuse = QHBoxLayout()
+
+        systemmaxuse.addWidget(QLabel(self.tr("SystemMaxUse (MB):")))
+
+        self.systemmaxuse_value = QLineEdit()
+        self.systemmaxuse_value.setText("")
+        systemmaxuse.addWidget(self.systemmaxuse_value, 1)
+
+        self.btn_systemmaxuse = QPushButton(self.tr("Apply"))
+        self.btn_systemmaxuse.clicked.connect(self.on_systemmaxuse_clicked)
+        systemmaxuse.addWidget(self.btn_systemmaxuse)
+
+        self.lbl_systemmaxuse_status = QLabel("")
+        self.lbl_systemmaxuse_status.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        systemmaxuse.addWidget(self.lbl_systemmaxuse_status)
+
+        systemmaxuse.addStretch(1)
+        layout.addLayout(systemmaxuse)
 
         layout.addStretch(1)
         self.setLayout(layout)
@@ -206,6 +231,51 @@ class JournalsWidget(QWidget):
             self.lbl_retention_status.setText(err)
         else:
             self.lbl_retention_status.setText(self.tr("Failed"))
+
+    def on_systemmaxuse_clicked(self):
+        if self.proc_systemmaxuse != None and self.proc_systemmaxuse.state() != QProcess.NotRunning:
+            return
+
+        t = self.systemmaxuse_value.text().strip()
+        try:
+            mb = int(t)
+        except:
+            self.lbl_systemmaxuse_status.setText(self.tr("Enter a numeric value"))
+            return
+
+        if mb < 0:
+            self.lbl_systemmaxuse_status.setText(self.tr("Enter a numeric value"))
+            return
+
+        self.lbl_systemmaxuse_status.setText("")
+        self.btn_systemmaxuse.setEnabled(False)
+
+        self.proc_systemmaxuse = QProcess(self)
+        env = QProcessEnvironment.systemEnvironment()
+        self.proc_systemmaxuse.setProcessEnvironment(env)
+        self.proc_systemmaxuse.finished.connect(self.on_systemmaxuse_finished)
+
+        cmd = (
+            "mkdir -p /etc/systemd/journald.conf.d && "
+            f"printf '[Journal]\\nSystemMaxUse={mb}M\\n' > /etc/systemd/journald.conf.d/altcenter.conf && "
+            "systemctl restart systemd-journald"
+        )
+        self.proc_systemmaxuse.start("pkexec", ["sh", "-c", cmd])
+
+    def on_systemmaxuse_finished(self, exit_code, exit_status):
+        err = self.proc_systemmaxuse.readAllStandardError().data().decode(errors="replace").strip()
+
+        self.btn_systemmaxuse.setEnabled(True)
+
+        if exit_code == 0:
+            self.lbl_systemmaxuse_status.setText(self.tr("Done"))
+            self.loadUsage()
+            return
+
+        if err:
+            self.lbl_systemmaxuse_status.setText(err)
+        else:
+            self.lbl_systemmaxuse_status.setText(self.tr("Failed"))
 
 
 class PluginJournals(plugins.Base):
