@@ -41,7 +41,7 @@ class JournalsWidget(QWidget):
 
         top = QHBoxLayout()
 
-        top.addWidget(QLabel(self.tr("Current log usage:")))
+        top.addWidget(QLabel(self.tr("Current log usage (MB):")))
 
         self.usage_value = QLineEdit()
         self.usage_value.setReadOnly(True)

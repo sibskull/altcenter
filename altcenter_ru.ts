@@ -878,49 +878,124 @@ Please try again later</source>
 <context>
     <name>JournalsWidget</name>
     <message>
-        <location filename="plugins/journal.py" line="41"/>
+        <location filename="plugins/journal.py" line="44"/>
         <source>Kernel</source>
         <translation>Ядро</translation>
     </message>
     <message>
         <location filename="plugins/journal.py" line="42"/>
         <source>Auth</source>
-        <translation>Авторизация</translation>
+        <translation type="obsolete">Авторизация</translation>
     </message>
     <message>
         <location filename="plugins/journal.py" line="43"/>
         <source>SSH</source>
-        <translation>SSH</translation>
+        <translation type="obsolete">SSH</translation>
     </message>
     <message>
         <location filename="plugins/journal.py" line="44"/>
         <source>Network</source>
-        <translation>Сеть</translation>
+        <translation type="obsolete">Сеть</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="52"/>
+        <location filename="plugins/journal.py" line="62"/>
         <source>Filters:</source>
         <translation>Фильтры:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="180"/>
+        <location filename="plugins/journal.py" line="189"/>
         <source>Select filters</source>
         <translation>Выбранные фильтры</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="76"/>
+        <location filename="plugins/journal.py" line="96"/>
         <source>Back</source>
         <translation>Назад</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="79"/>
+        <location filename="plugins/journal.py" line="99"/>
         <source>Forward</source>
         <translation>Вперед</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="87"/>
+        <location filename="plugins/journal.py" line="107"/>
         <source>Lines:</source>
         <translation>Строки:</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="70"/>
+        <source>Text:</source>
+        <translation>Текст:</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="73"/>
+        <source>Type to filter...</source>
+        <translation>Введите для фильтрации...</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="44"/>
+        <source>Current log usage (MB):</source>
+        <translation>Текущей размер журнала (МБ):</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="56"/>
+        <source>Vacuum to size (MB):</source>
+        <translation>Уменьшить до размера (МБ):</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="62"/>
+        <source>Vacuum</source>
+        <translation>Уменьшить</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="75"/>
+        <source>Retention time:</source>
+        <translation>Время хранения:</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="82"/>
+        <source>Day</source>
+        <translation>День</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="205"/>
+        <source>Week</source>
+        <translation>Неделя</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="207"/>
+        <source>Month</source>
+        <translation>Месяц</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="106"/>
+        <source>Apply</source>
+        <translation>Применить</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="100"/>
+        <source>SystemMaxUse (MB):</source>
+        <translation>Максимальный размер журнала (МБ):</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="145"/>
+        <source>Failed to read log usage.</source>
+        <translation>Не удалось прочитать журнал.</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="247"/>
+        <source>Enter a numeric value</source>
+        <translation>Введите числовое значение</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="271"/>
+        <source>Done</source>
+        <translation>Готово</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="278"/>
+        <source>Failed</source>
+        <translation>Ошибка</translation>
     </message>
 </context>
 <context>
@@ -1038,9 +1113,14 @@ Please try again later</source>
 <context>
     <name>PluginJournals</name>
     <message>
-        <location filename="plugins/journal.py" line="308"/>
+        <location filename="plugins/journal.py" line="358"/>
         <source>System logs</source>
         <translation>Системные журналы</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="286"/>
+        <source>System logs settings</source>
+        <translation>Настройки журналов</translation>
     </message>
 </context>
 <context>
@@ -1162,7 +1242,7 @@ Please try again later</source>
     </message>
     <message>
         <location filename="plugins/settings.py" line="76"/>
-        <source>ð Enable Auto-update</source>
+        <source>&#xf0;&#x9f;&#x94;&#x84; Enable Auto-update</source>
         <translation type="unfinished">⏰ Частота обновлений</translation>
     </message>
     <message>
