@@ -20,8 +20,9 @@ APPLICATION_NAME = 'altcenter'
 APPLICATION_VERSION = '1.0'
 
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
-from PyQt5.QtCore import QTranslator, QSettings
+from PyQt5.QtCore import QTranslator, QSettings, QObject, QEvent, Qt
 from PyQt5.QtCore import QCommandLineParser, QCommandLineOption
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QLibraryInfo, QLocale
 # from PyQt5 import uic
 from PyQt5.QtGui import QStandardItemModel, QIcon
@@ -39,6 +40,136 @@ plugin_path = os.path.join(current_dir, "plugins")
 
 if os.environ.get("XDG_SESSION_TYPE") == "wayland":
     os.environ["QT_QPA_PLATFORM"] = "xcb"
+
+
+class QtContextMenuRuFilter(QObject):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._patched_web = set()
+        self._map = {
+            'Undo': 'Отменить',
+            'Redo': 'Повторить',
+            'Cut': 'Вырезать',
+            'Copy': 'Копировать',
+            'Paste': 'Вставить',
+            'Delete': 'Удалить',
+            'Clear': 'Очистить',
+            'Select All': 'Выделить всё',
+            'Paste and Match Style': 'Вставить без форматирования',
+
+            'Back': 'Назад',
+            'Forward': 'Вперёд',
+            'Reload': 'Обновить',
+            'Save page': 'Сохранить страницу',
+            'View page source': 'Просмотреть исходный код страницы',
+            'Copy Link Location': 'Копировать адрес ссылки'
+        }
+
+    def eventFilter(self, obj, event):
+        t = event.type()
+
+        if QLocale.system().language() != QLocale.Russian:
+            return False
+
+        if t == QEvent.ChildAdded:
+            if hasattr(event, 'child'):
+                ch = event.child()
+                if isinstance(ch, QWebEngineView):
+                    self._patch_webengine(ch)
+            return False
+
+        if t == QEvent.Show:
+            if isinstance(obj, QWebEngineView):
+                self._patch_webengine(obj)
+            return False
+
+        if t != QEvent.ContextMenu:
+            return False
+
+        if isinstance(obj, QWebEngineView):
+            return False
+
+        w = obj
+        for _ in range(12):
+            if w is None:
+                break
+            if hasattr(w, 'contextMenuPolicy') and w.contextMenuPolicy() != Qt.DefaultContextMenu:
+                return False
+            if hasattr(w, 'createStandardContextMenu'):
+                try:
+                    menu = w.createStandardContextMenu()
+                except Exception:
+                    return False
+                if menu is None:
+                    return False
+                self._translate_menu(menu)
+                menu.exec_(event.globalPos())
+                menu.deleteLater()
+                return True
+            w = w.parent()
+
+        return False
+
+    def _patch_webengine(self, view):
+        vid = int(view.winId()) if hasattr(view, 'winId') else id(view)
+        if vid in self._patched_web:
+            return
+        self._patched_web.add(vid)
+        view.setContextMenuPolicy(Qt.CustomContextMenu)
+        view.customContextMenuRequested.connect(self._on_web_context_menu)
+
+    def _on_web_context_menu(self, pos):
+        view = self.sender()
+        if view is None:
+            return
+        try:
+            page = view.page()
+        except Exception:
+            page = None
+        if page is None:
+            return
+        try:
+            menu = page.createStandardContextMenu()
+        except Exception:
+            return
+        if menu is None:
+            return
+        self._translate_menu(menu)
+        menu.exec_(view.mapToGlobal(pos))
+        menu.deleteLater()
+
+    def _translate_menu(self, menu):
+        for act in menu.actions():
+            sub = act.menu()
+            if sub is not None:
+                self._translate_menu(sub)
+                continue
+
+            txt = act.text()
+            if not txt:
+                continue
+
+            clean = txt.replace('&', '')
+            left = clean.split('\t', 1)[0]
+
+            suffix = ''
+            if left.endswith('...'):
+                suffix = '...'
+                left = left[:-3]
+            elif left.endswith('…'):
+                suffix = '…'
+                left = left[:-1]
+
+            ru = self._map.get(left)
+            if not ru:
+                continue
+
+            if '\t' in txt:
+                act.setText(ru + suffix + '\t' + txt.split('\t', 1)[1])
+            else:
+                act.setText(ru + suffix)
+
 
 class MainWindow(QWidget, Ui_MainWindow):
     """Main window"""
@@ -101,6 +232,10 @@ for dom in qt_domains:
     if tr.load(system_locale, dom, "_", translations_dir):
         app.installTranslator(tr)
         _qt_translators.append(tr)
+
+if system_locale.language() == QLocale.Russian:
+    app._qt_menu_filter = QtContextMenuRuFilter(app)
+    app.installEventFilter(app._qt_menu_filter)
 
 # Load current locale translation
 translator = QTranslator(app)
