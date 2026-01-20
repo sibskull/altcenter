@@ -32,6 +32,8 @@ class JournalsWidget(QWidget):
 
         self.proc_systemmaxuse = None
 
+        self.systemkeepfree_value = None
+
         self.initUI()
         self.loadUsage()
 
@@ -41,7 +43,7 @@ class JournalsWidget(QWidget):
 
         top = QHBoxLayout()
 
-        top.addWidget(QLabel(self.tr("Current log usage (MB):")))
+        top.addWidget(QLabel(self.tr("Current log usage:")))
 
         self.usage_value = QLineEdit()
         self.usage_value.setReadOnly(True)
@@ -103,16 +105,32 @@ class JournalsWidget(QWidget):
         self.systemmaxuse_value.setText("")
         systemmaxuse.addWidget(self.systemmaxuse_value, 1)
 
+        systemmaxuse.addStretch(1)
+        layout.addLayout(systemmaxuse)
+
+        systemkeepfree = QHBoxLayout()
+
+        systemkeepfree.addWidget(QLabel(self.tr("SystemKeepFree (MB):")))
+
+        self.systemkeepfree_value = QLineEdit()
+        self.systemkeepfree_value.setText("")
+        systemkeepfree.addWidget(self.systemkeepfree_value, 1)
+
+        systemkeepfree.addStretch(1)
+        layout.addLayout(systemkeepfree)
+
+        apply_limits = QHBoxLayout()
+
         self.btn_systemmaxuse = QPushButton(self.tr("Apply"))
         self.btn_systemmaxuse.clicked.connect(self.on_systemmaxuse_clicked)
-        systemmaxuse.addWidget(self.btn_systemmaxuse)
+        apply_limits.addWidget(self.btn_systemmaxuse)
 
         self.lbl_systemmaxuse_status = QLabel("")
         self.lbl_systemmaxuse_status.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        systemmaxuse.addWidget(self.lbl_systemmaxuse_status)
+        apply_limits.addWidget(self.lbl_systemmaxuse_status)
 
-        systemmaxuse.addStretch(1)
-        layout.addLayout(systemmaxuse)
+        apply_limits.addStretch(1)
+        layout.addLayout(apply_limits)
 
         layout.addStretch(1)
         self.setLayout(layout)
@@ -236,19 +254,45 @@ class JournalsWidget(QWidget):
         if self.proc_systemmaxuse != None and self.proc_systemmaxuse.state() != QProcess.NotRunning:
             return
 
-        t = self.systemmaxuse_value.text().strip()
-        try:
-            mb = int(t)
-        except:
-            self.lbl_systemmaxuse_status.setText(self.tr("Enter a numeric value"))
-            return
+        maxuse_mb = None
+        keepfree_mb = None
 
-        if mb < 0:
-            self.lbl_systemmaxuse_status.setText(self.tr("Enter a numeric value"))
+        t = self.systemmaxuse_value.text().strip()
+        if t:
+            try:
+                maxuse_mb = int(t)
+            except:
+                self.lbl_systemmaxuse_status.setText(self.tr("Enter a numeric value"))
+                return
+            if maxuse_mb < 0:
+                self.lbl_systemmaxuse_status.setText(self.tr("Enter a numeric value"))
+                return
+
+        t = self.systemkeepfree_value.text().strip()
+        if t:
+            try:
+                keepfree_mb = int(t)
+            except:
+                self.lbl_systemmaxuse_status.setText(self.tr("Enter a numeric value"))
+                return
+            if keepfree_mb < 0:
+                self.lbl_systemmaxuse_status.setText(self.tr("Enter a numeric value"))
+                return
+
+        if maxuse_mb == None and keepfree_mb == None:
+            self.lbl_systemmaxuse_status.setText("")
             return
 
         self.lbl_systemmaxuse_status.setText("")
         self.btn_systemmaxuse.setEnabled(False)
+
+        conf_lines = ["[Journal]"]
+        if maxuse_mb != None:
+            conf_lines.append(f"SystemMaxUse={maxuse_mb}M")
+        if keepfree_mb != None:
+            conf_lines.append(f"SystemKeepFree={keepfree_mb}M")
+
+        conf = "\\n".join(conf_lines) + "\\n"
 
         self.proc_systemmaxuse = QProcess(self)
         env = QProcessEnvironment.systemEnvironment()
@@ -257,7 +301,7 @@ class JournalsWidget(QWidget):
 
         cmd = (
             "mkdir -p /etc/systemd/journald.conf.d && "
-            f"printf '[Journal]\\nSystemMaxUse={mb}M\\n' > /etc/systemd/journald.conf.d/altcenter.conf && "
+            f"printf '{conf}' > /etc/systemd/journald.conf.d/altcenter.conf && "
             "systemctl restart systemd-journald"
         )
         self.proc_systemmaxuse.start("pkexec", ["sh", "-c", cmd])
