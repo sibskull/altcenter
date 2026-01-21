@@ -33,6 +33,7 @@ class JournalsWidget(QWidget):
         self.proc_systemmaxuse = None
 
         self.systemkeepfree_value = None
+        self.systemmaxfilesize_value = None
 
         self.initUI()
         self.loadUsage()
@@ -118,6 +119,17 @@ class JournalsWidget(QWidget):
 
         systemkeepfree.addStretch(1)
         layout.addLayout(systemkeepfree)
+
+        systemmaxfilesize = QHBoxLayout()
+
+        systemmaxfilesize.addWidget(QLabel(self.tr("SystemMaxFileSize (MB):")))
+
+        self.systemmaxfilesize_value = QLineEdit()
+        self.systemmaxfilesize_value.setText("")
+        systemmaxfilesize.addWidget(self.systemmaxfilesize_value, 1)
+
+        systemmaxfilesize.addStretch(1)
+        layout.addLayout(systemmaxfilesize)
 
         apply_limits = QHBoxLayout()
 
@@ -256,6 +268,7 @@ class JournalsWidget(QWidget):
 
         maxuse_mb = None
         keepfree_mb = None
+        maxfilesize_mb = None
 
         t = self.systemmaxuse_value.text().strip()
         if t:
@@ -279,7 +292,18 @@ class JournalsWidget(QWidget):
                 self.lbl_systemmaxuse_status.setText(self.tr("Enter a numeric value"))
                 return
 
-        if maxuse_mb == None and keepfree_mb == None:
+        t = self.systemmaxfilesize_value.text().strip()
+        if t:
+            try:
+                maxfilesize_mb = int(t)
+            except:
+                self.lbl_systemmaxuse_status.setText(self.tr("Enter a numeric value"))
+                return
+            if maxfilesize_mb < 0:
+                self.lbl_systemmaxuse_status.setText(self.tr("Enter a numeric value"))
+                return
+
+        if maxuse_mb == None and keepfree_mb == None and maxfilesize_mb == None:
             self.lbl_systemmaxuse_status.setText("")
             return
 
@@ -291,6 +315,8 @@ class JournalsWidget(QWidget):
             conf_lines.append(f"SystemMaxUse={maxuse_mb}M")
         if keepfree_mb != None:
             conf_lines.append(f"SystemKeepFree={keepfree_mb}M")
+        if maxfilesize_mb != None:
+            conf_lines.append(f"SystemMaxFileSize={maxfilesize_mb}M")
 
         conf = "\\n".join(conf_lines) + "\\n"
 
