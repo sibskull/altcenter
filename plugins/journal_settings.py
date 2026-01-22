@@ -36,6 +36,7 @@ class JournalsWidget(QWidget):
         self.systemmaxfilesize_value = None
 
         self.initUI()
+        self.loadSavedLimits()
         self.loadUsage()
 
     def initUI(self):
@@ -146,6 +147,34 @@ class JournalsWidget(QWidget):
 
         layout.addStretch(1)
         self.setLayout(layout)
+
+    def loadSavedLimits(self):
+        path = "/etc/systemd/journald.conf.d/altcenter.conf"
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as f:
+                lines = f.read().splitlines()
+        except:
+            return
+
+        mapping = [
+            ("SystemMaxUse", self.systemmaxuse_value),
+            ("SystemKeepFree", self.systemkeepfree_value),
+            ("SystemMaxFileSize", self.systemmaxfilesize_value),
+        ]
+
+        for raw in lines:
+            line = raw.strip()
+            if not line or line.startswith("#") or line.startswith(";") or line.startswith("["):
+                continue
+
+            for key, widget in mapping:
+                prefix = key + "="
+                if line.startswith(prefix):
+                    v = line[len(prefix):].strip()
+                    if v.lower().endswith("m"):
+                        v = v[:-1].strip()
+                    if v.isdigit():
+                        widget.setText(v)
 
     def loadUsage(self):
         self.proc = QProcess(self)
