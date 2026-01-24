@@ -935,67 +935,82 @@ Please try again later</source>
     <message>
         <location filename="plugins/journal_settings.py" line="44"/>
         <source>Current log usage (MB):</source>
-        <translation>Текущей размер журнала (МБ):</translation>
+        <translation type="obsolete">Текущей размер журнала (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="56"/>
+        <location filename="plugins/journal_settings.py" line="60"/>
         <source>Vacuum to size (MB):</source>
-        <translation>Уменьшить до размера (МБ):</translation>
+        <translation>Уменьшить до объема (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="62"/>
+        <location filename="plugins/journal_settings.py" line="66"/>
         <source>Vacuum</source>
         <translation>Уменьшить</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="75"/>
+        <location filename="plugins/journal_settings.py" line="79"/>
         <source>Retention time:</source>
         <translation>Время хранения:</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="82"/>
+        <location filename="plugins/journal_settings.py" line="86"/>
         <source>Day</source>
         <translation>День</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="205"/>
+        <location filename="plugins/journal_settings.py" line="264"/>
         <source>Week</source>
         <translation>Неделя</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="207"/>
+        <location filename="plugins/journal_settings.py" line="266"/>
         <source>Month</source>
         <translation>Месяц</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="106"/>
+        <location filename="plugins/journal_settings.py" line="137"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="100"/>
+        <location filename="plugins/journal_settings.py" line="104"/>
         <source>SystemMaxUse (MB):</source>
-        <translation>Максимальный размер журнала (МБ):</translation>
+        <translation>Максимальный объем журнала (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="145"/>
+        <location filename="plugins/journal_settings.py" line="204"/>
         <source>Failed to read log usage.</source>
         <translation>Не удалось прочитать журнал.</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="247"/>
+        <location filename="plugins/journal_settings.py" line="332"/>
         <source>Enter a numeric value</source>
         <translation>Введите числовое значение</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="271"/>
+        <location filename="plugins/journal_settings.py" line="370"/>
         <source>Done</source>
         <translation>Готово</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="278"/>
+        <location filename="plugins/journal_settings.py" line="377"/>
         <source>Failed</source>
         <translation>Ошибка</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="48"/>
+        <source>Current log usage:</source>
+        <translation>Текущий объем журнала:</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="115"/>
+        <source>SystemKeepFree (MB):</source>
+        <translation>Объем свободного места (МБ):</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal_settings.py" line="126"/>
+        <source>SystemMaxFileSize (MB):</source>
+        <translation>Объем файла лога (МБ):</translation>
     </message>
 </context>
 <context>
@@ -1118,7 +1133,7 @@ Please try again later</source>
         <translation>Системные журналы</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="286"/>
+        <location filename="plugins/journal_settings.py" line="385"/>
         <source>System logs settings</source>
         <translation>Настройки журналов</translation>
     </message>
@@ -1242,7 +1257,7 @@ Please try again later</source>
     </message>
     <message>
         <location filename="plugins/settings.py" line="76"/>
-        <source>&#xf0;&#x9f;&#x94;&#x84; Enable Auto-update</source>
+        <source>ð Enable Auto-update</source>
         <translation type="unfinished">⏰ Частота обновлений</translation>
     </message>
     <message>
@@ -1284,12 +1299,12 @@ Please try again later</source>
 <context>
     <name>app</name>
     <message>
-        <location filename="mainwindow.py" line="116"/>
+        <location filename="mainwindow.py" line="251"/>
         <source>Run at session startup</source>
         <translation>Запустить в начале сеанса</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="117"/>
+        <location filename="mainwindow.py" line="252"/>
         <source>List available modules and exit</source>
         <translation>Показать список доступных модулей</translation>
     </message>
