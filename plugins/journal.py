@@ -35,6 +35,9 @@ class JournalsWidget(QWidget):
 
         self.edit_query = None
 
+        self.combo_export = None
+        self.btn_export = None
+
         self.initUI()
         self.initProcess()
         self.loadJournal()
@@ -93,13 +96,23 @@ class JournalsWidget(QWidget):
 
         bottom = QHBoxLayout()
 
+        self.combo_export = QComboBox()
+        self.combo_export.addItem(self.tr("Whole journal"), "all")
+        self.combo_export.addItem(self.tr("This page"), "page")
+        bottom.addWidget(self.combo_export)
+
+        self.btn_export = QPushButton(self.tr("Save"))
+        self.btn_export.clicked.connect(self.on_export_clicked)
+        bottom.addWidget(self.btn_export)
+
+        bottom.addStretch(1)
+
         self.btn_prev = QPushButton(self.tr("Back"))
         self.btn_prev.clicked.connect(self.on_prev_clicked)
 
         self.btn_next = QPushButton(self.tr("Forward"))
         self.btn_next.clicked.connect(self.on_next_clicked)
 
-        bottom.addStretch(1)
         bottom.addWidget(self.btn_prev)
         bottom.addWidget(self.btn_next)
 
@@ -121,6 +134,9 @@ class JournalsWidget(QWidget):
         self.setLayout(layout)
 
         self.update_nav_buttons()
+
+    def on_export_clicked(self):
+        pass
 
     def initFiltersPopup(self):
         self.filters_popup = QWidget(self, Qt.Popup)
