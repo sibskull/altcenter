@@ -154,6 +154,16 @@ class JournalsWidget(QWidget):
 
         self.export_path = path
 
+        mode = self.combo_export.currentData()
+        if mode != "page":
+            return
+
+        try:
+            with open(path, "w", encoding="utf-8", errors="replace") as f:
+                f.write(self.text.toPlainText())
+        except:
+            pass
+
     def initFiltersPopup(self):
         self.filters_popup = QWidget(self, Qt.Popup)
         popup_layout = QVBoxLayout()
