@@ -3,7 +3,7 @@
 import plugins
 import os
 import json
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QToolButton, QCheckBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QToolButton, QCheckBox, QFileDialog
 from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
 from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment, QLocale, QPoint
 
@@ -37,6 +37,8 @@ class JournalsWidget(QWidget):
 
         self.combo_export = None
         self.btn_export = None
+
+        self.export_path = ""
 
         self.initUI()
         self.initProcess()
@@ -136,7 +138,21 @@ class JournalsWidget(QWidget):
         self.update_nav_buttons()
 
     def on_export_clicked(self):
-        pass
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            self.tr("Save log"),
+            "journal.txt",
+            self.tr("Text files (*.txt);;All files (*)"),
+            options=options
+        )
+
+        if not path:
+            return
+
+        self.export_path = path
 
     def initFiltersPopup(self):
         self.filters_popup = QWidget(self, Qt.Popup)
@@ -283,7 +299,7 @@ class JournalsWidget(QWidget):
 
         req_lines = fetch_lines + 1
 
-        args = ["-b", "--no-pager", "-n", str(req_lines)]
+        args = ["--no-pager", "-n", str(req_lines)]
 
         keys = self.get_selected_filter_keys()
         matches = self.build_filter_matches(keys)
