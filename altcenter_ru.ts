@@ -878,7 +878,7 @@ Please try again later</source>
 <context>
     <name>JournalsWidget</name>
     <message>
-        <location filename="plugins/journal.py" line="44"/>
+        <location filename="plugins/journal.py" line="52"/>
         <source>Kernel</source>
         <translation>Ядро</translation>
     </message>
@@ -898,37 +898,37 @@ Please try again later</source>
         <translation type="obsolete">Сеть</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="62"/>
+        <location filename="plugins/journal.py" line="70"/>
         <source>Filters:</source>
         <translation>Фильтры:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="189"/>
+        <location filename="plugins/journal.py" line="323"/>
         <source>Select filters</source>
         <translation>Выбранные фильтры</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="96"/>
+        <location filename="plugins/journal.py" line="115"/>
         <source>Back</source>
         <translation>Назад</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="99"/>
+        <location filename="plugins/journal.py" line="118"/>
         <source>Forward</source>
         <translation>Вперед</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="107"/>
+        <location filename="plugins/journal.py" line="125"/>
         <source>Lines:</source>
         <translation>Строки:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="70"/>
+        <location filename="plugins/journal.py" line="78"/>
         <source>Text:</source>
         <translation>Текст:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="73"/>
+        <location filename="plugins/journal.py" line="81"/>
         <source>Type to filter...</source>
         <translation>Введите для фильтрации...</translation>
     </message>
@@ -1011,6 +1011,26 @@ Please try again later</source>
         <location filename="plugins/journal_settings.py" line="126"/>
         <source>SystemMaxFileSize (MB):</source>
         <translation>Объем файла лога (МБ):</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="105"/>
+        <source>Whole journal</source>
+        <translation>Весь журнал</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="106"/>
+        <source>This page</source>
+        <translation>Эта страница</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="109"/>
+        <source>Save</source>
+        <translation>Сохранить</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="209"/>
+        <source>Save log</source>
+        <translation>Сохранить журнал</translation>
     </message>
 </context>
 <context>
@@ -1128,7 +1148,7 @@ Please try again later</source>
 <context>
     <name>PluginJournals</name>
     <message>
-        <location filename="plugins/journal.py" line="358"/>
+        <location filename="plugins/journal.py" line="492"/>
         <source>System logs</source>
         <translation>Системные журналы</translation>
     </message>
