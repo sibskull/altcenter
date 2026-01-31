@@ -38,10 +38,13 @@ class JournalsWidget(QWidget):
         self.combo_export = None
         self.btn_export = None
 
-        self.export_path = ""
+        self.proc_export = None
+        self.proc_formats = None
+        self.output_formats = []
 
         self.initUI()
         self.initProcess()
+        self.loadOutputFormats()
         self.loadJournal()
 
     def initUI(self):
@@ -137,32 +140,121 @@ class JournalsWidget(QWidget):
 
         self.update_nav_buttons()
 
+    def format_from_filter(self, selected_filter: str):
+        t = (selected_filter or "").strip()
+
+        if not t:
+            fmt = "short"
+        else:
+            i = t.find(" (")
+            if i > 0:
+                fmt = t[:i].strip()
+            else:
+                fmt = t.strip()
+
+        tl = (fmt or "").strip().lower()
+        if tl.startswith("json"):
+            ext = "json"
+        elif tl == "export":
+            ext = "log"
+        else:
+            ext = "txt"
+
+        return fmt, ext
+
+    def build_save_filters(self):
+        parts = []
+        for fmt in self.output_formats:
+            _, ext = self.format_from_filter(fmt)
+            parts.append(f"{fmt} (*.{ext})")
+        return ";;".join(parts)
+
+    def loadOutputFormats(self):
+        if self.proc_formats != None and self.proc_formats.state() != QProcess.NotRunning:
+            return
+
+        self.proc_formats = QProcess(self)
+        self.proc_formats.finished.connect(self.on_formats_finished)
+
+        env = QProcessEnvironment.systemEnvironment()
+        self.proc_formats.setProcessEnvironment(env)
+
+        self.proc_formats.start("journalctl", ["-o", "help"])
+
+    def on_formats_finished(self, exit_code, exit_status):
+        out = self.proc_formats.readAllStandardOutput().data().decode(errors="replace")
+        if exit_code != 0 or not out:
+            return
+
+        s = out.replace("\n", " ").replace(",", " ").replace(":", " ")
+        tokens = s.split()
+
+        fmts = []
+        for t in tokens:
+            if t.isalnum() or "-" in t or "_" in t:
+                fmts.append(t)
+
+        if fmts:
+            self.output_formats = fmts
+
     def on_export_clicked(self):
+        if self.proc_export != None and self.proc_export.state() != QProcess.NotRunning:
+            return
+
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
-        path, _ = QFileDialog.getSaveFileName(
+        filters = self.build_save_filters()
+
+        path, selected_filter = QFileDialog.getSaveFileName(
             self,
             self.tr("Save log"),
             "journal.txt",
-            self.tr("Text files (*.txt);;All files (*)"),
+            filters,
             options=options
         )
 
         if not path:
             return
 
-        self.export_path = path
-
         mode = self.combo_export.currentData()
-        if mode != "page":
+
+        if mode == "page":
+            try:
+                with open(path, "w", encoding="utf-8", errors="replace") as f:
+                    f.write(self.text.toPlainText())
+            except:
+                pass
             return
 
-        try:
-            with open(path, "w", encoding="utf-8", errors="replace") as f:
-                f.write(self.text.toPlainText())
-        except:
-            pass
+        if mode == "all":
+            fmt, _ = self.format_from_filter(selected_filter)
+
+            self.btn_export.setEnabled(False)
+
+            self.proc_export = QProcess(self)
+            self.proc_export.finished.connect(self.on_export_finished)
+
+            env = QProcessEnvironment.systemEnvironment()
+            self.proc_export.setProcessEnvironment(env)
+
+            self.proc_export.setStandardOutputFile(path)
+
+            args = ["--no-pager", "-o", fmt]
+
+            keys = self.get_selected_filter_keys()
+            matches = self.build_filter_matches(keys)
+
+            if matches:
+                for i, m in enumerate(matches):
+                    if i > 0:
+                        args.append("+")
+                    args.append(m)
+
+            self.proc_export.start("journalctl", args)
+
+    def on_export_finished(self, exit_code, exit_status):
+        self.btn_export.setEnabled(True)
 
     def initFiltersPopup(self):
         self.filters_popup = QWidget(self, Qt.Popup)
