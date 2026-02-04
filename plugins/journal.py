@@ -33,6 +33,10 @@ class JournalsWidget(QWidget):
         self.filter_checks = []
         self.filter_items = []
 
+        self.btn_journal = None
+        self.journal_popup = None
+        self.journal_checks = []
+
         self.edit_query = None
 
         self.combo_export = None
@@ -67,6 +71,15 @@ class JournalsWidget(QWidget):
 
         top = QHBoxLayout()
 
+        top.addWidget(QLabel(self.tr("Journal:")))
+
+        self.btn_journal = QToolButton()
+        self.btn_journal.setText("journalctl")
+        self.btn_journal.clicked.connect(self.toggle_journal_popup)
+        top.addWidget(self.btn_journal, 0, Qt.AlignLeft)
+
+        top.addSpacing(10)
+
         top.addWidget(QLabel(self.tr("Filters:")))
 
         self.btn_filters = QToolButton()
@@ -87,6 +100,7 @@ class JournalsWidget(QWidget):
         top.addStretch(1)
         layout.addLayout(top)
 
+        self.initJournalPopup()
         self.initFiltersPopup()
 
         self.text = QTextEdit()
@@ -139,6 +153,54 @@ class JournalsWidget(QWidget):
         self.setLayout(layout)
 
         self.update_nav_buttons()
+
+    def initJournalPopup(self):
+        self.journal_popup = QWidget(self, Qt.Popup)
+        layout = QVBoxLayout()
+        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setSpacing(4)
+
+        self.journal_checks = []
+
+        cb_journal = QCheckBox("journalctl")
+        cb_journal.setChecked(True)
+        cb_journal.stateChanged.connect(self.on_journal_changed)
+
+        cb_audit = QCheckBox("auditd")
+        cb_audit.stateChanged.connect(self.on_journal_changed)
+
+        self.journal_checks.append(cb_journal)
+        self.journal_checks.append(cb_audit)
+
+        layout.addWidget(cb_journal)
+        layout.addWidget(cb_audit)
+
+        self.journal_popup.setLayout(layout)
+        self.journal_popup.adjustSize()
+
+    def toggle_journal_popup(self):
+        if self.journal_popup.isVisible():
+            self.journal_popup.hide()
+            return
+
+        self.journal_popup.adjustSize()
+        pos = self.btn_journal.mapToGlobal(QPoint(0, self.btn_journal.height()))
+        self.journal_popup.move(pos)
+        self.journal_popup.show()
+
+    def on_journal_changed(self, state):
+        cb = self.sender()
+        if state != Qt.Checked:
+            return
+
+        for other in self.journal_checks:
+            if other != cb:
+                other.blockSignals(True)
+                other.setChecked(False)
+                other.blockSignals(False)
+
+        self.btn_journal.setText(cb.text())
+        self.journal_popup.hide()
 
     def format_from_filter(self, selected_filter: str):
         t = (selected_filter or "").strip()
