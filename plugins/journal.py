@@ -49,6 +49,8 @@ class JournalsWidget(QWidget):
         self.current_source = "journalctl"
 
         self.proc_audit = None
+        self.audit_cache_path = "/tmp/altcenter_audit.log"
+        self.audit_copy_mode = 0
 
         self.initUI()
         self.initProcess()
@@ -208,26 +210,140 @@ class JournalsWidget(QWidget):
 
         if cb.text() == "auditd":
             self.current_source = "auditd"
-            self.start_audit_pkexec_test()
+            self.page = 0
+            self.loadJournal()
             return
 
         self.current_source = "journalctl"
         self.page = 0
         self.loadJournal()
 
-    def start_audit_pkexec_test(self):
+    def audit_help_text(self):
+        a1 = self.tr("Audit logs are not available or inaccessible.")
+        a2 = self.tr("1) Install audit package:")
+        a3 = self.tr("2) Enable and start auditd service:")
+        a4 = self.tr("3) Logs location: /var/log/audit/audit.log")
+
+        return (
+            a1 + "\n\n" +
+            a2 + "\n" +
+            "sudo apt-get install audit\n" +
+            a3 + "\n" +
+            "sudo systemctl enable --now auditd\n" +
+            a4 + "\n"
+        )
+
+    def read_audit_cache_lines(self, max_lines: int):
+        path = self.audit_cache_path
+        if not os.path.exists(path):
+            return None
+
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as f:
+                data = f.read()
+        except:
+            return None
+
+        lines = data.splitlines(True)
+        if max_lines <= 0:
+            return lines
+        if len(lines) <= max_lines:
+            return lines
+        return lines[-max_lines:]
+
+    def loadAudit(self, forced_fetch_lines=None):
+        self.loading = True
+        self.update_nav_buttons()
+
+        self.text.clear()
+
+        q = ""
+        if self.edit_query != None:
+            q = self.edit_query.text().strip()
+
+        base_fetch = self.limit * (self.page + 1)
+        fetch_lines = base_fetch
+
+        if q and forced_fetch_lines == None:
+            min_fetch = self.limit * 10
+            if fetch_lines < min_fetch:
+                fetch_lines = min_fetch
+
+        if forced_fetch_lines != None:
+            fetch_lines = int(forced_fetch_lines)
+
+        self.rescan_target = base_fetch
+        self.current_fetch_lines = fetch_lines
+
+        req_lines = fetch_lines + 1
+
+        lines_all = self.read_audit_cache_lines(req_lines)
+        if lines_all != None:
+            if len(lines_all) > self.current_fetch_lines:
+                self.has_more_older = True
+                lines_all = lines_all[1:]
+            else:
+                self.has_more_older = False
+
+            lines = lines_all
+            if q:
+                ql = q.lower()
+                filtered = []
+                for ln in lines:
+                    if ql in ln.lower():
+                        filtered.append(ln)
+                lines = filtered
+
+                if self.has_more_older and len(lines) < self.rescan_target:
+                    self.loadAudit(self.current_fetch_lines * 2)
+                    return
+
+            total = len(lines)
+            if total <= 0:
+                self.page = 0
+                view = ""
+            else:
+                max_page = (total - 1) // self.limit
+                if self.page > max_page:
+                    self.page = max_page
+
+                start = total - self.limit * (self.page + 1)
+                end = total - self.limit * self.page
+                if start < 0:
+                    start = 0
+                if end < 0:
+                    end = 0
+                if end > total:
+                    end = total
+
+                view = "".join(lines[start:end])
+
+            self.text.setPlainText(view)
+
+            self.loading = False
+            self.update_nav_buttons()
+            return
+
         if self.proc_audit != None and self.proc_audit.state() != QProcess.NotRunning:
             return
 
-        self.text.setPlainText("")
-
-        self.proc_audit.start("pkexec", ["sh", "-c", "true"])
+        self.audit_copy_mode = 1
+        cmd = f"cat /var/log/audit/audit.log > {self.audit_cache_path} && chmod 644 {self.audit_cache_path}"
+        self.proc_audit.start("pkexec", ["sh", "-c", cmd])
 
     def on_audit_finished(self, exit_code, exit_status):
-        if exit_code == 0:
-            self.text.setPlainText("True")
-        else:
-            self.text.setPlainText("False")
+        if self.audit_copy_mode == 1:
+            self.audit_copy_mode = 0
+
+            if exit_code == 0 and os.path.exists(self.audit_cache_path):
+                self.loadAudit()
+                return
+
+            self.text.setPlainText(self.audit_help_text())
+            self.loading = False
+            self.has_more_older = False
+            self.update_nav_buttons()
+            return
 
     def format_from_filter(self, selected_filter: str):
         t = (selected_filter or "").strip()
@@ -465,6 +581,10 @@ class JournalsWidget(QWidget):
             self.loadJournal()
 
     def loadJournal(self, forced_fetch_lines=None):
+        if self.current_source == "auditd":
+            self.loadAudit(forced_fetch_lines)
+            return
+
         if self.proc != None and self.proc.state() != QProcess.NotRunning:
             self.proc.kill()
             self.proc.waitForFinished(1000)
