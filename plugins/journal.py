@@ -46,6 +46,10 @@ class JournalsWidget(QWidget):
         self.proc_formats = None
         self.output_formats = []
 
+        self.current_source = "journalctl"
+
+        self.proc_audit = None
+
         self.initUI()
         self.initProcess()
         self.loadOutputFormats()
@@ -201,6 +205,29 @@ class JournalsWidget(QWidget):
 
         self.btn_journal.setText(cb.text())
         self.journal_popup.hide()
+
+        if cb.text() == "auditd":
+            self.current_source = "auditd"
+            self.start_audit_pkexec_test()
+            return
+
+        self.current_source = "journalctl"
+        self.page = 0
+        self.loadJournal()
+
+    def start_audit_pkexec_test(self):
+        if self.proc_audit != None and self.proc_audit.state() != QProcess.NotRunning:
+            return
+
+        self.text.setPlainText("")
+
+        self.proc_audit.start("pkexec", ["sh", "-c", "true"])
+
+    def on_audit_finished(self, exit_code, exit_status):
+        if exit_code == 0:
+            self.text.setPlainText("True")
+        else:
+            self.text.setPlainText("False")
 
     def format_from_filter(self, selected_filter: str):
         t = (selected_filter or "").strip()
@@ -406,6 +433,12 @@ class JournalsWidget(QWidget):
 
         env = QProcessEnvironment.systemEnvironment()
         self.proc.setProcessEnvironment(env)
+
+        self.proc_audit = QProcess(self)
+        self.proc_audit.finished.connect(self.on_audit_finished)
+
+        env = QProcessEnvironment.systemEnvironment()
+        self.proc_audit.setProcessEnvironment(env)
 
     def update_nav_buttons(self):
         self.btn_next.setEnabled((self.page > 0) and (not self.loading))
