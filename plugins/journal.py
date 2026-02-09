@@ -211,6 +211,7 @@ class JournalsWidget(QWidget):
         if cb.text() == "auditd":
             self.current_source = "auditd"
             self.page = 0
+            self.audit_cache_ready = False
             self.loadJournal()
             return
 
@@ -277,8 +278,15 @@ class JournalsWidget(QWidget):
 
         req_lines = fetch_lines + 1
 
-        lines_all = self.read_audit_cache_lines(req_lines)
-        if lines_all != None:
+        if self.audit_cache_ready:
+            lines_all = self.read_audit_cache_lines(req_lines)
+            if lines_all == None:
+                self.text.setPlainText(self.audit_help_text())
+                self.loading = False
+                self.has_more_older = False
+                self.update_nav_buttons()
+                return
+
             if len(lines_all) > self.current_fetch_lines:
                 self.has_more_older = True
                 lines_all = lines_all[1:]
@@ -336,6 +344,7 @@ class JournalsWidget(QWidget):
             self.audit_copy_mode = 0
 
             if exit_code == 0 and os.path.exists(self.audit_cache_path):
+                self.audit_cache_ready = True
                 self.loadAudit()
                 return
 
@@ -368,6 +377,8 @@ class JournalsWidget(QWidget):
         return fmt, ext
 
     def build_save_filters(self):
+        if self.current_source == "auditd":
+            return "auditd (*.log);;Text (*.txt)"
         parts = []
         for fmt in self.output_formats:
             _, ext = self.format_from_filter(fmt)
@@ -411,10 +422,14 @@ class JournalsWidget(QWidget):
 
         filters = self.build_save_filters()
 
+        default_name = "journal.txt"
+        if self.current_source == "auditd":
+            default_name = "audit.log"
+
         path, selected_filter = QFileDialog.getSaveFileName(
             self,
             self.tr("Save log"),
-            "journal.txt",
+            default_name,
             filters,
             options=options
         )
@@ -433,6 +448,20 @@ class JournalsWidget(QWidget):
             return
 
         if mode == "all":
+            if self.current_source == "auditd":
+                try:
+                    if os.path.exists(self.audit_cache_path):
+                        with open(self.audit_cache_path, "r", encoding="utf-8", errors="replace") as src:
+                            data = src.read()
+                    else:
+                        data = self.audit_help_text()
+
+                    with open(path, "w", encoding="utf-8", errors="replace") as dst:
+                        dst.write(data)
+                except:
+                    pass
+                return
+
             fmt, _ = self.format_from_filter(selected_filter)
 
             self.btn_export.setEnabled(False)
