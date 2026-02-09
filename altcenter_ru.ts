@@ -878,7 +878,7 @@ Please try again later</source>
 <context>
     <name>JournalsWidget</name>
     <message>
-        <location filename="plugins/journal.py" line="52"/>
+        <location filename="plugins/journal.py" line="62"/>
         <source>Kernel</source>
         <translation>Ядро</translation>
     </message>
@@ -898,37 +898,37 @@ Please try again later</source>
         <translation type="obsolete">Сеть</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="70"/>
+        <location filename="plugins/journal.py" line="89"/>
         <source>Filters:</source>
         <translation>Фильтры:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="323"/>
+        <location filename="plugins/journal.py" line="557"/>
         <source>Select filters</source>
         <translation>Выбранные фильтры</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="115"/>
+        <location filename="plugins/journal.py" line="135"/>
         <source>Back</source>
         <translation>Назад</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="118"/>
+        <location filename="plugins/journal.py" line="138"/>
         <source>Forward</source>
         <translation>Вперед</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="125"/>
+        <location filename="plugins/journal.py" line="145"/>
         <source>Lines:</source>
         <translation>Строки:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="78"/>
+        <location filename="plugins/journal.py" line="97"/>
         <source>Text:</source>
         <translation>Текст:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="81"/>
+        <location filename="plugins/journal.py" line="100"/>
         <source>Type to filter...</source>
         <translation>Введите для фильтрации...</translation>
     </message>
@@ -1013,24 +1013,49 @@ Please try again later</source>
         <translation>Объем файла лога (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="105"/>
+        <location filename="plugins/journal.py" line="125"/>
         <source>Whole journal</source>
         <translation>Весь журнал</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="106"/>
+        <location filename="plugins/journal.py" line="126"/>
         <source>This page</source>
         <translation>Эта страница</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="109"/>
+        <location filename="plugins/journal.py" line="129"/>
         <source>Save</source>
         <translation>Сохранить</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="209"/>
+        <location filename="plugins/journal.py" line="429"/>
         <source>Save log</source>
         <translation>Сохранить журнал</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="80"/>
+        <source>Journal:</source>
+        <translation>Журнал:</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="223"/>
+        <source>Audit logs are not available or inaccessible.</source>
+        <translation>Журналы аудита недоступны.</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="224"/>
+        <source>1) Install audit package:</source>
+        <translation>1) Установите пакет аудита:</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="225"/>
+        <source>2) Enable and start auditd service:</source>
+        <translation>2) Включите и запустите службу аудита:</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="226"/>
+        <source>3) Logs location: /var/log/audit/audit.log</source>
+        <translation>3) Расположение журналов: /var/log/audit/audit.log</translation>
     </message>
 </context>
 <context>
@@ -1148,7 +1173,7 @@ Please try again later</source>
 <context>
     <name>PluginJournals</name>
     <message>
-        <location filename="plugins/journal.py" line="492"/>
+        <location filename="plugins/journal.py" line="736"/>
         <source>System logs</source>
         <translation>Системные журналы</translation>
     </message>
