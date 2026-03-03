@@ -1140,6 +1140,11 @@ Please try again later</source>
         <source>Version:</source>
         <translation type="obsolete">Версия:</translation>
     </message>
+    <message>
+        <location filename="mainwindow.py" line="200"/>
+        <source>Expert mode</source>
+        <translation>Режим эксперта</translation>
+    </message>
 </context>
 <context>
     <name>PluginAbout</name>
@@ -1178,7 +1183,7 @@ Please try again later</source>
         <translation>Системные журналы</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="385"/>
+        <location filename="plugins/journal_settings.py" line="386"/>
         <source>System logs settings</source>
         <translation>Настройки журналов</translation>
     </message>
@@ -1344,12 +1349,12 @@ Please try again later</source>
 <context>
     <name>app</name>
     <message>
-        <location filename="mainwindow.py" line="251"/>
+        <location filename="mainwindow.py" line="293"/>
         <source>Run at session startup</source>
         <translation>Запустить в начале сеанса</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="252"/>
+        <location filename="mainwindow.py" line="294"/>
         <source>List available modules and exit</source>
         <translation>Показать список доступных модулей</translation>
     </message>

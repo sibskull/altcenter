@@ -19,7 +19,7 @@
 APPLICATION_NAME = 'altcenter'
 APPLICATION_VERSION = '1.0'
 
-from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
+from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QToolButton
 from PyQt5.QtCore import QTranslator, QSettings, QObject, QEvent, Qt
 from PyQt5.QtCore import QCommandLineParser, QCommandLineOption
 from PyQt5.QtWebEngineWidgets import QWebEngineView
@@ -187,6 +187,48 @@ class MainWindow(QWidget, Ui_MainWindow):
         self.splitter.setStretchFactor(1,1)
 
         self.block_close = False
+
+        self._expert_mode = False
+        self._plugs = []
+
+        self._build_expert_ui()
+
+    def _build_expert_ui(self):
+        self.expertModeButton = QToolButton(self)
+        self.expertModeButton.setCheckable(True)
+        self.expertModeButton.setChecked(False)
+        self.expertModeButton.setText(self.tr("Expert mode"))
+        self.expertModeButton.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        self.expertModeButton.setCursor(Qt.PointingHandCursor)
+
+        try:
+            self.gridLayout.addWidget(self.expertModeButton, 1, 1, 1, 1, Qt.AlignRight)
+        except Exception:
+            pass
+
+        self.expertModeButton.toggled.connect(self.onExpertModeToggled)
+
+        try:
+            self.setStyleSheet(self.styleSheet() + """
+                QToolButton#expertModeButton {
+                    padding: 6px 10px;
+                    border-radius: 8px;
+                    border: 1px solid rgba(0, 0, 0, 45);
+                    background: rgba(255, 255, 255, 140);
+                }
+                QToolButton#expertModeButton:checked {
+                    border: 1px solid rgba(0, 0, 0, 80);
+                    background: rgba(0, 0, 0, 25);
+                    font-weight: 600;
+                }
+            """)
+        except Exception:
+            pass
+
+        self.expertModeButton.setObjectName("expertModeButton")
+
+    def onExpertModeToggled(self, checked: bool):
+        self._expert_mode = bool(checked)
 
     def onSelectionChange(self, index):
         """Slot for change selection"""
