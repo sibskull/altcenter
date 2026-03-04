@@ -24,6 +24,7 @@ from PyQt5.QtCore import QTranslator, QSettings, QObject, QEvent, Qt
 from PyQt5.QtCore import QCommandLineParser, QCommandLineOption
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QLibraryInfo, QLocale
+from PyQt5.QtCore import QProcess, QEventLoop, QSignalBlocker
 # from PyQt5 import uic
 from PyQt5.QtGui import QStandardItemModel, QIcon
 
@@ -208,6 +209,8 @@ class MainWindow(QWidget, Ui_MainWindow):
 
         self.expertModeButton.toggled.connect(self.onExpertModeToggled)
 
+        self.expertModeButton.setObjectName("expertModeButton")
+
         try:
             self.setStyleSheet(self.styleSheet() + """
                 QToolButton#expertModeButton {
@@ -225,20 +228,152 @@ class MainWindow(QWidget, Ui_MainWindow):
         except Exception:
             pass
 
-        self.expertModeButton.setObjectName("expertModeButton")
+    def _request_admin_access(self) -> bool:
+        proc = QProcess(self)
+        loop = QEventLoop(self)
+        ok = {'v': False}
+
+        def _done(exit_code, exit_status):
+            ok['v'] = (exit_status == QProcess.NormalExit and exit_code == 0)
+            loop.quit()
+
+        proc.finished.connect(_done)
+        proc.start('pkexec', ['/usr/bin/true'])
+        loop.exec_()
+        proc.deleteLater()
+        return ok['v']
+
+    def _plugin_requires_admin(self, plugin_obj) -> bool:
+        if plugin_obj is None:
+            return False
+        v = getattr(plugin_obj, 'requires_admin_access', None)
+        if v is None:
+            v = getattr(plugin_obj, 'requires_admin', None)
+        if v is None:
+            v = getattr(plugin_obj.__class__, 'requires_admin_access', None)
+        if v is None:
+            v = getattr(plugin_obj.__class__, 'requires_admin', None)
+        return bool(v)
+
+    def _rebuild_plugins(self, keep_current: bool = True):
+        global plugs
+
+        cur_name = None
+        if keep_current:
+            try:
+                cur_idx = self.stack.currentIndex()
+            except Exception:
+                cur_idx = -1
+            if 0 <= cur_idx < len(plugs):
+                try:
+                    cur_name = plugs[cur_idx].name
+                except Exception:
+                    cur_name = None
+
+        sm = None
+        try:
+            sm = self.moduleList.selectionModel()
+        except Exception:
+            sm = None
+
+        blocker_sm = QSignalBlocker(sm) if sm is not None else None
+        blocker_list = QSignalBlocker(self.moduleList)
+
+        try:
+            while self.stack.count() > 1:
+                w = self.stack.widget(1)
+                self.stack.removeWidget(w)
+                w.deleteLater()
+        except Exception:
+            pass
+
+        try:
+            self.list_module_model.clear()
+        except Exception:
+            pass
+
+        self._plugs = []
+        plugs = self._plugs
+
+        k = 0
+        selected_index = 0
+
+        for p in Base.plugins:
+            try:
+                inst_probe = p()
+            except Exception:
+                inst_probe = None
+
+            if self._plugin_requires_admin(inst_probe) and not self._expert_mode:
+                continue
+
+            inst = p(self.list_module_model, self.stack)
+            self._plugs.append(inst)
+
+            if cur_name is not None:
+                try:
+                    if inst.name == cur_name:
+                        selected_index = k
+                except Exception:
+                    pass
+
+            k += 1
+
+        plugs = self._plugs
+
+        if self._plugs:
+            if selected_index < 0:
+                selected_index = 0
+            if selected_index >= len(self._plugs):
+                selected_index = 0
+
+            index = self.list_module_model.index(selected_index, 0)
+            self.moduleList.setCurrentIndex(index)
+
+        del blocker_list
+        del blocker_sm
+
+        if self._plugs:
+            try:
+                self.onSelectionChange(self.moduleList.currentIndex())
+            except Exception:
+                pass
 
     def onExpertModeToggled(self, checked: bool):
-        self._expert_mode = bool(checked)
+        if checked:
+            if not self._request_admin_access():
+                self.expertModeButton.blockSignals(True)
+                self.expertModeButton.setChecked(False)
+                self.expertModeButton.blockSignals(False)
+                return
+            self._expert_mode = True
+        else:
+            self._expert_mode = False
+
+        self._rebuild_plugins(keep_current=True)
 
     def onSelectionChange(self, index):
         """Slot for change selection"""
+        global plugs
+
         idx = index.row()
+        if idx < 0:
+            return
+        if idx >= len(plugs):
+            return
+
         plugin = plugs[idx]
         if plugin.started == False:
-            self.stack.removeWidget(self.stack.widget(idx))
+            try:
+                self.stack.removeWidget(self.stack.widget(idx))
+            except Exception:
+                pass
             plugin.run(idx)
 
-        self.stack.setCurrentIndex(idx)
+        try:
+            self.stack.setCurrentIndex(idx)
+        except Exception:
+            pass
 
     def onSessionStartChange(self, state):
         """Slot to change autostart checkbox change"""
@@ -336,22 +471,22 @@ if parser.isSet(list_modules):
 
 
 # Load plugins
-k = 0
-selected_index = 0
-
 plugs = []
+window._rebuild_plugins(keep_current=False)
 
-for p in Base.plugins:
-    inst = p(window.list_module_model, window.stack)
-    # inst.start(window.list_module_model, window.stack)
-    plugs.append(inst)
-    # Select item by its name
-    if inst.name == module_name:
-        selected_index = k
-    k = k + 1
+selected_index = 0
+for i, inst in enumerate(plugs):
+    try:
+        if inst.name == module_name:
+            selected_index = i
+            break
+    except Exception:
+        pass
 
-index = window.list_module_model.index(selected_index, 0)
-window.moduleList.setCurrentIndex(index)
+if plugs:
+    index = window.list_module_model.index(selected_index, 0)
+    window.moduleList.setCurrentIndex(index)
+    window.onSelectionChange(index)
 
 
 window.splitter.setStretchFactor(0,0)
