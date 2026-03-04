@@ -35,6 +35,7 @@ class MetaQObjectABC(ABCMeta, type(QObject)):
 class Base(QObject, metaclass=MetaQObjectABC):
     """Base skel for plugin"""
     plugins = []
+    requires_admin = False
 
     def __init__(self, name: str, position: int, plist: QStandardItemModel=None, pane: QStackedWidget = None):
         super().__init__()
@@ -43,6 +44,7 @@ class Base(QObject, metaclass=MetaQObjectABC):
         self._plist = plist
         self._pane = pane
         self._started = False
+        self._requires_admin = bool(getattr(self.__class__, 'requires_admin', False))
 
     # For every class that inherits from the current
     # the class name will be added to plugins
@@ -69,6 +71,10 @@ class Base(QObject, metaclass=MetaQObjectABC):
     @property
     def started(self) -> bool:
         return self._started
+
+    @property
+    def requires_admin_access(self) -> bool:
+        return self._requires_admin
 
     @started.setter
     def started(self, value: bool):

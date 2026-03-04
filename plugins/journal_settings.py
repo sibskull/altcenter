@@ -378,6 +378,7 @@ class JournalsWidget(QWidget):
 
 
 class PluginJournals(plugins.Base):
+    requires_admin = True
     def __init__(self, plist: QStandardItemModel=None, pane: QStackedWidget = None):
         super().__init__("journals_settings", 110, plist, pane)
 
