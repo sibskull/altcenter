@@ -24,9 +24,22 @@ class SettingsWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.current_language = 'ru'
+        self.is_expert_mode = False
         # Инициализируем виджеты
         self.init_widgets()
         self.initUI()
+
+    def set_expert_mode(self, enabled: bool):
+        self.is_expert_mode = bool(enabled)
+
+        if hasattr(self, 'applications_btn') and self.applications_btn is not None:
+            self.applications_btn.setVisible(self.is_expert_mode)
+
+        if hasattr(self, 'third_party_btn') and self.third_party_btn is not None:
+            self.third_party_btn.setVisible(self.is_expert_mode)
+
+        if hasattr(self, 'system_center_btn') and self.system_center_btn is not None:
+            self.system_center_btn.setVisible(self.is_expert_mode)
 
     def init_widgets(self):
         """Инициализация всех виджетов"""
@@ -145,7 +158,8 @@ class SettingsWidget(QWidget):
                     'icon': 'system',
                     'name': self.tr('System Control Center'),
                     'command': 'acc',
-                    'tooltip': self.tr('User account management, system logs, kernel updates')
+                    'tooltip': self.tr('User account management, system logs, kernel updates'),
+                    'expert_only': True
                 },
              ]
         }
@@ -188,14 +202,20 @@ class SettingsWidget(QWidget):
             apps['en'].append({
                 'icon': 'applications-system',
                 'name': self.tr('Applications'),
-                'command': app_center_cmd
+                'command': app_center_cmd,
+                'expert_only': True
             })
+
+        self.applications_btn = None
+        self.third_party_btn = None
+        self.system_center_btn = None
 
         if my_utils.check_package_installed("appinstall"):
             apps['en'].append({
                 'icon': 'system-software-install',
                 'name': self.tr('Third party applications'),
-                'command': 'appinstall'
+                'command': 'appinstall',
+                'expert_only': True
             })
 
         # Создаем кнопки для каждого приложения
@@ -214,6 +234,14 @@ class SettingsWidget(QWidget):
             button.setText(app['name'])
             if 'tooltip' in app:
                 button.setToolTip(app['tooltip'])
+
+            if app.get('expert_only', False):
+                if app.get('command') == 'acc':
+                    self.system_center_btn = button
+                elif app.get('name') == self.tr('Applications'):
+                    self.applications_btn = button
+                elif app.get('name') == self.tr('Third party applications'):
+                    self.third_party_btn = button
 
             if app['command'] != '':
                 button.clicked.connect(lambda checked, cmd=app['command']: self.launch_app(cmd))
@@ -258,6 +286,8 @@ class SettingsWidget(QWidget):
 
         # Загружаем сохраненные настройки
         self.loadSettings()
+
+        self.set_expert_mode(self.is_expert_mode)
 
     def launch_apps(self):
         if my_utils.check_package_installed("gnome-software"):
@@ -321,7 +351,14 @@ class PluginSettings(plugins.Base):
             self.plist.appendRow([self.node])
             self.pane.addWidget(QWidget())
 
-
     def _do_start(self, idx: int):
+        main_window = self.pane.window()
         main_widget = SettingsWidget()
+
+        try:
+            if hasattr(main_window, '_expert_mode'):
+                main_widget.set_expert_mode(bool(main_window._expert_mode))
+        except Exception:
+            pass
+
         self.pane.insertWidget(idx, main_widget)

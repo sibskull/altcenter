@@ -304,6 +304,7 @@ class ComponentsWindow(QWidget):
 
 
 class Components(plugins.Base):
+    requires_admin = True
     def __init__(self, plist: QStandardItemModel=None, pane: QStackedWidget = None):
         super().__init__("components", 90, plist, pane)
 

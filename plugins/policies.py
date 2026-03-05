@@ -295,6 +295,7 @@ class PoliciesWindow(QWidget):
             self.appendLog("")
 
 class PluginPolicies(plugins.Base):
+    requires_admin = True
     def __init__(self, plist: QStandardItemModel = None, pane: QStackedWidget = None):
         super().__init__("policies", 80, plist, pane)
         if self.plist != None and self.pane != None:
