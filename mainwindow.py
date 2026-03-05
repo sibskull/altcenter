@@ -174,6 +174,28 @@ class QtContextMenuRuFilter(QObject):
 
 class MainWindow(QWidget, Ui_MainWindow):
     """Main window"""
+    def onExpertModeToggled(self, checked: bool):
+        if checked:
+            if not self._request_admin_access():
+                self.expertModeButton.blockSignals(True)
+                self.expertModeButton.setChecked(False)
+                self.expertModeButton.blockSignals(False)
+                return
+            self._expert_mode = True
+        else:
+            self._expert_mode = False
+
+        self._rebuild_plugins(keep_current=True)
+
+        try:
+            idx = self.stack.currentIndex()
+            if 0 <= idx < len(plugs):
+                w = self.stack.widget(idx)
+                if hasattr(w, 'set_expert_mode'):
+                    w.set_expert_mode(self._expert_mode)
+        except Exception:
+            pass
+
     settings = None
 
     def __init__(self):
