@@ -36,6 +36,8 @@ class JournalsWidget(QWidget):
         self.btn_journal = None
         self.journal_popup = None
         self.journal_checks = []
+        self.cb_audit = None
+        self.cb_journal = None
 
         self.edit_query = None
 
@@ -51,11 +53,38 @@ class JournalsWidget(QWidget):
         self.proc_audit = None
         self.audit_cache_path = "/tmp/altcenter_audit.log"
         self.audit_copy_mode = 0
+        self.audit_cache_ready = False
+
+        self.is_expert_mode = False
 
         self.initUI()
         self.initProcess()
         self.loadOutputFormats()
         self.loadJournal()
+
+    def set_expert_mode(self, enabled: bool):
+        self.is_expert_mode = bool(enabled)
+
+        if self.cb_audit != None:
+            self.cb_audit.setVisible(self.is_expert_mode)
+
+            if not self.is_expert_mode and self.cb_audit.isChecked():
+                self.cb_audit.blockSignals(True)
+                self.cb_audit.setChecked(False)
+                self.cb_audit.blockSignals(False)
+
+                if self.cb_journal != None:
+                    self.cb_journal.blockSignals(True)
+                    self.cb_journal.setChecked(True)
+                    self.cb_journal.blockSignals(False)
+
+                self.current_source = "journalctl"
+                self.btn_journal.setText("journalctl")
+                self.page = 0
+                self.loadJournal()
+
+        if self.journal_popup != None:
+            self.journal_popup.adjustSize()
 
     def initUI(self):
         self.filter_items = [
@@ -168,21 +197,23 @@ class JournalsWidget(QWidget):
 
         self.journal_checks = []
 
-        cb_journal = QCheckBox("journalctl")
-        cb_journal.setChecked(True)
-        cb_journal.stateChanged.connect(self.on_journal_changed)
+        self.cb_journal = QCheckBox("journalctl")
+        self.cb_journal.setChecked(True)
+        self.cb_journal.stateChanged.connect(self.on_journal_changed)
 
-        cb_audit = QCheckBox("auditd")
-        cb_audit.stateChanged.connect(self.on_journal_changed)
+        self.cb_audit = QCheckBox("auditd")
+        self.cb_audit.stateChanged.connect(self.on_journal_changed)
 
-        self.journal_checks.append(cb_journal)
-        self.journal_checks.append(cb_audit)
+        self.journal_checks.append(self.cb_journal)
+        self.journal_checks.append(self.cb_audit)
 
-        layout.addWidget(cb_journal)
-        layout.addWidget(cb_audit)
+        layout.addWidget(self.cb_journal)
+        layout.addWidget(self.cb_audit)
 
         self.journal_popup.setLayout(layout)
         self.journal_popup.adjustSize()
+
+        self.set_expert_mode(self.is_expert_mode)
 
     def toggle_journal_popup(self):
         if self.journal_popup.isVisible():
@@ -197,6 +228,23 @@ class JournalsWidget(QWidget):
     def on_journal_changed(self, state):
         cb = self.sender()
         if state != Qt.Checked:
+            return
+
+        if cb == self.cb_audit and not self.is_expert_mode:
+            self.cb_audit.blockSignals(True)
+            self.cb_audit.setChecked(False)
+            self.cb_audit.blockSignals(False)
+
+            if self.cb_journal != None:
+                self.cb_journal.blockSignals(True)
+                self.cb_journal.setChecked(True)
+                self.cb_journal.blockSignals(False)
+
+            self.current_source = "journalctl"
+            self.btn_journal.setText("journalctl")
+            self.journal_popup.hide()
+            self.page = 0
+            self.loadJournal()
             return
 
         for other in self.journal_checks:
@@ -741,4 +789,11 @@ class PluginJournals(plugins.Base):
     def _do_start(self, idx: int):
         main_window = self.pane.window()
         main_widget = JournalsWidget(main_window)
+
+        try:
+            if hasattr(main_window, '_expert_mode'):
+                main_widget.set_expert_mode(bool(main_window._expert_mode))
+        except Exception:
+            pass
+
         self.pane.insertWidget(idx, main_widget)
