@@ -112,7 +112,7 @@ class JournalsWidget(QWidget):
 
         systemkeepfree = QHBoxLayout()
 
-        systemkeepfree.addWidget(QLabel(self.tr("SystemKeepFree (MB):")))
+        systemkeepfree.addWidget(QLabel(self.tr("Minimum free space (MB):")))
 
         self.systemkeepfree_value = QLineEdit()
         self.systemkeepfree_value.setText("")
@@ -123,7 +123,7 @@ class JournalsWidget(QWidget):
 
         systemmaxfilesize = QHBoxLayout()
 
-        systemmaxfilesize.addWidget(QLabel(self.tr("SystemMaxFileSize (MB):")))
+        systemmaxfilesize.addWidget(QLabel(self.tr("Max log file size (MB):")))
 
         self.systemmaxfilesize_value = QLineEdit()
         self.systemmaxfilesize_value.setText("")
