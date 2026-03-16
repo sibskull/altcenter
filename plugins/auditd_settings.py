@@ -12,6 +12,8 @@ class JournalsWidget(QWidget):
         super().__init__()
         self.main_window = main_window
 
+        self.proc_apply = None
+
         self.max_log_file_value = None
         self.num_logs_value = None
         self.space_left_value = None
@@ -27,7 +29,7 @@ class JournalsWidget(QWidget):
 
         max_log_file = QHBoxLayout()
 
-        max_log_file.addWidget(QLabel(self.tr("Max log file size (MB):")))
+        max_log_file.addWidget(QLabel(self.tr("SystemMaxFileSize (MB):")))
 
         self.max_log_file_value = QLineEdit()
         self.max_log_file_value.setText("")
@@ -49,7 +51,7 @@ class JournalsWidget(QWidget):
 
         space_left = QHBoxLayout()
 
-        space_left.addWidget(QLabel(self.tr("Minimum free space (MB):")))
+        space_left.addWidget(QLabel(self.tr("SystemKeepFree (MB):")))
 
         self.space_left_value = QLineEdit()
         self.space_left_value.setText("")
@@ -74,7 +76,48 @@ class JournalsWidget(QWidget):
         layout.addStretch(1)
         self.setLayout(layout)
 
+    def buildAuditdConfig(self, max_log_file, num_logs, space_left):
+        path = "/etc/audit/auditd.conf"
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as f:
+                lines = f.read().splitlines()
+        except:
+            lines = []
+
+        values = [
+            ("max_log_file", str(max_log_file)),
+            ("max_log_file_action", "rotate"),
+            ("num_logs", str(num_logs)),
+            ("space_left", str(space_left)),
+        ]
+
+        out = []
+        seen = set()
+
+        for raw in lines:
+            line = raw.strip()
+            replaced = False
+
+            for key, value in values:
+                if line.startswith(key + "=") or line.startswith(key + " ="):
+                    out.append(f"{key} = {value}")
+                    seen.add(key)
+                    replaced = True
+                    break
+
+            if not replaced:
+                out.append(raw)
+
+        for key, value in values:
+            if key not in seen:
+                out.append(f"{key} = {value}")
+
+        return "\n".join(out).rstrip("\n") + "\n"
+
     def on_apply_clicked(self):
+        if self.proc_apply != None and self.proc_apply.state() != QProcess.NotRunning:
+            return
+
         t = self.max_log_file_value.text().strip()
         try:
             max_log_file = int(t)
@@ -82,7 +125,7 @@ class JournalsWidget(QWidget):
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
 
-        if max_log_file < 0:
+        if max_log_file <= 0:
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
 
@@ -93,8 +136,8 @@ class JournalsWidget(QWidget):
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
 
-        if num_logs < 0:
-            self.lbl_status.setText(self.tr("Enter a numeric value"))
+        if num_logs <= 1 or num_logs > 999:
+            self.lbl_status.setText(self.tr("Enter a value from 2 to 999"))
             return
 
         t = self.space_left_value.text().strip()
@@ -104,11 +147,52 @@ class JournalsWidget(QWidget):
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
 
-        if space_left < 0:
+        if space_left <= 0:
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
 
-        self.lbl_status.setText(self.tr("test"))
+        self.lbl_status.setText("")
+        self.btn_apply.setEnabled(False)
+
+        cmd = (
+            "grep -qiE '^\\s*max_log_file\\s*=' /etc/audit/auditd.conf "
+            f"&& sed -i 's|^\\s*max_log_file\\s*=.*|max_log_file = {max_log_file}|I' /etc/audit/auditd.conf "
+            f"|| printf '\\nmax_log_file = {max_log_file}\\n' >> /etc/audit/auditd.conf; "
+
+            "grep -qiE '^\\s*max_log_file_action\\s*=' /etc/audit/auditd.conf "
+            "&& sed -i 's|^\\s*max_log_file_action\\s*=.*|max_log_file_action = ROTATE|I' /etc/audit/auditd.conf "
+            "|| printf 'max_log_file_action = ROTATE\\n' >> /etc/audit/auditd.conf; "
+
+            "grep -qiE '^\\s*num_logs\\s*=' /etc/audit/auditd.conf "
+            f"&& sed -i 's|^\\s*num_logs\\s*=.*|num_logs = {num_logs}|I' /etc/audit/auditd.conf "
+            f"|| printf 'num_logs = {num_logs}\\n' >> /etc/audit/auditd.conf; "
+
+            "grep -qiE '^\\s*space_left\\s*=' /etc/audit/auditd.conf "
+            f"&& sed -i 's|^\\s*space_left\\s*=.*|space_left = {space_left}|I' /etc/audit/auditd.conf "
+            f"|| printf 'space_left = {space_left}\\n' >> /etc/audit/auditd.conf; "
+
+            "if command -v service >/dev/null 2>&1; then service auditd restart; else systemctl restart auditd; fi"
+        )
+
+        self.proc_apply = QProcess(self)
+        env = QProcessEnvironment.systemEnvironment()
+        self.proc_apply.setProcessEnvironment(env)
+        self.proc_apply.finished.connect(self.on_apply_finished)
+        self.proc_apply.start("pkexec", ["sh", "-c", cmd])
+
+    def on_apply_finished(self, exit_code, exit_status):
+        err = self.proc_apply.readAllStandardError().data().decode(errors="replace").strip()
+
+        self.btn_apply.setEnabled(True)
+
+        if exit_code == 0:
+            self.lbl_status.setText(self.tr("Done"))
+            return
+
+        if err:
+            self.lbl_status.setText(err)
+        else:
+            self.lbl_status.setText(self.tr("Failed"))
 
 
 class PluginJournals(plugins.Base):
