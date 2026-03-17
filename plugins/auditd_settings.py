@@ -150,7 +150,7 @@ class JournalsWidget(QWidget):
             return
 
         if num_logs <= 1 or num_logs > 999:
-            self.lbl_status.setText(self.tr("Enter a value from 2 to 999"))
+            self.lbl_status.setText(self.tr("Enter a value from 2 to 999 to 'Max log files'"))
             return
 
         t = self.space_left_value.text().strip()
