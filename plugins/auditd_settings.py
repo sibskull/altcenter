@@ -17,6 +17,7 @@ class JournalsWidget(QWidget):
         self.max_log_file_value = None
         self.num_logs_value = None
         self.space_left_value = None
+        self.admin_space_left_value = None
 
         self.btn_apply = None
         self.lbl_status = None
@@ -60,6 +61,17 @@ class JournalsWidget(QWidget):
         space_left.addStretch(1)
         layout.addLayout(space_left)
 
+        admin_space_left = QHBoxLayout()
+
+        admin_space_left.addWidget(QLabel(self.tr("AdminSpaceLeft (MB):")))
+
+        self.admin_space_left_value = QLineEdit()
+        self.admin_space_left_value.setText("")
+        admin_space_left.addWidget(self.admin_space_left_value, 1)
+
+        admin_space_left.addStretch(1)
+        layout.addLayout(admin_space_left)
+
         apply_layout = QHBoxLayout()
 
         self.btn_apply = QPushButton(self.tr("Apply"))
@@ -76,7 +88,7 @@ class JournalsWidget(QWidget):
         layout.addStretch(1)
         self.setLayout(layout)
 
-    def buildAuditdConfig(self, max_log_file, num_logs, space_left):
+    def buildAuditdConfig(self, max_log_file, num_logs, space_left, admin_space_left):
         path = "/etc/audit/auditd.conf"
         try:
             with open(path, "r", encoding="utf-8", errors="replace") as f:
@@ -89,6 +101,7 @@ class JournalsWidget(QWidget):
             ("max_log_file_action", "rotate"),
             ("num_logs", str(num_logs)),
             ("space_left", str(space_left)),
+            ("admin_space_left", str(admin_space_left)),
         ]
 
         out = []
@@ -151,6 +164,17 @@ class JournalsWidget(QWidget):
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
 
+        t = self.admin_space_left_value.text().strip()
+        try:
+            admin_space_left = int(t)
+        except:
+            self.lbl_status.setText(self.tr("Enter a numeric value"))
+            return
+
+        if admin_space_left <= 0:
+            self.lbl_status.setText(self.tr("Enter a numeric value"))
+            return
+
         self.lbl_status.setText("")
         self.btn_apply.setEnabled(False)
 
@@ -170,6 +194,10 @@ class JournalsWidget(QWidget):
             "grep -qiE '^\\s*space_left\\s*=' /etc/audit/auditd.conf "
             f"&& sed -i 's|^\\s*space_left\\s*=.*|space_left = {space_left}|I' /etc/audit/auditd.conf "
             f"|| printf 'space_left = {space_left}\\n' >> /etc/audit/auditd.conf; "
+
+            "grep -qiE '^\\s*admin_space_left\\s*=' /etc/audit/auditd.conf "
+            f"&& sed -i 's|^\\s*admin_space_left\\s*=.*|admin_space_left = {admin_space_left}|I' /etc/audit/auditd.conf "
+            f"|| printf 'admin_space_left = {admin_space_left}\\n' >> /etc/audit/auditd.conf; "
 
             "if command -v service >/dev/null 2>&1; then service auditd restart; else systemctl restart auditd; fi"
         )
