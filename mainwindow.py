@@ -260,7 +260,7 @@ class MainWindow(QWidget, Ui_MainWindow):
             loop.quit()
 
         proc.finished.connect(_done)
-        proc.start('pkexec', ['/usr/bin/true'])
+        proc.start('pkexec', ['/bin/sh', '-c', 'cat /etc/audit/auditd.conf > /tmp/altcenter_auditd.conf && chmod 644 /tmp/altcenter_auditd.conf'])
         loop.exec_()
         proc.deleteLater()
         return ok['v']

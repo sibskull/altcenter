@@ -13,6 +13,7 @@ class JournalsWidget(QWidget):
         self.main_window = main_window
 
         self.proc_apply = None
+        self.proc_load = None
 
         self.max_log_file_value = None
         self.num_logs_value = None
@@ -23,6 +24,7 @@ class JournalsWidget(QWidget):
         self.lbl_status = None
 
         self.initUI()
+        self.loadSavedLimits()
 
     def initUI(self):
         layout = QVBoxLayout()
@@ -126,6 +128,44 @@ class JournalsWidget(QWidget):
                 out.append(f"{key} = {value}")
 
         return "\n".join(out).rstrip("\n") + "\n"
+    
+    def loadSavedLimits(self):
+        path = "/tmp/altcenter_auditd.conf"
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as f:
+                lines = f.read().splitlines()
+        except:
+            return
+
+        self.max_log_file_value.setText("")
+        self.num_logs_value.setText("")
+        self.space_left_value.setText("")
+        self.admin_space_left_value.setText("")
+
+        mapping = [
+            ("max_log_file", self.max_log_file_value),
+            ("num_logs", self.num_logs_value),
+            ("space_left", self.space_left_value),
+            ("admin_space_left", self.admin_space_left_value),
+        ]
+
+        for raw in lines:
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+
+            for key, widget in mapping:
+                prefix1 = key + "="
+                prefix2 = key + " ="
+                if line.startswith(prefix1):
+                    v = line[len(prefix1):].strip()
+                elif line.startswith(prefix2):
+                    v = line[len(prefix2):].strip()
+                else:
+                    continue
+
+                if v.isdigit():
+                    widget.setText(v)
 
     def on_apply_clicked(self):
         if self.proc_apply != None and self.proc_apply.state() != QProcess.NotRunning:
@@ -174,6 +214,10 @@ class JournalsWidget(QWidget):
         if admin_space_left <= 0:
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
+        
+        if admin_space_left >= space_left:
+            self.lbl_status.setText(self.tr("Critical free space must be lower than minimum free space"))
+            return
 
         self.lbl_status.setText("")
         self.btn_apply.setEnabled(False)
@@ -199,6 +243,7 @@ class JournalsWidget(QWidget):
             f"&& sed -i 's|^\\s*admin_space_left\\s*=.*|admin_space_left = {admin_space_left}|I' /etc/audit/auditd.conf "
             f"|| printf 'admin_space_left = {admin_space_left}\\n' >> /etc/audit/auditd.conf; "
 
+            "cat /etc/audit/auditd.conf > /tmp/altcenter_auditd.conf && chmod 644 /tmp/altcenter_auditd.conf && "
             "if command -v service >/dev/null 2>&1; then service auditd restart; else systemctl restart auditd; fi"
         )
 
@@ -215,6 +260,7 @@ class JournalsWidget(QWidget):
 
         if exit_code == 0:
             self.lbl_status.setText(self.tr("Done"))
+            self.loadSavedLimits()
             return
 
         if err:
