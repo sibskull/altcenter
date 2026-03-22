@@ -109,7 +109,7 @@ class JournalsWidget(QWidget):
         top.addWidget(QLabel(self.tr("Journal:")))
 
         self.btn_journal = QToolButton()
-        self.btn_journal.setText("journalctl")
+        self.btn_journal.setText("journald")
         self.btn_journal.clicked.connect(self.toggle_journal_popup)
         top.addWidget(self.btn_journal, 0, Qt.AlignLeft)
 
@@ -197,7 +197,7 @@ class JournalsWidget(QWidget):
 
         self.journal_checks = []
 
-        self.cb_journal = QCheckBox("journalctl")
+        self.cb_journal = QCheckBox("journald")
         self.cb_journal.setChecked(True)
         self.cb_journal.stateChanged.connect(self.on_journal_changed)
 
@@ -240,8 +240,8 @@ class JournalsWidget(QWidget):
                 self.cb_journal.setChecked(True)
                 self.cb_journal.blockSignals(False)
 
-            self.current_source = "journalctl"
-            self.btn_journal.setText("journalctl")
+            self.current_source = "journald"
+            self.btn_journal.setText("journald")
             self.journal_popup.hide()
             self.page = 0
             self.loadJournal()
@@ -263,7 +263,7 @@ class JournalsWidget(QWidget):
             self.loadJournal()
             return
 
-        self.current_source = "journalctl"
+        self.current_source = "journald"
         self.page = 0
         self.loadJournal()
 
