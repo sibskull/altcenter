@@ -3,7 +3,7 @@
 import plugins
 import os
 import json
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QCheckBox
 from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
 from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
 
@@ -19,12 +19,14 @@ class JournalsWidget(QWidget):
         self.num_logs_value = None
         self.space_left_value = None
         self.admin_space_left_value = None
+        self.identity_audit_checkbox = None
 
         self.btn_apply = None
         self.lbl_status = None
 
         self.initUI()
         self.loadSavedLimits()
+        self.loadSavedRules()
 
     def initUI(self):
         layout = QVBoxLayout()
@@ -73,6 +75,14 @@ class JournalsWidget(QWidget):
 
         admin_space_left.addStretch(1)
         layout.addLayout(admin_space_left)
+
+        identity_audit = QHBoxLayout()
+
+        self.identity_audit_checkbox = QCheckBox(self.tr("Audit password and account changes"))
+        identity_audit.addWidget(self.identity_audit_checkbox)
+
+        identity_audit.addStretch(1)
+        layout.addLayout(identity_audit)
 
         apply_layout = QHBoxLayout()
 
@@ -167,6 +177,36 @@ class JournalsWidget(QWidget):
                 if v.isdigit():
                     widget.setText(v)
 
+    def hasRuleForPath(self, lines, path):
+        for raw in lines:
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+
+            if ("-w " + path) in line:
+                return True
+
+            if ("path=" + path) in line:
+                return True
+
+        return False
+
+    def loadSavedRules(self):
+        path = "/tmp/altcenter_audit.rules"
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as f:
+                lines = f.read().splitlines()
+        except:
+            self.identity_audit_checkbox.setChecked(False)
+            return
+
+        passwd_rule = self.hasRuleForPath(lines, "/etc/passwd")
+        shadow_rule = self.hasRuleForPath(lines, "/etc/shadow")
+        group_rule = self.hasRuleForPath(lines, "/etc/group")
+        gshadow_rule = self.hasRuleForPath(lines, "/etc/gshadow")
+
+        self.identity_audit_checkbox.setChecked(passwd_rule and shadow_rule and group_rule and gshadow_rule)
+
     def on_apply_clicked(self):
         if self.proc_apply != None and self.proc_apply.state() != QProcess.NotRunning:
             return
@@ -214,13 +254,39 @@ class JournalsWidget(QWidget):
         if admin_space_left <= 0:
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
-        
+
         if admin_space_left >= space_left:
             self.lbl_status.setText(self.tr("Critical free space must be lower than minimum free space"))
             return
 
+        identity_rules = ""
+        if self.identity_audit_checkbox.isChecked():
+            identity_rules = (
+                "# ALT Center: identity begin\n"
+                "-w /etc/passwd -p wa -k identity\n"
+                "-w /etc/shadow -p wa -k identity\n"
+                "-w /etc/group -p wa -k identity\n"
+                "-w /etc/gshadow -p wa -k identity\n"
+                "# ALT Center: identity end\n"
+            )
+
+        identity_rules = identity_rules.replace("'", "'\"'\"'")
+
         self.lbl_status.setText("")
         self.btn_apply.setEnabled(False)
+
+        if self.identity_audit_checkbox.isChecked():
+            rules_cmd = (
+                "mkdir -p /etc/audit/rules.d && "
+                f"printf '%s' '{identity_rules}' > /etc/audit/rules.d/70-altcenter.rules && "
+                "chmod 600 /etc/audit/rules.d/70-altcenter.rules"
+            )
+        else:
+            rules_cmd = (
+                "mkdir -p /etc/audit/rules.d && "
+                ": > /etc/audit/rules.d/70-altcenter.rules && "
+                "chmod 600 /etc/audit/rules.d/70-altcenter.rules"
+            )
 
         cmd = (
             "grep -qiE '^\\s*max_log_file\\s*=' /etc/audit/auditd.conf "
@@ -244,7 +310,11 @@ class JournalsWidget(QWidget):
             f"|| printf 'admin_space_left = {admin_space_left}\\n' >> /etc/audit/auditd.conf; "
 
             "cat /etc/audit/auditd.conf > /tmp/altcenter_auditd.conf && chmod 644 /tmp/altcenter_auditd.conf && "
-            "if command -v service >/dev/null 2>&1; then service auditd restart; else systemctl restart auditd; fi"
+            + rules_cmd + " && "
+            + "cat /etc/audit/rules.d/*.rules > /tmp/altcenter_audit.rules 2>/dev/null || : && "
+            + "chmod 644 /tmp/altcenter_audit.rules 2>/dev/null || : && "
+            + "if command -v augenrules >/dev/null 2>&1; then augenrules --load; fi && "
+            + "if command -v service >/dev/null 2>&1; then service auditd restart; else systemctl restart auditd; fi"
         )
 
         self.proc_apply = QProcess(self)
@@ -261,6 +331,7 @@ class JournalsWidget(QWidget):
         if exit_code == 0:
             self.lbl_status.setText(self.tr("Done"))
             self.loadSavedLimits()
+            self.loadSavedRules()
             return
 
         if err:
