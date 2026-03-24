@@ -20,6 +20,9 @@ class JournalsWidget(QWidget):
         self.space_left_value = None
         self.admin_space_left_value = None
         self.identity_audit_checkbox = None
+        self.audit_daemon_events_checkbox = None
+        self.audit_config_audit_checkbox = None
+        self.audit_log_read_checkbox = None
 
         self.btn_apply = None
         self.lbl_status = None
@@ -83,6 +86,32 @@ class JournalsWidget(QWidget):
 
         identity_audit.addStretch(1)
         layout.addLayout(identity_audit)
+
+        audit_daemon_events = QHBoxLayout()
+
+        self.audit_daemon_events_checkbox = QCheckBox(self.tr("Audit subsystem start/stop events"))
+        self.audit_daemon_events_checkbox.setChecked(True)
+        self.audit_daemon_events_checkbox.setEnabled(False)
+        audit_daemon_events.addWidget(self.audit_daemon_events_checkbox)
+
+        audit_daemon_events.addStretch(1)
+        layout.addLayout(audit_daemon_events)
+
+        audit_config_audit = QHBoxLayout()
+
+        self.audit_config_audit_checkbox = QCheckBox(self.tr("Audit audit configuration changes"))
+        audit_config_audit.addWidget(self.audit_config_audit_checkbox)
+
+        audit_config_audit.addStretch(1)
+        layout.addLayout(audit_config_audit)
+
+        audit_log_read = QHBoxLayout()
+
+        self.audit_log_read_checkbox = QCheckBox(self.tr("Audit audit log read/export"))
+        audit_log_read.addWidget(self.audit_log_read_checkbox)
+
+        audit_log_read.addStretch(1)
+        layout.addLayout(audit_log_read)
 
         apply_layout = QHBoxLayout()
 
@@ -193,11 +222,15 @@ class JournalsWidget(QWidget):
 
     def loadSavedRules(self):
         path = "/tmp/altcenter_audit.rules"
+        self.audit_daemon_events_checkbox.setChecked(True)
+
         try:
             with open(path, "r", encoding="utf-8", errors="replace") as f:
                 lines = f.read().splitlines()
         except:
             self.identity_audit_checkbox.setChecked(False)
+            self.audit_config_audit_checkbox.setChecked(False)
+            self.audit_log_read_checkbox.setChecked(False)
             return
 
         passwd_rule = self.hasRuleForPath(lines, "/etc/passwd")
@@ -205,7 +238,12 @@ class JournalsWidget(QWidget):
         group_rule = self.hasRuleForPath(lines, "/etc/group")
         gshadow_rule = self.hasRuleForPath(lines, "/etc/gshadow")
 
+        audit_config_rule = self.hasRuleForPath(lines, "/etc/audit")
+        audit_log_rule = self.hasRuleForPath(lines, "/var/log/audit")
+
         self.identity_audit_checkbox.setChecked(passwd_rule and shadow_rule and group_rule and gshadow_rule)
+        self.audit_config_audit_checkbox.setChecked(audit_config_rule)
+        self.audit_log_read_checkbox.setChecked(audit_log_rule)
 
     def on_apply_clicked(self):
         if self.proc_apply != None and self.proc_apply.state() != QProcess.NotRunning:
@@ -270,15 +308,32 @@ class JournalsWidget(QWidget):
                 "# ALT Center: identity end\n"
             )
 
-        identity_rules = identity_rules.replace("'", "'\"'\"'")
+        audit_config_rules = ""
+        if self.audit_config_audit_checkbox.isChecked():
+            audit_config_rules = (
+                "# ALT Center: audit_config begin\n"
+                "-w /etc/audit -p wa -k audit_config\n"
+                "# ALT Center: audit_config end\n"
+            )
+
+        audit_log_rules = ""
+        if self.audit_log_read_checkbox.isChecked():
+            audit_log_rules = (
+                "# ALT Center: audit_log begin\n"
+                "-w /var/log/audit -p r -k audit_log\n"
+                "# ALT Center: audit_log end\n"
+            )
+
+        managed_rules = identity_rules + audit_config_rules + audit_log_rules
+        managed_rules = managed_rules.replace("'", "'\"'\"'")
 
         self.lbl_status.setText("")
         self.btn_apply.setEnabled(False)
 
-        if self.identity_audit_checkbox.isChecked():
+        if managed_rules:
             rules_cmd = (
                 "mkdir -p /etc/audit/rules.d && "
-                f"printf '%s' '{identity_rules}' > /etc/audit/rules.d/70-altcenter.rules && "
+                f"printf '%s' '{managed_rules}' > /etc/audit/rules.d/70-altcenter.rules && "
                 "chmod 600 /etc/audit/rules.d/70-altcenter.rules"
             )
         else:
