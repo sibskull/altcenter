@@ -20,9 +20,14 @@ class JournalsWidget(QWidget):
         self.space_left_value = None
         self.admin_space_left_value = None
         self.identity_audit_checkbox = None
-        self.audit_daemon_events_checkbox = None
         self.audit_config_audit_checkbox = None
         self.audit_log_read_checkbox = None
+        self.journald_config_audit_checkbox = None
+        self.password_policy_audit_checkbox = None
+        self.privileged_commands_audit_checkbox = None
+        self.network_config_audit_checkbox = None
+        self.kernel_module_audit_checkbox = None
+        self.account_modification_audit_checkbox = None
 
         self.btn_apply = None
         self.lbl_status = None
@@ -87,16 +92,6 @@ class JournalsWidget(QWidget):
         identity_audit.addStretch(1)
         layout.addLayout(identity_audit)
 
-        audit_daemon_events = QHBoxLayout()
-
-        self.audit_daemon_events_checkbox = QCheckBox(self.tr("Audit subsystem start/stop events"))
-        self.audit_daemon_events_checkbox.setChecked(True)
-        self.audit_daemon_events_checkbox.setEnabled(False)
-        audit_daemon_events.addWidget(self.audit_daemon_events_checkbox)
-
-        audit_daemon_events.addStretch(1)
-        layout.addLayout(audit_daemon_events)
-
         audit_config_audit = QHBoxLayout()
 
         self.audit_config_audit_checkbox = QCheckBox(self.tr("Audit audit configuration changes"))
@@ -112,6 +107,54 @@ class JournalsWidget(QWidget):
 
         audit_log_read.addStretch(1)
         layout.addLayout(audit_log_read)
+
+        journald_config_audit = QHBoxLayout()
+
+        self.journald_config_audit_checkbox = QCheckBox(self.tr("Audit journald configuration changes"))
+        journald_config_audit.addWidget(self.journald_config_audit_checkbox)
+
+        journald_config_audit.addStretch(1)
+        layout.addLayout(journald_config_audit)
+
+        password_policy_audit = QHBoxLayout()
+
+        self.password_policy_audit_checkbox = QCheckBox(self.tr("Audit password policy configuration changes"))
+        password_policy_audit.addWidget(self.password_policy_audit_checkbox)
+
+        password_policy_audit.addStretch(1)
+        layout.addLayout(password_policy_audit)
+
+        privileged_commands_audit = QHBoxLayout()
+
+        self.privileged_commands_audit_checkbox = QCheckBox(self.tr("Audit privileged commands usage"))
+        privileged_commands_audit.addWidget(self.privileged_commands_audit_checkbox)
+
+        privileged_commands_audit.addStretch(1)
+        layout.addLayout(privileged_commands_audit)
+
+        network_config_audit = QHBoxLayout()
+
+        self.network_config_audit_checkbox = QCheckBox(self.tr("Audit network environment changes"))
+        network_config_audit.addWidget(self.network_config_audit_checkbox)
+
+        network_config_audit.addStretch(1)
+        layout.addLayout(network_config_audit)
+
+        kernel_module_audit = QHBoxLayout()
+
+        self.kernel_module_audit_checkbox = QCheckBox(self.tr("Audit kernel module changes"))
+        kernel_module_audit.addWidget(self.kernel_module_audit_checkbox)
+
+        kernel_module_audit.addStretch(1)
+        layout.addLayout(kernel_module_audit)
+
+        account_modification_audit = QHBoxLayout()
+
+        self.account_modification_audit_checkbox = QCheckBox(self.tr("Audit account modification commands"))
+        account_modification_audit.addWidget(self.account_modification_audit_checkbox)
+
+        account_modification_audit.addStretch(1)
+        layout.addLayout(account_modification_audit)
 
         apply_layout = QHBoxLayout()
 
@@ -220,9 +263,40 @@ class JournalsWidget(QWidget):
 
         return False
 
+    def hasAllExistingPaths(self, lines, paths):
+        has_existing = False
+
+        for path in paths:
+            if not os.path.exists(path):
+                continue
+
+            has_existing = True
+
+            if not self.hasRuleForPath(lines, path):
+                return False
+
+        return has_existing
+
+    def buildWatchRules(self, block_name, key, rules):
+        parts = ["# ALT Center: %s begin" % block_name]
+        has_rules = False
+
+        for path, perm in rules:
+            if not os.path.exists(path):
+                continue
+
+            parts.append("-w %s -p %s -k %s" % (path, perm, key))
+            has_rules = True
+
+        parts.append("# ALT Center: %s end" % block_name)
+
+        if not has_rules:
+            return ""
+
+        return "\n".join(parts) + "\n"
+
     def loadSavedRules(self):
         path = "/tmp/altcenter_audit.rules"
-        self.audit_daemon_events_checkbox.setChecked(True)
 
         try:
             with open(path, "r", encoding="utf-8", errors="replace") as f:
@@ -231,6 +305,12 @@ class JournalsWidget(QWidget):
             self.identity_audit_checkbox.setChecked(False)
             self.audit_config_audit_checkbox.setChecked(False)
             self.audit_log_read_checkbox.setChecked(False)
+            self.journald_config_audit_checkbox.setChecked(False)
+            self.password_policy_audit_checkbox.setChecked(False)
+            self.privileged_commands_audit_checkbox.setChecked(False)
+            self.network_config_audit_checkbox.setChecked(False)
+            self.kernel_module_audit_checkbox.setChecked(False)
+            self.account_modification_audit_checkbox.setChecked(False)
             return
 
         passwd_rule = self.hasRuleForPath(lines, "/etc/passwd")
@@ -241,9 +321,56 @@ class JournalsWidget(QWidget):
         audit_config_rule = self.hasRuleForPath(lines, "/etc/audit")
         audit_log_rule = self.hasRuleForPath(lines, "/var/log/audit")
 
+        journald_config_rule = self.hasAllExistingPaths(lines, [
+            "/etc/systemd/journald.conf",
+        ])
+
+        password_policy_rule = self.hasAllExistingPaths(lines, [
+            "/etc/passwdqc.conf",
+            "/etc/pam.d/system-auth-local-only",
+        ])
+
+        privileged_commands_rule = self.hasAllExistingPaths(lines, [
+            "/etc/sudoers",
+            "/etc/sudoers.d",
+            "/bin/su",
+            "/usr/bin/sudo",
+        ])
+
+        network_config_rule = self.hasAllExistingPaths(lines, [
+            "/etc/net/ifaces",
+            "/etc/sysconfig/network",
+            "/etc/hosts",
+            "/etc/hostname",
+            "/etc/net",
+            "/etc/netconfig",
+            "/etc/NetworkManager",
+            "/usr/bin/hostnamectl",
+        ])
+
+        kernel_module_rule = self.hasAllExistingPaths(lines, [
+            "/sbin/insmod",
+            "/sbin/rmmod",
+            "/sbin/modprobe",
+            "/etc/sysctl.conf",
+        ])
+
+        account_modification_rule = self.hasAllExistingPaths(lines, [
+            "/usr/sbin/adduser",
+            "/usr/sbin/useradd",
+            "/usr/sbin/usermod",
+            "/usr/bin/gpasswd",
+        ])
+
         self.identity_audit_checkbox.setChecked(passwd_rule and shadow_rule and group_rule and gshadow_rule)
         self.audit_config_audit_checkbox.setChecked(audit_config_rule)
         self.audit_log_read_checkbox.setChecked(audit_log_rule)
+        self.journald_config_audit_checkbox.setChecked(journald_config_rule)
+        self.password_policy_audit_checkbox.setChecked(password_policy_rule)
+        self.privileged_commands_audit_checkbox.setChecked(privileged_commands_rule)
+        self.network_config_audit_checkbox.setChecked(network_config_rule)
+        self.kernel_module_audit_checkbox.setChecked(kernel_module_rule)
+        self.account_modification_audit_checkbox.setChecked(account_modification_rule)
 
     def on_apply_clicked(self):
         if self.proc_apply != None and self.proc_apply.state() != QProcess.NotRunning:
@@ -324,7 +451,94 @@ class JournalsWidget(QWidget):
                 "# ALT Center: audit_log end\n"
             )
 
-        managed_rules = identity_rules + audit_config_rules + audit_log_rules
+        journald_config_rules = ""
+        if self.journald_config_audit_checkbox.isChecked():
+            journald_config_rules = self.buildWatchRules(
+                "journald_config",
+                "journald_config",
+                [
+                    ("/etc/systemd/journald.conf", "wa"),
+                ]
+            )
+
+        password_policy_rules = ""
+        if self.password_policy_audit_checkbox.isChecked():
+            password_policy_rules = self.buildWatchRules(
+                "password_policy",
+                "password_policy",
+                [
+                    ("/etc/passwdqc.conf", "wa"),
+                    ("/etc/pam.d/system-auth-local-only", "wa"),
+                ]
+            )
+
+        privileged_commands_rules = ""
+        if self.privileged_commands_audit_checkbox.isChecked():
+            privileged_commands_rules = self.buildWatchRules(
+                "privileged_commands",
+                "privileged_commands",
+                [
+                    ("/etc/sudoers", "wa"),
+                    ("/etc/sudoers.d", "wa"),
+                    ("/bin/su", "x"),
+                    ("/usr/bin/sudo", "x"),
+                ]
+            )
+
+        network_config_rules = ""
+        if self.network_config_audit_checkbox.isChecked():
+            network_config_rules = self.buildWatchRules(
+                "network_config",
+                "network_config",
+                [
+                    ("/etc/net/ifaces", "wa"),
+                    ("/etc/sysconfig/network", "wa"),
+                    ("/etc/hosts", "wa"),
+                    ("/etc/hostname", "wa"),
+                    ("/etc/net", "wa"),
+                    ("/etc/netconfig", "wa"),
+                    ("/etc/NetworkManager", "wa"),
+                    ("/usr/bin/hostnamectl", "x"),
+                ]
+            )
+
+        kernel_module_rules = ""
+        if self.kernel_module_audit_checkbox.isChecked():
+            kernel_module_rules = self.buildWatchRules(
+                "kernel_module",
+                "kernel_module",
+                [
+                    ("/sbin/insmod", "x"),
+                    ("/sbin/rmmod", "x"),
+                    ("/sbin/modprobe", "x"),
+                    ("/etc/sysctl.conf", "wa"),
+                ]
+            )
+
+        account_modification_rules = ""
+        if self.account_modification_audit_checkbox.isChecked():
+            account_modification_rules = self.buildWatchRules(
+                "account_modification",
+                "account_modification",
+                [
+                    ("/usr/sbin/adduser", "x"),
+                    ("/usr/sbin/useradd", "x"),
+                    ("/usr/sbin/usermod", "x"),
+                    ("/usr/bin/gpasswd", "x"),
+                ]
+            )
+
+        managed_rules = (
+            identity_rules
+            + audit_config_rules
+            + audit_log_rules
+            + journald_config_rules
+            + password_policy_rules
+            + privileged_commands_rules
+            + network_config_rules
+            + kernel_module_rules
+            + account_modification_rules
+        )
         managed_rules = managed_rules.replace("'", "'\"'\"'")
 
         self.lbl_status.setText("")
