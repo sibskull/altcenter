@@ -28,6 +28,8 @@ class JournalsWidget(QWidget):
         self.network_config_audit_checkbox = None
         self.kernel_module_audit_checkbox = None
         self.account_modification_audit_checkbox = None
+        self.file_delete_audit_checkbox = None
+        self.mount_export_audit_checkbox = None
 
         self.btn_apply = None
         self.lbl_status = None
@@ -156,6 +158,22 @@ class JournalsWidget(QWidget):
         account_modification_audit.addStretch(1)
         layout.addLayout(account_modification_audit)
 
+        file_delete_audit = QHBoxLayout()
+
+        self.file_delete_audit_checkbox = QCheckBox(self.tr("Audit file deletion events"))
+        file_delete_audit.addWidget(self.file_delete_audit_checkbox)
+
+        file_delete_audit.addStretch(1)
+        layout.addLayout(file_delete_audit)
+
+        mount_export_audit = QHBoxLayout()
+
+        self.mount_export_audit_checkbox = QCheckBox(self.tr("Audit information export to media"))
+        mount_export_audit.addWidget(self.mount_export_audit_checkbox)
+
+        mount_export_audit.addStretch(1)
+        layout.addLayout(mount_export_audit)
+
         apply_layout = QHBoxLayout()
 
         self.btn_apply = QPushButton(self.tr("Apply"))
@@ -210,7 +228,7 @@ class JournalsWidget(QWidget):
                 out.append(f"{key} = {value}")
 
         return "\n".join(out).rstrip("\n") + "\n"
-    
+
     def loadSavedLimits(self):
         path = "/tmp/altcenter_auditd.conf"
         try:
@@ -277,6 +295,17 @@ class JournalsWidget(QWidget):
 
         return has_existing
 
+    def hasRuleForSyscall(self, lines, syscall_name, key):
+        for raw in lines:
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+
+            if ("-S " + syscall_name) in line and (("-k " + key) in line or ("key=" + key) in line):
+                return True
+
+        return False
+
     def buildWatchRules(self, block_name, key, rules):
         parts = ["# ALT Center: %s begin" % block_name]
         has_rules = False
@@ -295,6 +324,32 @@ class JournalsWidget(QWidget):
 
         return "\n".join(parts) + "\n"
 
+    def getAuditArchitectures(self):
+        machine = os.uname().machine.lower()
+
+        if machine in ("x86_64", "amd64"):
+            return ["b64", "b32"]
+
+        if machine in ("i386", "i486", "i586", "i686"):
+            return ["b32"]
+
+        return ["b64"]
+
+    def buildSyscallRules(self, block_name, key, syscalls):
+        parts = ["# ALT Center: %s begin" % block_name]
+
+        for arch in self.getAuditArchitectures():
+            line = "-a always,exit -F arch=%s" % arch
+
+            for syscall_name in syscalls:
+                line += " -S %s" % syscall_name
+
+            line += " -k %s" % key
+            parts.append(line)
+
+        parts.append("# ALT Center: %s end" % block_name)
+        return "\n".join(parts) + "\n"
+
     def loadSavedRules(self):
         path = "/tmp/altcenter_audit.rules"
 
@@ -311,6 +366,8 @@ class JournalsWidget(QWidget):
             self.network_config_audit_checkbox.setChecked(False)
             self.kernel_module_audit_checkbox.setChecked(False)
             self.account_modification_audit_checkbox.setChecked(False)
+            self.file_delete_audit_checkbox.setChecked(False)
+            self.mount_export_audit_checkbox.setChecked(False)
             return
 
         passwd_rule = self.hasRuleForPath(lines, "/etc/passwd")
@@ -362,6 +419,22 @@ class JournalsWidget(QWidget):
             "/usr/bin/gpasswd",
         ])
 
+        file_delete_syscalls = [
+            "rmdir",
+            "unlinkat",
+            "rename",
+            "renameat",
+            "unlink",
+        ]
+
+        file_delete_rule = True
+        for syscall_name in file_delete_syscalls:
+            if not self.hasRuleForSyscall(lines, syscall_name, "file_delete"):
+                file_delete_rule = False
+                break
+
+        mount_export_rule = self.hasRuleForSyscall(lines, "mount", "mount_export")
+
         self.identity_audit_checkbox.setChecked(passwd_rule and shadow_rule and group_rule and gshadow_rule)
         self.audit_config_audit_checkbox.setChecked(audit_config_rule)
         self.audit_log_read_checkbox.setChecked(audit_log_rule)
@@ -371,6 +444,8 @@ class JournalsWidget(QWidget):
         self.network_config_audit_checkbox.setChecked(network_config_rule)
         self.kernel_module_audit_checkbox.setChecked(kernel_module_rule)
         self.account_modification_audit_checkbox.setChecked(account_modification_rule)
+        self.file_delete_audit_checkbox.setChecked(file_delete_rule)
+        self.mount_export_audit_checkbox.setChecked(mount_export_rule)
 
     def on_apply_clicked(self):
         if self.proc_apply != None and self.proc_apply.state() != QProcess.NotRunning:
@@ -528,6 +603,30 @@ class JournalsWidget(QWidget):
                 ]
             )
 
+        file_delete_rules = ""
+        if self.file_delete_audit_checkbox.isChecked():
+            file_delete_rules = self.buildSyscallRules(
+                "file_delete",
+                "file_delete",
+                [
+                    "rmdir",
+                    "unlinkat",
+                    "rename",
+                    "renameat",
+                    "unlink",
+                ]
+            )
+
+        mount_export_rules = ""
+        if self.mount_export_audit_checkbox.isChecked():
+            mount_export_rules = self.buildSyscallRules(
+                "mount_export",
+                "mount_export",
+                [
+                    "mount",
+                ]
+            )
+
         managed_rules = (
             identity_rules
             + audit_config_rules
@@ -538,6 +637,8 @@ class JournalsWidget(QWidget):
             + network_config_rules
             + kernel_module_rules
             + account_modification_rules
+            + file_delete_rules
+            + mount_export_rules
         )
         managed_rules = managed_rules.replace("'", "'\"'\"'")
 
