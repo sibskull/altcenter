@@ -3,7 +3,7 @@
 import plugins
 import os
 import json
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QCheckBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QCheckBox, QScrollArea
 from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
 from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
 
@@ -39,7 +39,14 @@ class JournalsWidget(QWidget):
         self.loadSavedRules()
 
     def initUI(self):
-        layout = QVBoxLayout()
+        root_layout = QVBoxLayout(self)
+        root_layout.setContentsMargins(0, 0, 0, 0)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+
+        container = QWidget()
+        layout = QVBoxLayout(container)
         layout.setContentsMargins(10, 10, 10, 10)
 
         max_log_file = QHBoxLayout()
@@ -177,6 +184,7 @@ class JournalsWidget(QWidget):
         apply_layout = QHBoxLayout()
 
         self.btn_apply = QPushButton(self.tr("Apply"))
+        self.btn_apply.setMinimumHeight(32)
         self.btn_apply.clicked.connect(self.on_apply_clicked)
         apply_layout.addWidget(self.btn_apply)
 
@@ -188,7 +196,9 @@ class JournalsWidget(QWidget):
         layout.addLayout(apply_layout)
 
         layout.addStretch(1)
-        self.setLayout(layout)
+
+        scroll.setWidget(container)
+        root_layout.addWidget(scroll)
 
     def buildAuditdConfig(self, max_log_file, num_logs, space_left, admin_space_left):
         path = "/etc/audit/auditd.conf"
