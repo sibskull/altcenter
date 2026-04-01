@@ -30,6 +30,8 @@ class JournalsWidget(QWidget):
         self.account_modification_audit_checkbox = None
         self.file_delete_audit_checkbox = None
         self.mount_export_audit_checkbox = None
+        self.discretionary_access_audit_checkbox = None
+        self.unauthorized_access_audit_checkbox = None
 
         self.btn_apply = None
         self.lbl_status = None
@@ -181,6 +183,22 @@ class JournalsWidget(QWidget):
         mount_export_audit.addStretch(1)
         layout.addLayout(mount_export_audit)
 
+        discretionary_access_audit = QHBoxLayout()
+
+        self.discretionary_access_audit_checkbox = QCheckBox(self.tr("Audit discretionary access changes"))
+        discretionary_access_audit.addWidget(self.discretionary_access_audit_checkbox)
+
+        discretionary_access_audit.addStretch(1)
+        layout.addLayout(discretionary_access_audit)
+
+        unauthorized_access_audit = QHBoxLayout()
+
+        self.unauthorized_access_audit_checkbox = QCheckBox(self.tr("Audit unauthorized access attempts"))
+        unauthorized_access_audit.addWidget(self.unauthorized_access_audit_checkbox)
+
+        unauthorized_access_audit.addStretch(1)
+        layout.addLayout(unauthorized_access_audit)
+
         apply_layout = QHBoxLayout()
 
         self.btn_apply = QPushButton(self.tr("Apply"))
@@ -316,6 +334,23 @@ class JournalsWidget(QWidget):
 
         return False
 
+    def hasDeniedRuleForSyscall(self, lines, syscall_name, key):
+        for raw in lines:
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+
+            if ("-S " + syscall_name) not in line:
+                continue
+
+            if ("-k " + key) not in line and ("key=" + key) not in line:
+                continue
+
+            if "exit=-EACCES" in line or "exit=-EPERM" in line:
+                return True
+
+        return False
+
     def buildWatchRules(self, block_name, key, rules):
         parts = ["# ALT Center: %s begin" % block_name]
         has_rules = False
@@ -360,6 +395,26 @@ class JournalsWidget(QWidget):
         parts.append("# ALT Center: %s end" % block_name)
         return "\n".join(parts) + "\n"
 
+    def buildDeniedAccessRules(self, block_name, key, syscalls):
+        parts = ["# ALT Center: %s begin" % block_name]
+
+        for arch in self.getAuditArchitectures():
+            line_eacces = "-a always,exit -F arch=%s" % arch
+            line_eperm = "-a always,exit -F arch=%s" % arch
+
+            for syscall_name in syscalls:
+                line_eacces += " -S %s" % syscall_name
+                line_eperm += " -S %s" % syscall_name
+
+            line_eacces += " -F exit=-EACCES -k %s" % key
+            line_eperm += " -F exit=-EPERM -k %s" % key
+
+            parts.append(line_eacces)
+            parts.append(line_eperm)
+
+        parts.append("# ALT Center: %s end" % block_name)
+        return "\n".join(parts) + "\n"
+
     def loadSavedRules(self):
         path = "/tmp/altcenter_audit.rules"
 
@@ -378,6 +433,8 @@ class JournalsWidget(QWidget):
             self.account_modification_audit_checkbox.setChecked(False)
             self.file_delete_audit_checkbox.setChecked(False)
             self.mount_export_audit_checkbox.setChecked(False)
+            self.discretionary_access_audit_checkbox.setChecked(False)
+            self.unauthorized_access_audit_checkbox.setChecked(False)
             return
 
         passwd_rule = self.hasRuleForPath(lines, "/etc/passwd")
@@ -445,6 +502,43 @@ class JournalsWidget(QWidget):
 
         mount_export_rule = self.hasRuleForSyscall(lines, "mount", "mount_export")
 
+        discretionary_access_syscalls = [
+            "chown",
+            "fchown",
+            "fchownat",
+            "lchown",
+            "removexattr",
+            "lremovexattr",
+            "fremovexattr",
+            "setxattr",
+            "fsetxattr",
+            "lsetxattr",
+            "chmod",
+            "fchmod",
+            "fchmodat",
+        ]
+
+        discretionary_access_rule = True
+        for syscall_name in discretionary_access_syscalls:
+            if not self.hasRuleForSyscall(lines, syscall_name, "discretionary_access"):
+                discretionary_access_rule = False
+                break
+
+        unauthorized_access_syscalls = [
+            "truncate",
+            "creat",
+            "ftruncate",
+            "open",
+            "openat",
+            "open_by_handle_at",
+        ]
+
+        unauthorized_access_rule = True
+        for syscall_name in unauthorized_access_syscalls:
+            if not self.hasDeniedRuleForSyscall(lines, syscall_name, "unauthorized_access"):
+                unauthorized_access_rule = False
+                break
+
         self.identity_audit_checkbox.setChecked(passwd_rule and shadow_rule and group_rule and gshadow_rule)
         self.audit_config_audit_checkbox.setChecked(audit_config_rule)
         self.audit_log_read_checkbox.setChecked(audit_log_rule)
@@ -456,6 +550,8 @@ class JournalsWidget(QWidget):
         self.account_modification_audit_checkbox.setChecked(account_modification_rule)
         self.file_delete_audit_checkbox.setChecked(file_delete_rule)
         self.mount_export_audit_checkbox.setChecked(mount_export_rule)
+        self.discretionary_access_audit_checkbox.setChecked(discretionary_access_rule)
+        self.unauthorized_access_audit_checkbox.setChecked(unauthorized_access_rule)
 
     def on_apply_clicked(self):
         if self.proc_apply != None and self.proc_apply.state() != QProcess.NotRunning:
@@ -637,6 +733,43 @@ class JournalsWidget(QWidget):
                 ]
             )
 
+        discretionary_access_rules = ""
+        if self.discretionary_access_audit_checkbox.isChecked():
+            discretionary_access_rules = self.buildSyscallRules(
+                "discretionary_access",
+                "discretionary_access",
+                [
+                    "chown",
+                    "fchown",
+                    "fchownat",
+                    "lchown",
+                    "removexattr",
+                    "lremovexattr",
+                    "fremovexattr",
+                    "setxattr",
+                    "fsetxattr",
+                    "lsetxattr",
+                    "chmod",
+                    "fchmod",
+                    "fchmodat",
+                ]
+            )
+
+        unauthorized_access_rules = ""
+        if self.unauthorized_access_audit_checkbox.isChecked():
+            unauthorized_access_rules = self.buildDeniedAccessRules(
+                "unauthorized_access",
+                "unauthorized_access",
+                [
+                    "truncate",
+                    "creat",
+                    "ftruncate",
+                    "open",
+                    "openat",
+                    "open_by_handle_at",
+                ]
+            )
+
         managed_rules = (
             identity_rules
             + audit_config_rules
@@ -649,6 +782,8 @@ class JournalsWidget(QWidget):
             + account_modification_rules
             + file_delete_rules
             + mount_export_rules
+            + discretionary_access_rules
+            + unauthorized_access_rules
         )
         managed_rules = managed_rules.replace("'", "'\"'\"'")
 
