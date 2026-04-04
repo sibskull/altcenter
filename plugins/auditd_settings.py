@@ -64,7 +64,7 @@ class JournalsWidget(QWidget):
 
         num_logs = QHBoxLayout()
 
-        num_logs.addWidget(QLabel(self.tr("Max log files count:")))
+        num_logs.addWidget(QLabel(self.tr("Maximum number of log files:")))
 
         self.num_logs_value = QLineEdit()
         self.num_logs_value.setText("")
@@ -553,57 +553,97 @@ class JournalsWidget(QWidget):
         self.discretionary_access_audit_checkbox.setChecked(discretionary_access_rule)
         self.unauthorized_access_audit_checkbox.setChecked(unauthorized_access_rule)
 
+    def loadSavedNumericValues(self):
+        path = "/tmp/altcenter_auditd.conf"
+        values = {}
+
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as f:
+                lines = f.read().splitlines()
+        except:
+            return values
+
+        for raw in lines:
+            line = raw.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip()
+
+            if value.isdigit():
+                values[key] = int(value)
+
+        return values
+
+    def parseOptionalInteger(self, text):
+        t = text.strip()
+
+        if not t:
+            return True, None
+
+        try:
+            v = int(t)
+        except:
+            return False, None
+
+        return True, v
+
     def on_apply_clicked(self):
         if self.proc_apply != None and self.proc_apply.state() != QProcess.NotRunning:
             return
 
-        t = self.max_log_file_value.text().strip()
-        try:
-            max_log_file = int(t)
-        except:
+        ok, max_log_file = self.parseOptionalInteger(self.max_log_file_value.text())
+        if not ok:
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
 
-        if max_log_file <= 0:
+        if max_log_file != None and max_log_file <= 0:
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
 
-        t = self.num_logs_value.text().strip()
-        try:
-            num_logs = int(t)
-        except:
+        ok, num_logs = self.parseOptionalInteger(self.num_logs_value.text())
+        if not ok:
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
 
-        if num_logs <= 1 or num_logs > 999:
-            self.lbl_status.setText(self.tr("Enter a value from 2 to 999 to 'Max log files'"))
+        if num_logs != None and (num_logs <= 1 or num_logs > 999):
+            self.lbl_status.setText(self.tr("Enter a value from 2 to 999 to 'Maximum number of log files'"))
             return
 
-        t = self.space_left_value.text().strip()
-        try:
-            space_left = int(t)
-        except:
+        ok, space_left = self.parseOptionalInteger(self.space_left_value.text())
+        if not ok:
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
 
-        if space_left <= 0:
+        if space_left != None and space_left <= 0:
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
 
-        t = self.admin_space_left_value.text().strip()
-        try:
-            admin_space_left = int(t)
-        except:
+        ok, admin_space_left = self.parseOptionalInteger(self.admin_space_left_value.text())
+        if not ok:
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
 
-        if admin_space_left <= 0:
+        if admin_space_left != None and admin_space_left <= 0:
             self.lbl_status.setText(self.tr("Enter a numeric value"))
             return
 
-        if admin_space_left >= space_left:
-            self.lbl_status.setText(self.tr("Critical free space must be lower than minimum free space"))
-            return
+        saved_values = self.loadSavedNumericValues()
+
+        effective_space_left = space_left
+        if effective_space_left == None:
+            effective_space_left = saved_values.get("space_left")
+
+        effective_admin_space_left = admin_space_left
+        if effective_admin_space_left == None:
+            effective_admin_space_left = saved_values.get("admin_space_left")
+
+        if effective_space_left != None and effective_admin_space_left != None:
+            if effective_admin_space_left >= effective_space_left:
+                self.lbl_status.setText(self.tr("Critical free space must be lower than minimum free space"))
+                return
 
         identity_rules = ""
         if self.identity_audit_checkbox.isChecked():
@@ -803,28 +843,46 @@ class JournalsWidget(QWidget):
                 "chmod 600 /etc/audit/rules.d/70-altcenter.rules"
             )
 
+        config_cmd = ""
+
+        if max_log_file != None:
+            config_cmd += (
+                "grep -qiE '^\\s*max_log_file\\s*=' /etc/audit/auditd.conf "
+                f"&& sed -i 's|^\\s*max_log_file\\s*=.*|max_log_file = {max_log_file}|I' /etc/audit/auditd.conf "
+                f"|| printf '\\nmax_log_file = {max_log_file}\\n' >> /etc/audit/auditd.conf; "
+            )
+
+        if max_log_file != None or num_logs != None:
+            config_cmd += (
+                "grep -qiE '^\\s*max_log_file_action\\s*=' /etc/audit/auditd.conf "
+                "&& sed -i 's|^\\s*max_log_file_action\\s*=.*|max_log_file_action = ROTATE|I' /etc/audit/auditd.conf "
+                "|| printf 'max_log_file_action = ROTATE\\n' >> /etc/audit/auditd.conf; "
+            )
+
+        if num_logs != None:
+            config_cmd += (
+                "grep -qiE '^\\s*num_logs\\s*=' /etc/audit/auditd.conf "
+                f"&& sed -i 's|^\\s*num_logs\\s*=.*|num_logs = {num_logs}|I' /etc/audit/auditd.conf "
+                f"|| printf 'num_logs = {num_logs}\\n' >> /etc/audit/auditd.conf; "
+            )
+
+        if space_left != None:
+            config_cmd += (
+                "grep -qiE '^\\s*space_left\\s*=' /etc/audit/auditd.conf "
+                f"&& sed -i 's|^\\s*space_left\\s*=.*|space_left = {space_left}|I' /etc/audit/auditd.conf "
+                f"|| printf 'space_left = {space_left}\\n' >> /etc/audit/auditd.conf; "
+            )
+
+        if admin_space_left != None:
+            config_cmd += (
+                "grep -qiE '^\\s*admin_space_left\\s*=' /etc/audit/auditd.conf "
+                f"&& sed -i 's|^\\s*admin_space_left\\s*=.*|admin_space_left = {admin_space_left}|I' /etc/audit/auditd.conf "
+                f"|| printf 'admin_space_left = {admin_space_left}\\n' >> /etc/audit/auditd.conf; "
+            )
+
         cmd = (
-            "grep -qiE '^\\s*max_log_file\\s*=' /etc/audit/auditd.conf "
-            f"&& sed -i 's|^\\s*max_log_file\\s*=.*|max_log_file = {max_log_file}|I' /etc/audit/auditd.conf "
-            f"|| printf '\\nmax_log_file = {max_log_file}\\n' >> /etc/audit/auditd.conf; "
-
-            "grep -qiE '^\\s*max_log_file_action\\s*=' /etc/audit/auditd.conf "
-            "&& sed -i 's|^\\s*max_log_file_action\\s*=.*|max_log_file_action = ROTATE|I' /etc/audit/auditd.conf "
-            "|| printf 'max_log_file_action = ROTATE\\n' >> /etc/audit/auditd.conf; "
-
-            "grep -qiE '^\\s*num_logs\\s*=' /etc/audit/auditd.conf "
-            f"&& sed -i 's|^\\s*num_logs\\s*=.*|num_logs = {num_logs}|I' /etc/audit/auditd.conf "
-            f"|| printf 'num_logs = {num_logs}\\n' >> /etc/audit/auditd.conf; "
-
-            "grep -qiE '^\\s*space_left\\s*=' /etc/audit/auditd.conf "
-            f"&& sed -i 's|^\\s*space_left\\s*=.*|space_left = {space_left}|I' /etc/audit/auditd.conf "
-            f"|| printf 'space_left = {space_left}\\n' >> /etc/audit/auditd.conf; "
-
-            "grep -qiE '^\\s*admin_space_left\\s*=' /etc/audit/auditd.conf "
-            f"&& sed -i 's|^\\s*admin_space_left\\s*=.*|admin_space_left = {admin_space_left}|I' /etc/audit/auditd.conf "
-            f"|| printf 'admin_space_left = {admin_space_left}\\n' >> /etc/audit/auditd.conf; "
-
-            "cat /etc/audit/auditd.conf > /tmp/altcenter_auditd.conf && chmod 644 /tmp/altcenter_auditd.conf && "
+            config_cmd
+            + "cat /etc/audit/auditd.conf > /tmp/altcenter_auditd.conf && chmod 644 /tmp/altcenter_auditd.conf && "
             + rules_cmd + " && "
             + "cat /etc/audit/rules.d/*.rules > /tmp/altcenter_audit.rules 2>/dev/null || : && "
             + "chmod 644 /tmp/altcenter_audit.rules 2>/dev/null || : && "
