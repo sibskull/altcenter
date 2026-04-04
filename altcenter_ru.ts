@@ -1003,14 +1003,14 @@ Please try again later</source>
         <translation>Текущий объем журнала:</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="67"/>
+        <location filename="plugins/auditd_settings.py" line="78"/>
         <source>SystemKeepFree (MB):</source>
         <translation>Объем свободного места (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="45"/>
+        <location filename="plugins/auditd_settings.py" line="56"/>
         <source>SystemMaxFileSize (MB):</source>
-        <translation>Объем файла журнала (МБ):</translation>
+        <translation>Максимальный объем файла журнала (МБ):</translation>
     </message>
     <message>
         <location filename="plugins/journal.py" line="154"/>
@@ -1058,19 +1058,14 @@ Please try again later</source>
         <translation>3) Расположение журналов: /var/log/audit/audit.log</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="56"/>
-        <source>Max log files count:</source>
-        <translation>Максимальное кол-во файлов журнала:</translation>
-    </message>
-    <message>
-        <location filename="plugins/auditd_settings.py" line="78"/>
+        <location filename="plugins/auditd_settings.py" line="89"/>
         <source>AdminSpaceLeft (MB):</source>
         <translation>Критический объем свободного места (МБ):</translation>
     </message>
     <message>
         <location filename="plugins/auditd_settings.py" line="398"/>
         <source>Enter a value from 2 to 999 to &apos;Max log files&apos;</source>
-        <translation>Введите значение от 2 до 999 в Максимальное кол-во файлов журнала</translation>
+        <translation type="obsolete">Введите значение от 2 до 999 в Максимальное кол-во файлов журнала</translation>
     </message>
     <message>
         <location filename="plugins/journal_settings.py" line="115"/>
@@ -1083,54 +1078,84 @@ Please try again later</source>
         <translation>Максимальный объем файла журнала (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="89"/>
+        <location filename="plugins/auditd_settings.py" line="100"/>
         <source>Audit password and account changes</source>
         <translation>Аудит изменений паролей и учётных записей</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="97"/>
+        <location filename="plugins/auditd_settings.py" line="108"/>
         <source>Audit audit configuration changes</source>
         <translation>Аудит изменений конфигурации audit</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="105"/>
+        <location filename="plugins/auditd_settings.py" line="116"/>
         <source>Audit audit log read/export</source>
         <translation>Аудит чтения/экспорта журнала audit</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="113"/>
+        <location filename="plugins/auditd_settings.py" line="124"/>
         <source>Audit journald configuration changes</source>
         <translation>Аудит изменений конфигурации journald</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="121"/>
+        <location filename="plugins/auditd_settings.py" line="132"/>
         <source>Audit password policy configuration changes</source>
         <translation>Аудит изменений конфигурации политики паролей</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="129"/>
+        <location filename="plugins/auditd_settings.py" line="140"/>
         <source>Audit privileged commands usage</source>
         <translation>Аудит использования привилегированных команд</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="137"/>
+        <location filename="plugins/auditd_settings.py" line="148"/>
         <source>Audit network environment changes</source>
         <translation>Аудит изменений сетевого окружения</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="145"/>
+        <location filename="plugins/auditd_settings.py" line="156"/>
         <source>Audit kernel module changes</source>
         <translation>Аудит изменений модулей ядра</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="153"/>
+        <location filename="plugins/auditd_settings.py" line="164"/>
         <source>Audit account modification commands</source>
         <translation>Аудит команд изменения учётных записей</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="424"/>
+        <location filename="plugins/auditd_settings.py" line="645"/>
         <source>Critical free space must be lower than minimum free space</source>
         <translation>Критический объём свободного места должен быть меньше минимального объёма свободного места</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="67"/>
+        <source>Maximum number of log files:</source>
+        <translation>Максимальное количество файлов журнала:</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="172"/>
+        <source>Audit file deletion events</source>
+        <translation>Аудит событий удаления файлов</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="180"/>
+        <source>Audit information export to media</source>
+        <translation>Аудит событий экспорта информации на носитель</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="188"/>
+        <source>Audit discretionary access changes</source>
+        <translation>Аудит изменений в дискреционном доступе</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="196"/>
+        <source>Audit unauthorized access attempts</source>
+        <translation>Аудит попыток несанкционированного доступа</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="612"/>
+        <source>Enter a value from 2 to 999 to &apos;Maximum number of log files&apos;</source>
+        <translation>Введите значение от 2 до 999 для &quot;Максимального количества файлов журнала&quot;</translation>
     </message>
 </context>
 <context>
@@ -1263,7 +1288,7 @@ Please try again later</source>
         <translation>Настройки журналов</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="618"/>
+        <location filename="plugins/auditd_settings.py" line="922"/>
         <source>Auditd logs settings</source>
         <translation>Настройки журналов аудита</translation>
     </message>
