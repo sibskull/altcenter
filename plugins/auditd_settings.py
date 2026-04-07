@@ -472,12 +472,16 @@ class JournalsWidget(QWidget):
             "/usr/bin/hostnamectl",
         ])
 
-        kernel_module_rule = self.hasAllExistingPaths(lines, [
-            "/sbin/insmod",
-            "/sbin/rmmod",
-            "/sbin/modprobe",
-            "/etc/sysctl.conf",
-        ])
+        kernel_module_rule = (
+            (
+                self.hasRuleForPath(lines, "/usr/bin/kmod")
+                or self.hasRuleForPath(lines, "/sbin/modprobe")
+                or self.hasRuleForPath(lines, "/usr/sbin/modprobe")
+                or self.hasRuleForPath(lines, "/sbin/insmod")
+                or self.hasRuleForPath(lines, "/sbin/rmmod")
+            )
+            and self.hasRuleForPath(lines, "/etc/sysctl.conf")
+        )
 
         account_modification_rule = self.hasAllExistingPaths(lines, [
             "/usr/sbin/adduser",
@@ -729,9 +733,9 @@ class JournalsWidget(QWidget):
                 "kernel_module",
                 "kernel_module",
                 [
+                    ("/usr/bin/kmod", "x"),
                     ("/sbin/insmod", "x"),
                     ("/sbin/rmmod", "x"),
-                    ("/sbin/modprobe", "x"),
                     ("/etc/sysctl.conf", "wa"),
                 ]
             )
