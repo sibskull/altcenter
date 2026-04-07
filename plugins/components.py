@@ -26,6 +26,7 @@ class ComponentsWindow(QWidget):
         self.info_panel = None
         self.btn_install = None
         self.proc_install = None
+        self.pending_commands = []
 
         self.components_info = [] # List of components
         self.component_map = {}
@@ -169,6 +170,9 @@ class ComponentsWindow(QWidget):
             # self.append_to_console(self.tr("You did not select any components for installation or removal."))
             return
 
+        if self.proc_install != None and self.proc_install.state() != QProcess.NotRunning:
+            return
+
         widget = self.list_widget.window()
         widget.setCursor(Qt.WaitCursor)
 
@@ -203,17 +207,35 @@ class ComponentsWindow(QWidget):
 
             remove_packages = [pkg for pkg in remove_packages if pkg not in failed]
 
+        self.pending_commands = []
+
+        if remove_packages:
+            self.pending_commands.append({
+                "program": "pkexec",
+                "args": ["rpm", "-e"] + remove_packages
+            })
+
         # TODO: need use D-Bus Alterator call
         if install_packages:
             # Update apt caches before installation
-            proc_update = QProcess(self)
-            proc_update.readyReadStandardOutput.connect(self.on_install_output)
-            proc_update.readyReadStandardError.connect(self.on_install_error)
             cmd = f"pkcon refresh force -p -y && pkcon install -p -y {' '.join(install_packages)}"
-            self.proc_install.start("sh", ["-c", cmd])
-        elif remove_packages:
-            cmd = ["pkexec", "rpm", "-e"] + remove_packages
-            self.proc_install.start(" ".join(cmd))
+            self.pending_commands.append({
+                "program": "sh",
+                "args": ["-c", cmd]
+            })
+
+        if not self.pending_commands:
+            widget.unsetCursor()
+            return
+
+        self.run_next_command()
+
+    def run_next_command(self):
+        if not self.pending_commands:
+            return
+
+        cmd = self.pending_commands.pop(0)
+        self.proc_install.start(cmd["program"], cmd["args"])
 
 
     def append_to_console(self, text, is_error=False):
@@ -235,9 +257,13 @@ class ComponentsWindow(QWidget):
     def on_install_finished(self, exit_code, exit_status):
 
         if exit_code == 0:
+            if self.pending_commands:
+                self.run_next_command()
+                return
             self.append_to_console(self.tr("Operation completed successfully.") + "\n")
         else:
             self.append_to_console(self.tr("The operation failed with an error."), is_error=True)
+            self.pending_commands = []
 
         widget = self.list_widget.window()
         widget.unsetCursor()
