@@ -442,6 +442,24 @@ class JournalsWidget(QWidget):
         group_rule = self.hasRuleForPath(lines, "/etc/group")
         gshadow_rule = self.hasRuleForPath(lines, "/etc/gshadow")
 
+        passwd_exec_rule = True
+        passwd_exec_exists = False
+
+        for path in ["/usr/bin/passwd", "/bin/passwd"]:
+            if not os.path.exists(path):
+                continue
+
+            passwd_exec_exists = True
+
+            if self.hasRuleForPath(lines, path):
+                passwd_exec_rule = True
+                break
+
+            passwd_exec_rule = False
+
+        if not passwd_exec_exists:
+            passwd_exec_rule = True
+
         audit_config_rule = self.hasRuleForPath(lines, "/etc/audit")
         audit_log_rule = self.hasRuleForPath(lines, "/var/log/audit")
 
@@ -543,7 +561,9 @@ class JournalsWidget(QWidget):
                 unauthorized_access_rule = False
                 break
 
-        self.identity_audit_checkbox.setChecked(passwd_rule and shadow_rule and group_rule and gshadow_rule)
+        self.identity_audit_checkbox.setChecked(
+            passwd_rule and shadow_rule and group_rule and gshadow_rule and passwd_exec_rule
+        )
         self.audit_config_audit_checkbox.setChecked(audit_config_rule)
         self.audit_log_read_checkbox.setChecked(audit_log_rule)
         self.journald_config_audit_checkbox.setChecked(journald_config_rule)
@@ -651,13 +671,17 @@ class JournalsWidget(QWidget):
 
         identity_rules = ""
         if self.identity_audit_checkbox.isChecked():
-            identity_rules = (
-                "# ALT Center: identity begin\n"
-                "-w /etc/passwd -p wa -k identity\n"
-                "-w /etc/shadow -p wa -k identity\n"
-                "-w /etc/group -p wa -k identity\n"
-                "-w /etc/gshadow -p wa -k identity\n"
-                "# ALT Center: identity end\n"
+            identity_rules = self.buildWatchRules(
+                "identity",
+                "identity",
+                [
+                    ("/etc/passwd", "wa"),
+                    ("/etc/shadow", "wa"),
+                    ("/etc/group", "wa"),
+                    ("/etc/gshadow", "wa"),
+                    ("/usr/bin/passwd", "x"),
+                    ("/bin/passwd", "x"),
+                ]
             )
 
         audit_config_rules = ""
