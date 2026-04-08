@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from PyQt5.QtWidgets import QVBoxLayout, QFrame, QStackedWidget, QWidget
-from PyQt5.QtGui import QStandardItem, QStandardItemModel
+from PyQt5.QtGui import QStandardItem, QStandardItemModel, QPalette
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 import locale, os, markdown
@@ -42,6 +42,12 @@ class PluginUseful(plugins.Base):
         else:
             px = 14
 
+        palette = self.pane.window().palette()
+        base_color = palette.color(QPalette.Base).name()
+        text_color = palette.color(QPalette.Text).name()
+        alt_base_color = palette.color(QPalette.AlternateBase).name()
+        link_color = palette.color(QPalette.Link).name()
+
         current_file = os.path.abspath(__file__)
         current_dir = os.path.dirname(current_file)
         parent_dir = os.path.dirname(current_dir)
@@ -78,30 +84,53 @@ class PluginUseful(plugins.Base):
         # """)
 
         styled_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="utf-8">
         <style>
-        body {{
+        html, body {{
             /*font-family: Monospace, Liberation Mono;*/
+            background-color: {base_color};
+            color: {text_color};
             font-size: {px}px;
+        }}
+        body {{
+            margin: 12px;
+        }}
+        a {{
+            color: {link_color};
         }}
         code {{
             /*font-family: Monospace, Liberation Mono, DejaVu Sans Mono;*/
-            color: #101010;
-            background-color: #dcdcdc;
+            color: {text_color};
+            background-color: {alt_base_color};
             padding: 1px 0px;
             font-weight: 540;
             border-radius: 2px;
         }}
         pre {{
             /*font-family: Monospace, Liberation Mono, DejaVu Sans Mono;*/
-            background-color: #dcdcdc;
+            color: {text_color};
+            background-color: {alt_base_color};
             margin: 15px;
             padding: 10px 20px;
             border-radius: 4px;
             font-weight: 540;
             box-sizing: border-box;
+            white-space: pre-wrap;
+        }}
+        pre code {{
+            background-color: transparent;
+            padding: 0;
         }}
         </style>
+        </head>
+        <body>
         {html_text}
+        </body>
+        </html>
         """
 
+        self.text_browser.page().setBackgroundColor(palette.color(QPalette.Base))
         self.text_browser.setHtml(styled_html)
