@@ -289,16 +289,22 @@ class JournalsWidget(QWidget):
 
         try:
             with open(path, "r", encoding="utf-8", errors="replace") as f:
-                data = f.read()
+                lines = f.readlines()
         except:
             return None
 
-        lines = data.splitlines(True)
+        fixed = []
+        for ln in lines:
+            if ln.endswith("\n"):
+                fixed.append(ln)
+            else:
+                fixed.append(ln + "\n")
+
         if max_lines <= 0:
-            return lines
-        if len(lines) <= max_lines:
-            return lines
-        return lines[-max_lines:]
+            return fixed
+        if len(fixed) <= max_lines:
+            return fixed
+        return fixed[-max_lines:]
 
     def loadAudit(self, forced_fetch_lines=None):
         self.loading = True
@@ -347,12 +353,23 @@ class JournalsWidget(QWidget):
                 filtered = []
                 for ln in lines:
                     if ql in ln.lower():
-                        filtered.append(ln)
+                        if ln.endswith("\n"):
+                            filtered.append(ln)
+                        else:
+                            filtered.append(ln + "\n")
                 lines = filtered
 
                 if self.has_more_older and len(lines) < self.rescan_target:
                     self.loadAudit(self.current_fetch_lines * 2)
                     return
+            else:
+                fixed = []
+                for ln in lines:
+                    if ln.endswith("\n"):
+                        fixed.append(ln)
+                    else:
+                        fixed.append(ln + "\n")
+                lines = fixed
 
             total = len(lines)
             if total <= 0:
