@@ -17,7 +17,10 @@ class PoliciesWindow(QWidget):
         self.procs = []
         self.apply_counter = 0
         self._last_states = {}
+        self._desired_states = {}
         self._baseline_ready = False
+        self._updating_checks = False
+        self._apply_in_progress = False
 
         self.search = QLineEdit()
         self.search.setPlaceholderText(self.tr("Search"))
@@ -25,6 +28,7 @@ class PoliciesWindow(QWidget):
 
         self.list = QListWidget()
         self.list.itemClicked.connect(self.onItemClicked)
+        self.list.itemChanged.connect(self.onItemChanged)
 
         self.info_title = QLabel()
         self.info_title.setWordWrap(True)
@@ -38,6 +42,7 @@ class PoliciesWindow(QWidget):
 
         self.btn_toggle_console = QPushButton(self.tr("Show console"))
         self.btn_apply = QPushButton(self.tr("Apply"))
+        self.btn_apply.setEnabled(False)
         self.btn_toggle_console.clicked.connect(self.toggleConsole)
         self.btn_apply.clicked.connect(self.applySelected)
 
@@ -80,6 +85,7 @@ class PoliciesWindow(QWidget):
 
         self.loadFromJson()
         self.active_dm = self.detectDisplayManager()
+        self.refreshApplyButton()
 
     def pkgRoot(self):
         return os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -108,6 +114,19 @@ class PoliciesWindow(QWidget):
             "/etc/dconf/db/gdm.d/" + base,
         ]
 
+    def policyEnabledFromFiles(self, pid):
+        return any(os.path.exists(p) for p in self.expectedFiles(pid))
+
+    def syncStatesFromFiles(self):
+        for item in self._items:
+            pid = item.get("id")
+            exists = self.policyEnabledFromFiles(pid)
+            self._desired_states[pid] = exists
+            self._last_states[pid] = exists
+        self._baseline_ready = True
+        self.updateVisibleChecksFromStates()
+        self.refreshApplyButton()
+
     def loadFromJson(self):
         self._items = []
         path = self.jsonPath()
@@ -118,9 +137,26 @@ class PoliciesWindow(QWidget):
                 self._items.append(item)
         except Exception:
             self._items = []
+
+        ids = set()
+        for item in self._items:
+            pid = item.get("id")
+            ids.add(pid)
+
+        self._desired_states = {pid: state for pid, state in self._desired_states.items() if pid in ids}
+        self._last_states = {pid: state for pid, state in self._last_states.items() if pid in ids}
+
+        for item in self._items:
+            pid = item.get("id")
+            exists = self.policyEnabledFromFiles(pid)
+            self._desired_states[pid] = exists
+            self._last_states[pid] = exists
+
+        self._baseline_ready = True
         self.rebuildList()
 
     def rebuildList(self):
+        self._updating_checks = True
         self.list.clear()
         query = self.search.text().strip().lower()
         for item in self._items:
@@ -130,25 +166,23 @@ class PoliciesWindow(QWidget):
             w = QListWidgetItem(title)
             w.setData(Qt.UserRole, item.get("id"))
             w.setFlags(w.flags() | Qt.ItemIsUserCheckable)
-            w.setCheckState(Qt.Unchecked)
+            w.setCheckState(Qt.Checked if self._desired_states.get(item.get("id"), False) else Qt.Unchecked)
             self.list.addItem(w)
+        self._updating_checks = False
         if self.list.count() > 0:
             self.list.setCurrentRow(0)
-        self.updateChecksFromFiles()
-        if not self._baseline_ready:
-            st = {}
-            for i in range(self.list.count()):
-                it = self.list.item(i)
-                st[it.data(Qt.UserRole)] = (it.checkState() == Qt.Checked)
-            self._last_states = st
-            self._baseline_ready = True
+        self.refreshApplyButton()
 
-    def updateChecksFromFiles(self):
+    def updateVisibleChecksFromStates(self):
+        self._updating_checks = True
         for i in range(self.list.count()):
             it = self.list.item(i)
             pid = it.data(Qt.UserRole)
-            exists = any(os.path.exists(p) for p in self.expectedFiles(pid))
-            it.setCheckState(Qt.Checked if exists else Qt.Unchecked)
+            it.setCheckState(Qt.Checked if self._desired_states.get(pid, False) else Qt.Unchecked)
+        self._updating_checks = False
+
+    def updateChecksFromFiles(self):
+        self.syncStatesFromFiles()
 
     def filterList(self, _):
         self.rebuildList()
@@ -171,15 +205,22 @@ class PoliciesWindow(QWidget):
         if not self.right_panel.isVisible():
             self.right_panel.setVisible(True)
 
+    def onItemChanged(self, it):
+        if self._updating_checks:
+            return
+        pid = it.data(Qt.UserRole)
+        self._desired_states[pid] = (it.checkState() == Qt.Checked)
+        self.refreshApplyButton()
+
     def appendLog(self, text):
         self.log.append(text)
 
     def selectedIds(self):
         ids = []
-        for i in range(self.list.count()):
-            it = self.list.item(i)
-            if it.checkState() == Qt.Checked:
-                ids.append(it.data(Qt.UserRole))
+        for item in self._items:
+            pid = item.get("id")
+            if self._desired_states.get(pid, False):
+                ids.append(pid)
         return ids
 
     def toggleConsole(self):
@@ -213,6 +254,25 @@ class PoliciesWindow(QWidget):
                 env.insert(k, v)
         return env
 
+    def hasPendingChanges(self):
+        for item in self._items:
+            pid = item.get("id")
+            cur_checked = self._desired_states.get(pid, False)
+            prev_checked = self._last_states.get(pid, False)
+            if cur_checked != prev_checked:
+                return True
+        return False
+
+    def refreshApplyButton(self):
+        self.btn_apply.setEnabled((not self._apply_in_progress) and self.hasPendingChanges())
+
+    def setApplyInProgress(self, value):
+        self._apply_in_progress = value
+        self.btn_apply.clearFocus()
+        self.list.setEnabled(not value)
+        self.search.setEnabled(not value)
+        self.refreshApplyButton()
+
     def runRoot(self, args, messages=None):
         p = QProcess(self)
         p.setProcessEnvironment(self.sessionProcessEnvironment())
@@ -224,14 +284,10 @@ class PoliciesWindow(QWidget):
                 if msgs:
                     for t, s in msgs:
                         self.appendLog(t + " - " + s)
-                self.updateChecksFromFiles()
-                st = {}
-                for i in range(self.list.count()):
-                    it = self.list.item(i)
-                    st[it.data(Qt.UserRole)] = (it.checkState() == Qt.Checked)
-                self._last_states = st
+                self.syncStatesFromFiles()
             else:
                 self.appendLog(self.tr("Policies are not activated; authenticate to apply policies"))
+            self.setApplyInProgress(False)
             self.appendLog("")
             if proc in self.procs:
                 self.procs.remove(proc)
@@ -245,29 +301,31 @@ class PoliciesWindow(QWidget):
         QProcess.startDetached(program, arguments)
 
     def applySelected(self):
-        if self.list.count() == 0:
+        if self._apply_in_progress:
+            return
+        if not self.hasPendingChanges():
+            self.refreshApplyButton()
             return
         if not self.log.isVisible():
             self.btn_toggle_console.click()
+
         dm = self.active_dm
-        self.apply_counter += 1
         root_pieces = []
         titles_root = []
-        for i in range(self.list.count()):
-            it = self.list.item(i)
-            pid = it.data(Qt.UserRole)
-            item = self.getItem(pid)
-            if not item:
-                continue
-            cur_checked = (it.checkState() == Qt.Checked)
+
+        for item in self._items:
+            pid = item.get("id")
+            cur_checked = self._desired_states.get(pid, False)
             prev_checked = self._last_states.get(pid, False)
             should_process = (cur_checked != prev_checked)
             if not should_process:
                 continue
+
             title = self.loc(item, "title") or self.tr("Policy")
             mode = "apply" if cur_checked else "revert"
             status = self.tr("activated") if mode == "apply" else self.tr("deactivated")
             added = False
+
             for step in item.get(mode, []):
                 if step.get("type") != "cmd":
                     continue
@@ -282,17 +340,19 @@ class PoliciesWindow(QWidget):
                 else:
                     root_pieces.append(" ".join(args))
                 added = True
+
             if added:
                 titles_root.append((title, status))
+
         if root_pieces:
+            self.apply_counter += 1
             summary = str(self.apply_counter) + " " + self.tr("apply")
             self.appendLog(summary)
             script = "set -e; " + " && ".join(root_pieces)
+            self.setApplyInProgress(True)
             self.runRoot(["/bin/sh", "-c", script], titles_root)
         else:
-            summary = str(self.apply_counter) + " " + self.tr("apply") + ": " + self.tr("no changes")
-            self.appendLog(summary)
-            self.appendLog("")
+            self.syncStatesFromFiles()
 
 class PluginPolicies(plugins.Base):
     requires_admin = True
