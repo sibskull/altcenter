@@ -1,13 +1,22 @@
 #!/usr/bin/python3
 
 from PyQt5.QtWidgets import QVBoxLayout, QFrame, QStackedWidget, QWidget
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QPalette
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtGui import QStandardItem, QStandardItemModel, QPalette, QDesktopServices
+from PyQt5.QtCore import QUrl
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 
 import locale, os, markdown
 
 import plugins
 import my_utils_pyqt5
+
+
+class UsefulWebPage(QWebEnginePage):
+    def acceptNavigationRequest(self, url, navigation_type, is_main_frame):
+        if navigation_type == QWebEnginePage.NavigationTypeLinkClicked:
+            QDesktopServices.openUrl(url)
+            return False
+        return super().acceptNavigationRequest(url, navigation_type, is_main_frame)
 
 
 class PluginUseful(plugins.Base):
@@ -27,6 +36,7 @@ class PluginUseful(plugins.Base):
         frame.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Sunken)
 
         self.text_browser = QWebEngineView()
+        self.text_browser.setPage(UsefulWebPage(self.text_browser))
 
         # Добавляем QWebEngineView в QFrame
         frame_layout = QVBoxLayout(frame)
