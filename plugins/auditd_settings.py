@@ -301,8 +301,10 @@ class JournalsWidget(QWidget):
             if not line or line.startswith("#"):
                 continue
 
-            if ("-w " + path) in line:
-                return True
+            if line.startswith("-w "):
+                parts = line.split()
+                if len(parts) >= 2 and parts[1] == path:
+                    return True
 
             if ("path=" + path) in line:
                 return True
@@ -322,6 +324,13 @@ class JournalsWidget(QWidget):
                 return False
 
         return has_existing
+
+    def hasAllConfiguredPaths(self, lines, paths):
+        for path in paths:
+            if not self.hasRuleForPath(lines, path):
+                return False
+
+        return True
 
     def hasRuleForSyscall(self, lines, syscall_name, key):
         for raw in lines:
@@ -351,12 +360,12 @@ class JournalsWidget(QWidget):
 
         return False
 
-    def buildWatchRules(self, block_name, key, rules):
+    def buildWatchRules(self, block_name, key, rules, include_missing = False):
         parts = ["# ALT Center: %s begin" % block_name]
         has_rules = False
 
         for path, perm in rules:
-            if not os.path.exists(path):
+            if not include_missing and not os.path.exists(path):
                 continue
 
             parts.append("-w %s -p %s -k %s" % (path, perm, key))
@@ -463,8 +472,9 @@ class JournalsWidget(QWidget):
         audit_config_rule = self.hasRuleForPath(lines, "/etc/audit")
         audit_log_rule = self.hasRuleForPath(lines, "/var/log/audit")
 
-        journald_config_rule = self.hasAllExistingPaths(lines, [
+        journald_config_rule = self.hasAllConfiguredPaths(lines, [
             "/etc/systemd/journald.conf",
+            "/etc/systemd/journald.conf.d",
         ])
 
         password_policy_rule = self.hasAllExistingPaths(lines, [
@@ -707,7 +717,9 @@ class JournalsWidget(QWidget):
                 "journald_config",
                 [
                     ("/etc/systemd/journald.conf", "wa"),
-                ]
+                    ("/etc/systemd/journald.conf.d", "wa"),
+                ],
+                include_missing = True
             )
 
         password_policy_rules = ""
