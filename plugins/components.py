@@ -42,6 +42,7 @@ class ComponentsWindow(QWidget):
 
         self.list_widget = QListWidget()
         self.list_widget.itemClicked.connect(self.show_item_info)
+        self.list_widget.currentItemChanged.connect(self.onCurrentItemChanged)
         splitter.addWidget(self.list_widget)
 
         self.info_panel = QTextEdit()
@@ -90,6 +91,11 @@ class ComponentsWindow(QWidget):
         self.update_timer.start()
 
         self.setLayout(layout)
+
+    def onCurrentItemChanged(self, current, previous):
+        if current is None:
+            return
+        self.show_item_info(current)
 
     def toggle_console(self, checked):
         self.console.setVisible(checked)
