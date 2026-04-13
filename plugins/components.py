@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QStackedWidget,
     QListWidget, QListWidgetItem, QTextEdit, QSplitter
 )
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont, QColor
+from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont, QColor, QPalette
 from PyQt5.QtCore import Qt, QProcess, QTimer
 import alterator
 
@@ -242,7 +242,8 @@ class ComponentsWindow(QWidget):
         cursor = self.console.textCursor()
         cursor.movePosition(cursor.End)
         fmt = cursor.charFormat()
-        fmt.setForeground(QColor("red") if is_error else QColor("black"))
+        palette = self.console.palette()
+        fmt.setForeground(QColor("red") if is_error else palette.color(QPalette.Text))
         cursor.setCharFormat(fmt)
         cursor.insertText(text)
         self.console.setTextCursor(cursor)
