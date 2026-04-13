@@ -27,6 +27,7 @@ class PoliciesWindow(QWidget):
         self.search.textChanged.connect(self.filterList)
 
         self.list = QListWidget()
+        self.list.currentItemChanged.connect(self.onCurrentItemChanged)
         self.list.itemClicked.connect(self.onItemClicked)
         self.list.itemChanged.connect(self.onItemChanged)
 
@@ -105,6 +106,11 @@ class PoliciesWindow(QWidget):
     def loc_text(self, item: dict) -> tuple[str, str]:
         print(self.loc(item, "title"), self.loc(item, "description"))
         return self.loc(item, "title"), self.loc(item, "description")
+
+    def onCurrentItemChanged(self, current, previous):
+        if current is None:
+            return
+        self.onItemClicked(current)
 
     def expectedFiles(self, pid):
         base = "50-altcenter-" + str(pid)
