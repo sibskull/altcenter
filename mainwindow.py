@@ -20,7 +20,7 @@ APPLICATION_NAME = 'altcenter'
 APPLICATION_VERSION = '1.0'
 
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QToolButton
-from PyQt5.QtCore import QTranslator, QSettings, QObject, QEvent, Qt
+from PyQt5.QtCore import QTranslator, QSettings, QObject, QEvent, Qt, QTimer
 from PyQt5.QtCore import QCommandLineParser, QCommandLineOption
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QLibraryInfo, QLocale
@@ -182,8 +182,10 @@ class MainWindow(QWidget, Ui_MainWindow):
                 self.expertModeButton.blockSignals(False)
                 return
             self._expert_mode = True
+            self.expertModeTimer.start()
         else:
             self._expert_mode = False
+            self.expertModeTimer.stop()
 
         self._rebuild_plugins(keep_current=True)
 
@@ -213,6 +215,11 @@ class MainWindow(QWidget, Ui_MainWindow):
 
         self._expert_mode = False
         self._plugs = []
+
+        self.expertModeTimer = QTimer(self)
+        self.expertModeTimer.setSingleShot(True)
+        self.expertModeTimer.setInterval(1200000)
+        self.expertModeTimer.timeout.connect(self.onExpertModeTimeout)
 
         self._build_expert_ui()
 
@@ -361,6 +368,18 @@ class MainWindow(QWidget, Ui_MainWindow):
             except Exception:
                 pass
 
+    def onExpertModeTimeout(self):
+        if not self._expert_mode:
+            return
+
+        self.expertModeButton.blockSignals(True)
+        self.expertModeButton.setChecked(False)
+        self.expertModeButton.blockSignals(False)
+
+        self._expert_mode = False
+        self.expertModeTimer.stop()
+        self._rebuild_plugins(keep_current=True)
+
     def onExpertModeToggled(self, checked: bool):
         if checked:
             if not self._request_admin_access():
@@ -369,10 +388,21 @@ class MainWindow(QWidget, Ui_MainWindow):
                 self.expertModeButton.blockSignals(False)
                 return
             self._expert_mode = True
+            self.expertModeTimer.start()
         else:
             self._expert_mode = False
+            self.expertModeTimer.stop()
 
         self._rebuild_plugins(keep_current=True)
+
+        try:
+            idx = self.stack.currentIndex()
+            if 0 <= idx < len(plugs):
+                w = self.stack.widget(idx)
+                if hasattr(w, 'set_expert_mode'):
+                    w.set_expert_mode(self._expert_mode)
+        except Exception:
+            pass
 
     def onSelectionChange(self, index):
         """Slot for change selection"""
