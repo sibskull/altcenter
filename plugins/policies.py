@@ -4,7 +4,7 @@ import plugins
 import os
 import json
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
+from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont, QPalette
 from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
 
 class PoliciesWindow(QWidget):
@@ -103,9 +103,27 @@ class PoliciesWindow(QWidget):
             return item.get(base_key, "")
         return item.get(f"{base_key}_{lang}", item.get(base_key, ""))
 
+    def isImmutablePolicy(self, pid):
+        return pid in (
+            "no-autologin",
+            "deny-root-login",
+        )
+
+    def immutablePolicyText(self):
+        return self.tr("Implemented by default and cannot be changed")
+
+    def immutableItemColor(self):
+        return self.palette().color(QPalette.Disabled, QPalette.Text)
+
     def loc_text(self, item: dict) -> tuple[str, str]:
-        print(self.loc(item, "title"), self.loc(item, "description"))
-        return self.loc(item, "title"), self.loc(item, "description")
+        title = self.loc(item, "title")
+
+        if self.isImmutablePolicy(item.get("id")):
+            description = self.immutablePolicyText()
+        else:
+            description = self.loc(item, "description")
+
+        return title, description
 
     def onCurrentItemChanged(self, current, previous):
         if current is None:
@@ -126,7 +144,10 @@ class PoliciesWindow(QWidget):
     def syncStatesFromFiles(self):
         for item in self._items:
             pid = item.get("id")
-            exists = self.policyEnabledFromFiles(pid)
+            if self.isImmutablePolicy(pid):
+                exists = True
+            else:
+                exists = self.policyEnabledFromFiles(pid)
             self._desired_states[pid] = exists
             self._last_states[pid] = exists
         self._baseline_ready = True
@@ -154,7 +175,10 @@ class PoliciesWindow(QWidget):
 
         for item in self._items:
             pid = item.get("id")
-            exists = self.policyEnabledFromFiles(pid)
+            if self.isImmutablePolicy(pid):
+                exists = True
+            else:
+                exists = self.policyEnabledFromFiles(pid)
             self._desired_states[pid] = exists
             self._last_states[pid] = exists
 
@@ -165,26 +189,52 @@ class PoliciesWindow(QWidget):
         self._updating_checks = True
         self.list.clear()
         query = self.search.text().strip().lower()
+        immutable_color = self.immutableItemColor()
+
         for item in self._items:
             title = self.loc(item, "title")
             if query and query not in title.lower():
                 continue
+
             w = QListWidgetItem(title)
             w.setData(Qt.UserRole, item.get("id"))
             w.setFlags(w.flags() | Qt.ItemIsUserCheckable)
             w.setCheckState(Qt.Checked if self._desired_states.get(item.get("id"), False) else Qt.Unchecked)
+
+            if self.isImmutablePolicy(item.get("id")):
+                w.setToolTip(self.immutablePolicyText())
+                w.setForeground(immutable_color)
+
             self.list.addItem(w)
+
         self._updating_checks = False
-        if self.list.count() > 0:
-            self.list.setCurrentRow(0)
+        if self.list.count() > 0 and self._current_id is None:
+            target_row = -1
+            for i in range(self.list.count()):
+                it = self.list.item(i)
+                if it.data(Qt.UserRole) == "hide-users":
+                    target_row = i
+                    break
+
+            if target_row >= 0:
+                self.list.setCurrentRow(target_row)
+            else:
+                self.list.setCurrentRow(0)
         self.refreshApplyButton()
 
     def updateVisibleChecksFromStates(self):
         self._updating_checks = True
+        immutable_color = self.immutableItemColor()
+
         for i in range(self.list.count()):
             it = self.list.item(i)
             pid = it.data(Qt.UserRole)
             it.setCheckState(Qt.Checked if self._desired_states.get(pid, False) else Qt.Unchecked)
+
+            if self.isImmutablePolicy(pid):
+                it.setToolTip(self.immutablePolicyText())
+                it.setForeground(immutable_color)
+
         self._updating_checks = False
 
     def updateChecksFromFiles(self):
@@ -214,7 +264,18 @@ class PoliciesWindow(QWidget):
     def onItemChanged(self, it):
         if self._updating_checks:
             return
+
         pid = it.data(Qt.UserRole)
+
+        if self.isImmutablePolicy(pid):
+            self._updating_checks = True
+            it.setCheckState(Qt.Checked)
+            self._updating_checks = False
+            self._desired_states[pid] = True
+            self._last_states[pid] = True
+            self.refreshApplyButton()
+            return
+
         self._desired_states[pid] = (it.checkState() == Qt.Checked)
         self.refreshApplyButton()
 
@@ -263,6 +324,8 @@ class PoliciesWindow(QWidget):
     def hasPendingChanges(self):
         for item in self._items:
             pid = item.get("id")
+            if self.isImmutablePolicy(pid):
+                continue
             cur_checked = self._desired_states.get(pid, False)
             prev_checked = self._last_states.get(pid, False)
             if cur_checked != prev_checked:
@@ -321,6 +384,12 @@ class PoliciesWindow(QWidget):
 
         for item in self._items:
             pid = item.get("id")
+
+            if self.isImmutablePolicy(pid):
+                self._desired_states[pid] = True
+                self._last_states[pid] = True
+                continue
+
             cur_checked = self._desired_states.get(pid, False)
             prev_checked = self._last_states.get(pid, False)
             should_process = (cur_checked != prev_checked)
