@@ -130,7 +130,7 @@
 <context>
     <name>Components</name>
     <message>
-        <location filename="plugins/components.py" line="312"/>
+        <location filename="plugins/components.py" line="345"/>
         <source>Components</source>
         <translation>Компоненты</translation>
     </message>
@@ -293,37 +293,37 @@
 <context>
     <name>ComponentsWindow</name>
     <message>
-        <location filename="plugins/components.py" line="65"/>
+        <location filename="plugins/components.py" line="67"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="95"/>
+        <location filename="plugins/components.py" line="102"/>
         <source>Show console</source>
         <translation>Показать консоль</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="95"/>
+        <location filename="plugins/components.py" line="102"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="238"/>
+        <location filename="plugins/components.py" line="270"/>
         <source>Operation completed successfully.</source>
         <translation>Операция успешно завершена.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="240"/>
+        <location filename="plugins/components.py" line="272"/>
         <source>The operation failed with an error.</source>
         <translation>Операция завершилась с ошибкой.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="295"/>
+        <location filename="plugins/components.py" line="328"/>
         <source>This component consists of:</source>
         <translation>Этот компонент состоит из:</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="299"/>
+        <location filename="plugins/components.py" line="332"/>
         <source>This component: </source>
         <translation>Данный компонент: </translation>
     </message>
@@ -903,7 +903,7 @@ Please try again later</source>
         <translation>Фильтры:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="605"/>
+        <location filename="plugins/journal.py" line="622"/>
         <source>Select filters</source>
         <translation>Выбранные фильтры</translation>
     </message>
@@ -1028,7 +1028,7 @@ Please try again later</source>
         <translation>Сохранить</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="477"/>
+        <location filename="plugins/journal.py" line="494"/>
         <source>Save log</source>
         <translation>Сохранить журнал</translation>
     </message>
@@ -1123,7 +1123,7 @@ Please try again later</source>
         <translation>Аудит команд изменения учётных записей</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="645"/>
+        <location filename="plugins/auditd_settings.py" line="679"/>
         <source>Critical free space must be lower than minimum free space</source>
         <translation>Критический объём свободного места должен быть меньше минимального объёма свободного места</translation>
     </message>
@@ -1153,7 +1153,7 @@ Please try again later</source>
         <translation>Аудит попыток несанкционированного доступа</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="612"/>
+        <location filename="plugins/auditd_settings.py" line="646"/>
         <source>Enter a value from 2 to 999 to &apos;Maximum number of log files&apos;</source>
         <translation>Введите значение от 2 до 999 для &quot;Максимального количества файлов журнала&quot;</translation>
     </message>
@@ -1241,7 +1241,7 @@ Please try again later</source>
         <translation type="obsolete">Версия:</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="223"/>
+        <location filename="mainwindow.py" line="230"/>
         <source>Expert mode</source>
         <translation>Режим эксперта</translation>
     </message>
@@ -1278,7 +1278,7 @@ Please try again later</source>
 <context>
     <name>PluginJournals</name>
     <message>
-        <location filename="plugins/journal.py" line="784"/>
+        <location filename="plugins/journal.py" line="801"/>
         <source>System logs</source>
         <translation>Системные журналы</translation>
     </message>
@@ -1288,7 +1288,7 @@ Please try again later</source>
         <translation>Настройки журналов</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="922"/>
+        <location filename="plugins/auditd_settings.py" line="962"/>
         <source>Auditd logs settings</source>
         <translation>Настройки журналов аудита</translation>
     </message>
@@ -1304,7 +1304,7 @@ Please try again later</source>
 <context>
     <name>PluginPolicies</name>
     <message>
-        <location filename="plugins/policies.py" line="302"/>
+        <location filename="plugins/policies.py" line="437"/>
         <source>Policy</source>
         <translation>Политики</translation>
     </message>
@@ -1320,7 +1320,7 @@ Please try again later</source>
 <context>
     <name>PluginUseful</name>
     <message>
-        <location filename="plugins/useful.py" line="19"/>
+        <location filename="plugins/useful.py" line="28"/>
         <source>Useful Information</source>
         <translation>Полезная информация</translation>
     </message>
@@ -1328,54 +1328,59 @@ Please try again later</source>
 <context>
     <name>PoliciesWindow</name>
     <message>
-        <location filename="plugins/policies.py" line="23"/>
+        <location filename="plugins/policies.py" line="26"/>
         <source>Search</source>
         <translation>Поиск</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="191"/>
+        <location filename="plugins/policies.py" line="299"/>
         <source>Show console</source>
         <translation>Показать консоль</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="40"/>
+        <location filename="plugins/policies.py" line="45"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="189"/>
+        <location filename="plugins/policies.py" line="297"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="234"/>
+        <location filename="plugins/policies.py" line="358"/>
         <source>Policies are not activated; authenticate to apply policies</source>
         <translation>Политики не активированы, авторизуйтесь чтобы применить политики</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="267"/>
+        <location filename="plugins/policies.py" line="399"/>
         <source>Policy</source>
         <translation>Политики</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="269"/>
+        <location filename="plugins/policies.py" line="401"/>
         <source>activated</source>
         <translation>активировано</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="269"/>
+        <location filename="plugins/policies.py" line="401"/>
         <source>deactivated</source>
         <translation>деактивировано</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="293"/>
+        <location filename="plugins/policies.py" line="424"/>
         <source>apply</source>
         <translation>применение</translation>
     </message>
     <message>
         <location filename="plugins/policies.py" line="293"/>
         <source>no changes</source>
-        <translation>изменений нет</translation>
+        <translation type="obsolete">изменений нет</translation>
+    </message>
+    <message>
+        <location filename="plugins/policies.py" line="113"/>
+        <source>Implemented by default and cannot be changed</source>
+        <translation>Реализовано по умолчанию и не подлежит изменению</translation>
     </message>
 </context>
 <context>
@@ -1459,12 +1464,12 @@ Please try again later</source>
 <context>
     <name>app</name>
     <message>
-        <location filename="mainwindow.py" line="450"/>
+        <location filename="mainwindow.py" line="480"/>
         <source>Run at session startup</source>
         <translation>Запустить в начале сеанса</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="451"/>
+        <location filename="mainwindow.py" line="481"/>
         <source>List available modules and exit</source>
         <translation>Показать список доступных модулей</translation>
     </message>
