@@ -60,6 +60,7 @@ class ComponentsWindow(QWidget):
         self.console.setReadOnly(True)
         self.console.setVisible(False)
         self.console.setFont(QFont("Monospace", 10))
+        self.console.setPlainText(self.tr("The complete process of installing or removing components will be shown here.") + "\n")
         layout.addWidget(self.console)
 
         btn_row = QHBoxLayout()
