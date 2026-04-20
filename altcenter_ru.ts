@@ -130,7 +130,7 @@
 <context>
     <name>Components</name>
     <message>
-        <location filename="plugins/components.py" line="345"/>
+        <location filename="plugins/components.py" line="346"/>
         <source>Components</source>
         <translation>Компоненты</translation>
     </message>
@@ -293,39 +293,44 @@
 <context>
     <name>ComponentsWindow</name>
     <message>
-        <location filename="plugins/components.py" line="67"/>
+        <location filename="plugins/components.py" line="68"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="102"/>
+        <location filename="plugins/components.py" line="103"/>
         <source>Show console</source>
         <translation>Показать консоль</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="102"/>
+        <location filename="plugins/components.py" line="103"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="270"/>
+        <location filename="plugins/components.py" line="271"/>
         <source>Operation completed successfully.</source>
         <translation>Операция успешно завершена.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="272"/>
+        <location filename="plugins/components.py" line="273"/>
         <source>The operation failed with an error.</source>
         <translation>Операция завершилась с ошибкой.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="328"/>
+        <location filename="plugins/components.py" line="329"/>
         <source>This component consists of:</source>
         <translation>Этот компонент состоит из:</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="332"/>
+        <location filename="plugins/components.py" line="333"/>
         <source>This component: </source>
         <translation>Данный компонент: </translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="63"/>
+        <source>The complete process of installing or removing components will be shown here.</source>
+        <translation>Здесь будет показан полный процесс установки или удаления компонентов.</translation>
     </message>
 </context>
 <context>
@@ -1304,7 +1309,7 @@ Please try again later</source>
 <context>
     <name>PluginPolicies</name>
     <message>
-        <location filename="plugins/policies.py" line="437"/>
+        <location filename="plugins/policies.py" line="438"/>
         <source>Policy</source>
         <translation>Политики</translation>
     </message>
@@ -1333,7 +1338,7 @@ Please try again later</source>
         <translation>Поиск</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="299"/>
+        <location filename="plugins/policies.py" line="300"/>
         <source>Show console</source>
         <translation>Показать консоль</translation>
     </message>
@@ -1343,32 +1348,32 @@ Please try again later</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="297"/>
+        <location filename="plugins/policies.py" line="298"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="358"/>
+        <location filename="plugins/policies.py" line="359"/>
         <source>Policies are not activated; authenticate to apply policies</source>
         <translation>Политики не активированы, авторизуйтесь чтобы применить политики</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="399"/>
+        <location filename="plugins/policies.py" line="400"/>
         <source>Policy</source>
         <translation>Политики</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="401"/>
+        <location filename="plugins/policies.py" line="402"/>
         <source>activated</source>
         <translation>активировано</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="401"/>
+        <location filename="plugins/policies.py" line="402"/>
         <source>deactivated</source>
         <translation>деактивировано</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="424"/>
+        <location filename="plugins/policies.py" line="425"/>
         <source>apply</source>
         <translation>применение</translation>
     </message>
@@ -1378,9 +1383,14 @@ Please try again later</source>
         <translation type="obsolete">изменений нет</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="113"/>
+        <location filename="plugins/policies.py" line="114"/>
         <source>Implemented by default and cannot be changed</source>
         <translation>Реализовано по умолчанию и не подлежит изменению</translation>
+    </message>
+    <message>
+        <location filename="plugins/policies.py" line="54"/>
+        <source>All changes made while applying policies will be shown here.</source>
+        <translation>Здесь будут показаны все изменения, выполняемые при применении политик.</translation>
     </message>
 </context>
 <context>

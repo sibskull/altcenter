@@ -51,6 +51,7 @@ class PoliciesWindow(QWidget):
         self.log.setReadOnly(True)
         self.log.setMinimumHeight(140)
         self.log.setVisible(False)
+        self.log.setPlainText(self.tr("All changes made while applying policies will be shown here.") + "\n")
 
         left = QVBoxLayout()
         left.addWidget(self.search)
