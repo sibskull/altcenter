@@ -89,6 +89,11 @@ class PoliciesWindow(QWidget):
         self.active_dm = self.detectDisplayManager()
         self.refreshApplyButton()
 
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.syncStatesFromFiles()
+        self.rebuildList()
+
     def pkgRoot(self):
         return os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
@@ -109,6 +114,11 @@ class PoliciesWindow(QWidget):
             "no-autologin",
             "deny-root-login",
         )
+
+    def isPolicyVisible(self, pid):
+        if pid == "sudo-always-ask-password":
+            return os.path.exists("/usr/bin/sudo") or os.path.exists("/bin/sudo")
+        return True
 
     def immutablePolicyText(self):
         return self.tr("Implemented by default and cannot be changed")
@@ -193,29 +203,43 @@ class PoliciesWindow(QWidget):
         immutable_color = self.immutableItemColor()
 
         for item in self._items:
+            pid = item.get("id")
+            if not self.isPolicyVisible(pid):
+                continue
+
             title = self.loc(item, "title")
             if query and query not in title.lower():
                 continue
 
             w = QListWidgetItem(title)
-            w.setData(Qt.UserRole, item.get("id"))
+            w.setData(Qt.UserRole, pid)
             w.setFlags(w.flags() | Qt.ItemIsUserCheckable)
-            w.setCheckState(Qt.Checked if self._desired_states.get(item.get("id"), False) else Qt.Unchecked)
+            w.setCheckState(Qt.Checked if self._desired_states.get(pid, False) else Qt.Unchecked)
 
-            if self.isImmutablePolicy(item.get("id")):
+            if self.isImmutablePolicy(pid):
                 w.setToolTip(self.immutablePolicyText())
                 w.setForeground(immutable_color)
 
             self.list.addItem(w)
 
         self._updating_checks = False
-        if self.list.count() > 0 and self._current_id is None:
+
+        if self.list.count() > 0:
             target_row = -1
-            for i in range(self.list.count()):
-                it = self.list.item(i)
-                if it.data(Qt.UserRole) == "hide-users":
-                    target_row = i
-                    break
+
+            if self._current_id is not None:
+                for i in range(self.list.count()):
+                    it = self.list.item(i)
+                    if it.data(Qt.UserRole) == self._current_id:
+                        target_row = i
+                        break
+
+            if target_row < 0:
+                for i in range(self.list.count()):
+                    it = self.list.item(i)
+                    if it.data(Qt.UserRole) == "hide-users":
+                        target_row = i
+                        break
 
             if target_row >= 0:
                 self.list.setCurrentRow(target_row)
@@ -287,6 +311,8 @@ class PoliciesWindow(QWidget):
         ids = []
         for item in self._items:
             pid = item.get("id")
+            if not self.isPolicyVisible(pid):
+                continue
             if self._desired_states.get(pid, False):
                 ids.append(pid)
         return ids
@@ -325,6 +351,8 @@ class PoliciesWindow(QWidget):
     def hasPendingChanges(self):
         for item in self._items:
             pid = item.get("id")
+            if not self.isPolicyVisible(pid):
+                continue
             if self.isImmutablePolicy(pid):
                 continue
             cur_checked = self._desired_states.get(pid, False)
@@ -385,6 +413,9 @@ class PoliciesWindow(QWidget):
 
         for item in self._items:
             pid = item.get("id")
+
+            if not self.isPolicyVisible(pid):
+                continue
 
             if self.isImmutablePolicy(pid):
                 self._desired_states[pid] = True
