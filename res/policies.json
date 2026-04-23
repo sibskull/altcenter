@@ -86,21 +86,21 @@
     },
     {
       "id": "deny-system-accounts",
-      "title": "Запрет входа системных учётных записей (UID 2–999)",
-      "title_en": "Disallow logins for system accounts (UID 2–999)",
+      "title": "В графический вход разрешен только UID>=UID_MIN",
+      "title_en": "Only UID>=UID_MIN are allowed for graphical login",
       "section": "Настройка авторизации",
       "subsection": "Настройка параметров политики графического входа",
       "scope": "system",
       "dm": "any",
-      "description": "В графическом входе разрешаются только UID=0 и UID≥1000; Системные учётные записи скрываются в списках.",
-      "description_en": "Only UID 0 and UID ≥ 1000 are allowed at graphical login; system accounts are hidden from lists.",
+      "description": "В графическом входе разрешаются только UID>=UID_MIN; системные учётные записи и root скрываются в списках.",
+      "description_en": "Only UID>=UID_MIN are allowed at graphical login; system accounts and root are hidden from lists.",
       "apply": [
-        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d /etc/sddm.conf.d /etc/dconf/db/gdm.d; printf 'policy:deny-system-accounts\\nUID_MIN=1000\\n[Seat:*]\\nminimum-uid=1000\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-deny-system-accounts.conf; printf 'policy:deny-system-accounts\\nUID_MIN=1000\\n[Users]\\nMinimumUid=1000\\n' > /etc/sddm.conf.d/50-altcenter-deny-system-accounts.conf; printf 'policy:deny-system-accounts\\nUID_MIN=1000\\n' > /etc/dconf/db/gdm.d/50-altcenter-deny-system-accounts"]},
-        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; for f in /etc/pam.d/lightdm /etc/pam.d/gdm-password /etc/pam.d/sddm; do [ -f \"$f\" ] || continue; grep -Eq '^[[:space:]]*account[[:space:]]+sufficient[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*=\\s*0' \"$f\" || printf '\\naccount sufficient pam_succeed_if.so uid = 0\\n' >> \"$f\"; grep -Eq '^[[:space:]]*account[[:space:]]+(requisite|required)[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*>=[[:space:]]*1000' \"$f\" || printf 'account requisite pam_succeed_if.so uid >= 1000\\n' >> \"$f\"; done"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; UID_MIN=$(awk '/^[[:space:]]*UID_MIN[[:space:]]+/ { print $2; exit }' /etc/login.defs 2>/dev/null); [ -n \"$UID_MIN\" ] || UID_MIN=1000; mkdir -p /etc/lightdm/lightdm.conf.d /etc/sddm.conf.d /etc/dconf/db/gdm.d; printf 'policy:deny-system-accounts\\nUID_MIN=%s\\n[Seat:*]\\nminimum-uid=%s\\n' \"$UID_MIN\" \"$UID_MIN\" > /etc/lightdm/lightdm.conf.d/50-altcenter-deny-system-accounts.conf; printf 'policy:deny-system-accounts\\nUID_MIN=%s\\n[Users]\\nMinimumUid=%s\\n' \"$UID_MIN\" \"$UID_MIN\" > /etc/sddm.conf.d/50-altcenter-deny-system-accounts.conf; printf 'policy:deny-system-accounts\\nUID_MIN=%s\\n' \"$UID_MIN\" > /etc/dconf/db/gdm.d/50-altcenter-deny-system-accounts"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; UID_MIN=$(awk '/^[[:space:]]*UID_MIN[[:space:]]+/ { print $2; exit }' /etc/login.defs 2>/dev/null); [ -n \"$UID_MIN\" ] || UID_MIN=1000; for f in /etc/pam.d/lightdm /etc/pam.d/gdm-password /etc/pam.d/sddm; do [ -f \"$f\" ] || continue; grep -Eq '^[[:space:]]*account[[:space:]]+(requisite|required)[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*>=[[:space:]]*[0-9]+' \"$f\" || printf '\\naccount requisite pam_succeed_if.so uid >= %s\\n' \"$UID_MIN\" >> \"$f\"; sed -ri \"s|^[[:space:]]*account[[:space:]]+(requisite|required)[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*>=[[:space:]]*[0-9]+|account requisite pam_succeed_if.so uid >= $UID_MIN|\" \"$f\" || true; sed -ri '/^[[:space:]]*account[[:space:]]+sufficient[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*=\\s*0/d' \"$f\" || true; done"]},
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true"]}
       ],
       "revert": [
-        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; for f in /etc/pam.d/lightdm /etc/pam.d/gdm-password /etc/pam.d/sddm; do [ -f \"$f\" ] || continue; sed -ri '/^[[:space:]]*account[[:space:]]+sufficient[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*=\\s*0/d' \"$f\" || true; sed -ri '/^[[:space:]]*account[[:space:]]+(requisite|required)[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*>=[[:space:]]*1000/d' \"$f\" || true; done"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; for f in /etc/pam.d/lightdm /etc/pam.d/gdm-password /etc/pam.d/sddm; do [ -f \"$f\" ] || continue; sed -ri '/^[[:space:]]*account[[:space:]]+(requisite|required)[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*>=[[:space:]]*[0-9]+/d' \"$f\" || true; sed -ri '/^[[:space:]]*account[[:space:]]+sufficient[[:space:]]+pam_succeed_if\\.so[[:space:]]+uid[[:space:]]*=\\s*0/d' \"$f\" || true; done"]},
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-deny-system-accounts.conf 2>/dev/null || true; rm -f /etc/sddm.conf.d/50-altcenter-deny-system-accounts.conf 2>/dev/null || true; rm -f /etc/dconf/db/gdm.d/50-altcenter-deny-system-accounts 2>/dev/null || true"]},
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true"]}
       ]
