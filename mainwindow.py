@@ -222,7 +222,7 @@ class MainWindow(QWidget, Ui_MainWindow):
             loop.quit()
 
         proc.finished.connect(_done)
-        proc.start('pkexec', ['/bin/sh', '-c', 'cat /etc/audit/auditd.conf > /tmp/altcenter_auditd.conf && chmod 644 /tmp/altcenter_auditd.conf && cat /etc/audit/rules.d/*.rules > /tmp/altcenter_audit.rules 2>/dev/null || : && chmod 644 /tmp/altcenter_audit.rules 2>/dev/null || :'])
+        proc.start('pkexec', ['/bin/sh', '-c', 'cat /etc/audit/auditd.conf > /tmp/altcenter_auditd.conf && chmod 644 /tmp/altcenter_auditd.conf && cat /etc/audit/rules.d/*.rules > /tmp/altcenter_audit.rules 2>/dev/null || : && chmod 644 /tmp/altcenter_audit.rules 2>/dev/null || : && cat /etc/login.defs > /tmp/altcenter_login.defs 2>/dev/null || : && chmod 644 /tmp/altcenter_login.defs 2>/dev/null || :'])
         loop.exec_()
         proc.deleteLater()
         return ok['v']

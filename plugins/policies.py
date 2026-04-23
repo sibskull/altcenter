@@ -106,8 +106,14 @@ class PoliciesWindow(QWidget):
     def loc(self, item: dict, base_key: str) -> str:
         lang = self.currentLanguage()
         if lang == "ru":
-            return item.get(base_key, "")
-        return item.get(f"{base_key}_{lang}", item.get(base_key, ""))
+            text = item.get(base_key, "")
+        else:
+            text = item.get(f"{base_key}_{lang}", item.get(base_key, ""))
+
+        if item.get("id") == "deny-system-accounts":
+            text = text.replace("UID_MIN", str(self.getSystemUidMin()))
+
+        return text
 
     def isImmutablePolicy(self, pid):
         return pid in (
@@ -115,10 +121,31 @@ class PoliciesWindow(QWidget):
             "deny-root-login",
         )
 
+# Условия политик
     def isPolicyVisible(self, pid):
         if pid == "sudo-always-ask-password":
             return os.path.exists("/usr/bin/sudo") or os.path.exists("/bin/sudo")
         return True
+
+    def getSystemUidMin(self):
+        for path in ("/tmp/altcenter_login.defs", "/etc/login.defs"):
+            try:
+                with open(path, "r", encoding="utf-8", errors="replace") as f:
+                    for raw in f:
+                        line = raw.strip()
+                        if not line or line.startswith("#"):
+                            continue
+                        parts = line.split()
+                        if len(parts) >= 2 and parts[0] == "UID_MIN":
+                            try:
+                                return int(parts[1])
+                            except Exception:
+                                break
+            except Exception:
+                pass
+
+        return 1000
+# Условия политик
 
     def immutablePolicyText(self):
         return self.tr("Implemented by default and cannot be changed")
