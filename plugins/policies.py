@@ -125,6 +125,14 @@ class PoliciesWindow(QWidget):
     def isPolicyVisible(self, pid):
         if pid == "sudo-always-ask-password":
             return os.path.exists("/usr/bin/sudo") or os.path.exists("/bin/sudo")
+
+        if pid == "deny-root-ssh-login":
+            return (
+                os.path.exists("/etc/openssh/sshd_config")
+                or os.path.exists("/usr/sbin/sshd")
+                or os.path.exists("/sbin/sshd")
+            )
+
         return True
 
     def getSystemUidMin(self):
