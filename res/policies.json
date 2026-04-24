@@ -251,6 +251,27 @@
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; cfg=/etc/sysconfig/grub2; st=/etc/altcenter/policy-state/grub-disable-recovery-mode.prev; old=\"\"; [ -f \"$st\" ] && old=\"$(cat \"$st\")\" || true; rm -f \"$st\" 2>/dev/null || true; [ -f \"$cfg\" ] || : > \"$cfg\"; sed -ri '/^[[:space:]]*#?[[:space:]]*GRUB_VMLINUZ_FAILSAFE=/d' \"$cfg\" || true; [ -n \"$old\" ] && printf '\\n%s\\n' \"$old\" >> \"$cfg\" || true; if command -v update-grub >/dev/null 2>&1; then update-grub 2>/dev/null || true; elif command -v grub-mkconfig >/dev/null 2>&1; then out=/boot/grub/grub.cfg; [ -f /boot/grub2/grub.cfg ] && out=/boot/grub2/grub.cfg; grub-mkconfig -o \"$out\" 2>/dev/null || true; fi; rm -f /etc/dconf/db/gdm.d/50-altcenter-grub-disable-recovery-mode 2>/dev/null || true; true"]},
         {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; cfg=/etc/sysconfig/grub2; st=/etc/altcenter/policy-state/grub-disable-recovery-mode.prev; old=\"\"; [ -f \"$st\" ] && old=\"$(cat \"$st\")\" || true; rm -f \"$st\" 2>/dev/null || true; [ -f \"$cfg\" ] || : > \"$cfg\"; sed -ri '/^[[:space:]]*#?[[:space:]]*GRUB_VMLINUZ_FAILSAFE=/d' \"$cfg\" || true; [ -n \"$old\" ] && printf '\\n%s\\n' \"$old\" >> \"$cfg\" || true; if command -v update-grub >/dev/null 2>&1; then update-grub 2>/dev/null || true; elif command -v grub-mkconfig >/dev/null 2>&1; then out=/boot/grub/grub.cfg; [ -f /boot/grub2/grub.cfg ] && out=/boot/grub2/grub.cfg; grub-mkconfig -o \"$out\" 2>/dev/null || true; fi; rm -f /etc/sddm.conf.d/50-altcenter-grub-disable-recovery-mode.conf 2>/dev/null || true; true"]}
       ]
+    },
+    {
+      "id": "deny-root-ssh-login",
+      "title": "Запрет удаленного доступа по ssh с правами root",
+      "title_en": "Disallow remote SSH access as root",
+      "section": "Настройка авторизации",
+      "subsection": "Настройка параметров политики удаленного доступа",
+      "scope": "system",
+      "dm": "any",
+      "description": "Запрещает удаленный вход по SSH с правами root через параметр PermitRootLogin no.",
+      "description_en": "Disallows remote SSH login as root by setting PermitRootLogin no.",
+      "apply": [
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d /etc/sddm.conf.d /etc/dconf/db/gdm.d; printf 'policy:deny-root-ssh-login\\nPermitRootLogin no\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-deny-root-ssh-login.conf; printf 'policy:deny-root-ssh-login\\nPermitRootLogin no\\n' > /etc/sddm.conf.d/50-altcenter-deny-root-ssh-login.conf; printf 'policy:deny-root-ssh-login\\nPermitRootLogin no\\n' > /etc/dconf/db/gdm.d/50-altcenter-deny-root-ssh-login"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; [ -f /etc/openssh/sshd_config ] || exit 1; grep -qE '^[[:space:]]*PermitRootLogin[[:space:]]+' /etc/openssh/sshd_config && sed -ri 's|^[[:space:]]*#?[[:space:]]*PermitRootLogin[[:space:]]+.*|PermitRootLogin no|' /etc/openssh/sshd_config || printf '\\nPermitRootLogin no\\n' >> /etc/openssh/sshd_config"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; systemctl reload sshd.service 2>/dev/null || systemctl restart sshd.service 2>/dev/null || service sshd reload 2>/dev/null || service sshd restart 2>/dev/null || true"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; sed -ri '/^[[:space:]]*#?[[:space:]]*PermitRootLogin[[:space:]]+/d' /etc/openssh/sshd_config 2>/dev/null || true"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-deny-root-ssh-login.conf 2>/dev/null || true; rm -f /etc/sddm.conf.d/50-altcenter-deny-root-ssh-login.conf 2>/dev/null || true; rm -f /etc/dconf/db/gdm.d/50-altcenter-deny-root-ssh-login 2>/dev/null || true"]},
+        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; systemctl reload sshd.service 2>/dev/null || systemctl restart sshd.service 2>/dev/null || service sshd reload 2>/dev/null || service sshd restart 2>/dev/null || true"]}
+      ]
     }        
   ]
 }
