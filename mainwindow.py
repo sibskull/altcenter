@@ -64,6 +64,7 @@ class QtContextMenuRuFilter(QObject):
             'View page source': 'Просмотреть исходный код страницы',
             'Copy Link Location': 'Копировать адрес ссылки'
         }
+        self._expert_button_min_width = 0
 
     def eventFilter(self, obj, event):
         t = event.type()
@@ -185,6 +186,8 @@ class MainWindow(QWidget, Ui_MainWindow):
         self.expertModeButton.setText(self.tr("Expert mode"))
         self.expertModeButton.setToolButtonStyle(Qt.ToolButtonTextOnly)
         self.expertModeButton.setCursor(Qt.PointingHandCursor)
+        self._expert_button_min_width = self.expertModeButton.sizeHint().width()
+        self.expertModeButton.setMinimumWidth(self._expert_button_min_width)
 
         try:
             self.gridLayout.addWidget(self.expertModeButton, 1, 1, 1, 1, Qt.AlignRight)
@@ -337,16 +340,24 @@ class MainWindow(QWidget, Ui_MainWindow):
 
     def onExpertModeToggled(self, checked: bool):
         if checked:
+            self.expertModeButton.blockSignals(True)
+            self.expertModeButton.setChecked(False)
+            self.expertModeButton.blockSignals(False)
+
             if not self._request_admin_access():
-                self.expertModeButton.blockSignals(True)
-                self.expertModeButton.setChecked(False)
-                self.expertModeButton.blockSignals(False)
                 return
+
             self._expert_mode = True
             self.expertModeTimer.start()
+            self.expertModeButton.setMinimumWidth(self._expert_button_min_width + 30)
+
+            self.expertModeButton.blockSignals(True)
+            self.expertModeButton.setChecked(True)
+            self.expertModeButton.blockSignals(False)
         else:
             self._expert_mode = False
             self.expertModeTimer.stop()
+            self.expertModeButton.setMinimumWidth(self._expert_button_min_width)
 
         self._rebuild_plugins(keep_current=True)
 
