@@ -21,9 +21,9 @@ import os
 import traceback
 from abc import ABCMeta, abstractmethod
 from importlib import util
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QStackedWidget
-from PyQt5.QtGui import QStandardItemModel
+from PyQt6.QtCore import QObject
+from PyQt6.QtWidgets import QStackedWidget
+from PyQt6.QtGui import QStandardItemModel
 
 
 plugins_skip_list = []

@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 
 import plugins
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QStackedWidget,
     QListWidget, QListWidgetItem, QTextEdit, QSplitter
 )
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont, QColor, QPalette
-from PyQt5.QtCore import Qt, QProcess, QTimer
+from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont, QColor, QPalette, QTextCursor
+from PyQt6.QtCore import Qt, QProcess, QTimer
 import alterator
 
 list_path = "/etc/altcenter/list-components"
@@ -38,7 +38,7 @@ class ComponentsWindow(QWidget):
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
 
-        splitter = QSplitter(Qt.Horizontal)
+        splitter = QSplitter(Qt.Orientation.Horizontal)
 
         self.list_widget = QListWidget()
         self.list_widget.itemClicked.connect(self.show_item_info)
@@ -137,9 +137,9 @@ class ComponentsWindow(QWidget):
         self.list_widget.clear()
         for comp in self.components_info:
             item = QListWidgetItem(comp.display_name)
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
-            item.setData(1, comp.name)
-            item.setCheckState(Qt.Unchecked)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
+            item.setData(Qt.ItemDataRole.UserRole, comp.name)
+            item.setCheckState(Qt.CheckState.Unchecked)
             self.list_widget.addItem(item)
         self.update_checkboxes()
 
@@ -147,8 +147,8 @@ class ComponentsWindow(QWidget):
         selected = []
         for i in range(self.list_widget.count()):
             item = self.list_widget.item(i)
-            if item.flags() & Qt.ItemIsUserCheckable and item.checkState() == Qt.Checked:
-                comp = self.component_map.get(item.data(1), None)
+            if item.flags() & Qt.ItemFlag.ItemIsUserCheckable and item.checkState() == Qt.CheckState.Checked:
+                comp = self.component_map.get(item.data(Qt.ItemDataRole.UserRole), None)
                 if comp and not comp._installed:
                     selected.append(comp)
         return selected
@@ -158,8 +158,8 @@ class ComponentsWindow(QWidget):
         components_to_remove = []
         for i in range(self.list_widget.count()):
             item = self.list_widget.item(i)
-            if item.flags() & Qt.ItemIsUserCheckable and item.checkState() == Qt.Unchecked:
-                comp = self.component_map.get(item.data(1), None)
+            if item.flags() & Qt.ItemFlag.ItemIsUserCheckable and item.checkState() == Qt.CheckState.Unchecked:
+                comp = self.component_map.get(item.data(Qt.ItemDataRole.UserRole), None)
                 if comp and comp._installed:
                     components_to_remove.append(comp)
 
@@ -177,11 +177,11 @@ class ComponentsWindow(QWidget):
             # self.append_to_console(self.tr("You did not select any components for installation or removal."))
             return
 
-        if self.proc_install != None and self.proc_install.state() != QProcess.NotRunning:
+        if self.proc_install != None and self.proc_install.state() != QProcess.ProcessState.NotRunning:
             return
 
         widget = self.list_widget.window()
-        widget.setCursor(Qt.WaitCursor)
+        widget.setCursor(Qt.CursorShape.WaitCursor)
 
         # TODO need smart deploy components. Now only package installation is supported.
         install_packages = []
@@ -202,7 +202,7 @@ class ComponentsWindow(QWidget):
         if remove_packages:
             test_cmd = ["rpm", "-e", "--test"] + remove_packages
             process = QProcess()
-            process.start(" ".join(test_cmd))
+            process.start("rpm", ["-e", "--test"] + remove_packages)
             process.waitForFinished()
 
             stderr_output = process.readAllStandardError().data().decode()
@@ -247,10 +247,10 @@ class ComponentsWindow(QWidget):
 
     def append_to_console(self, text, is_error=False):
         cursor = self.console.textCursor()
-        cursor.movePosition(cursor.End)
+        cursor.movePosition(QTextCursor.MoveOperation.End)
         fmt = cursor.charFormat()
         palette = self.console.palette()
-        fmt.setForeground(QColor("red") if is_error else palette.color(QPalette.Text))
+        fmt.setForeground(QColor("red") if is_error else palette.color(QPalette.ColorRole.Text))
         cursor.setCharFormat(fmt)
         cursor.insertText(text)
         self.console.setTextCursor(cursor)
@@ -294,19 +294,19 @@ class ComponentsWindow(QWidget):
     def update_checkboxes(self):
         for i in range(self.list_widget.count()):
             item = self.list_widget.item(i)
-            comp_name = item.data(1)
+            comp_name = item.data(Qt.ItemDataRole.UserRole)
             comp = self.component_map.get(comp_name)
             if not comp or not comp.packages:
                 continue
 
             process = QProcess()
-            process.start("rpm -q " + " ".join(comp.packages))
+            process.start("rpm", ["-q"] + comp.packages)
             process.waitForFinished(3000)
 
             output = process.readAllStandardOutput().data().decode()
             all_installed = all(pkg in output for pkg in comp.packages)
 
-            new_state = Qt.Checked if all_installed else Qt.Unchecked
+            new_state = Qt.CheckState.Checked if all_installed else Qt.CheckState.Unchecked
             comp._installed = all_installed
             if item.checkState() != new_state:
                 item.setCheckState(new_state)
@@ -316,7 +316,7 @@ class ComponentsWindow(QWidget):
         if not item:
             return
 
-        comp_name = item.data(1)  # 🔄 Раньше: item.text()
+        comp_name = item.data(Qt.ItemDataRole.UserRole)  # 🔄 Раньше: item.text()
         comp = self.component_map.get(comp_name)
 
         if comp:

@@ -19,13 +19,17 @@
 APPLICATION_NAME = 'altcenter'
 APPLICATION_VERSION = '1.0'
 
-from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QToolButton
-from PyQt5.QtCore import QTranslator, QSettings, QObject, QEvent, Qt, QTimer
-from PyQt5.QtCore import QCommandLineParser, QCommandLineOption
-from PyQt5.QtCore import QLibraryInfo, QLocale
-from PyQt5.QtCore import QProcess, QEventLoop, QSignalBlocker
+from PyQt6.QtWidgets import QApplication, QWidget, QMessageBox, QToolButton
+from PyQt6.QtCore import QTranslator, QSettings, QObject, QEvent, Qt, QTimer
+from PyQt6.QtCore import QCommandLineParser, QCommandLineOption
+from PyQt6.QtCore import QLibraryInfo, QLocale
+from PyQt6.QtCore import QProcess, QEventLoop, QSignalBlocker
 # from PyQt5 import uic
-from PyQt5.QtGui import QStandardItemModel, QIcon
+from PyQt6.QtGui import QStandardItemModel, QIcon
+
+from PyQt6.QtCore import QT_VERSION_STR, PYQT_VERSION_STR
+print("Qt:", QT_VERSION_STR)
+print("PyQt:", PYQT_VERSION_STR)
 
 import os
 import sys
@@ -69,17 +73,17 @@ class QtContextMenuRuFilter(QObject):
     def eventFilter(self, obj, event):
         t = event.type()
 
-        if QLocale.system().language() != QLocale.Russian:
+        if QLocale.system().language() != QLocale.Language.Russian:
             return False
 
-        if t != QEvent.ContextMenu:
+        if t != QEvent.Type.ContextMenu:
             return False
 
         w = obj
         for _ in range(12):
             if w is None:
                 break
-            if hasattr(w, 'contextMenuPolicy') and w.contextMenuPolicy() != Qt.DefaultContextMenu:
+            if hasattr(w, 'contextMenuPolicy') and w.contextMenuPolicy() != Qt.ContextMenuPolicy.DefaultContextMenu:
                 return False
             if hasattr(w, 'createStandardContextMenu'):
                 try:
@@ -89,7 +93,7 @@ class QtContextMenuRuFilter(QObject):
                 if menu is None:
                     return False
                 self._translate_menu(menu)
-                menu.exec_(event.globalPos())
+                menu.exec(event.globalPos())
                 menu.deleteLater()
                 return True
             w = w.parent()
@@ -184,13 +188,13 @@ class MainWindow(QWidget, Ui_MainWindow):
         self.expertModeButton.setCheckable(True)
         self.expertModeButton.setChecked(False)
         self.expertModeButton.setText(self.tr("Expert mode"))
-        self.expertModeButton.setToolButtonStyle(Qt.ToolButtonTextOnly)
-        self.expertModeButton.setCursor(Qt.PointingHandCursor)
+        self.expertModeButton.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextOnly)
+        self.expertModeButton.setCursor(Qt.CursorShape.PointingHandCursor)
         self._expert_button_min_width = self.expertModeButton.sizeHint().width()
         self.expertModeButton.setMinimumWidth(self._expert_button_min_width)
 
         try:
-            self.gridLayout.addWidget(self.expertModeButton, 1, 1, 1, 1, Qt.AlignRight)
+            self.gridLayout.addWidget(self.expertModeButton, 1, 1, 1, 1, Qt.AlignmentFlag.AlignRight)
         except Exception:
             pass
 
@@ -221,12 +225,12 @@ class MainWindow(QWidget, Ui_MainWindow):
         ok = {'v': False}
 
         def _done(exit_code, exit_status):
-            ok['v'] = (exit_status == QProcess.NormalExit and exit_code == 0)
+            ok['v'] = (exit_status == QProcess.ExitStatus.NormalExit and exit_code == 0)
             loop.quit()
 
         proc.finished.connect(_done)
         proc.start('pkexec', ['/bin/sh', '-c', 'cat /etc/audit/auditd.conf > /tmp/altcenter_auditd.conf && chmod 644 /tmp/altcenter_auditd.conf && cat /etc/audit/rules.d/*.rules > /tmp/altcenter_audit.rules 2>/dev/null || : && chmod 644 /tmp/altcenter_audit.rules 2>/dev/null || : && cat /etc/login.defs > /tmp/altcenter_login.defs 2>/dev/null || : && chmod 644 /tmp/altcenter_login.defs 2>/dev/null || :'])
-        loop.exec_()
+        loop.exec()
         proc.deleteLater()
         return ok['v']
 
@@ -413,14 +417,14 @@ app.setDesktopFileName("altcenter")
 
 # Load settings
 current_config = os.path.join(pathlib.Path.home(), ".config", "altcenter.ini")
-settings = QSettings(current_config, QSettings.IniFormat)
+settings = QSettings(current_config, QSettings.Format.IniFormat)
 
 # Translation context menu
 _qt_translators = []
 
 qt_domains = ("qtbase",)
 system_locale = QLocale.system()
-translations_dir = QLibraryInfo.location(QLibraryInfo.TranslationsPath)
+translations_dir = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
 
 for dom in qt_domains:
     tr = QTranslator()
@@ -428,7 +432,7 @@ for dom in qt_domains:
         app.installTranslator(tr)
         _qt_translators.append(tr)
 
-if system_locale.language() == QLocale.Russian:
+if system_locale.language() == QLocale.Language.Russian:
     app._qt_menu_filter = QtContextMenuRuFilter(app)
     app.installEventFilter(app._qt_menu_filter)
 
@@ -517,4 +521,4 @@ window.altLogo.setPixmap(QIcon.fromTheme("basealt").pixmap(64))
 window.show()
 
 # Start the application
-sys.exit(app.exec_())
+sys.exit(app.exec())

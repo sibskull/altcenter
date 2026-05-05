@@ -3,9 +3,9 @@
 import plugins
 import os
 import json
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QCheckBox, QScrollArea
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
-from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QCheckBox, QScrollArea
+from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont
+from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
 
 class JournalsWidget(QWidget):
     def __init__(self, main_window = None):
@@ -207,7 +207,7 @@ class JournalsWidget(QWidget):
         apply_layout.addWidget(self.btn_apply)
 
         self.lbl_status = QLabel("")
-        self.lbl_status.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.lbl_status.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         apply_layout.addWidget(self.lbl_status)
 
         apply_layout.addStretch(1)
@@ -625,7 +625,7 @@ class JournalsWidget(QWidget):
         return True, v
 
     def on_apply_clicked(self):
-        if self.proc_apply != None and self.proc_apply.state() != QProcess.NotRunning:
+        if self.proc_apply != None and self.proc_apply.state() != QProcess.ProcessState.NotRunning:
             return
 
         ok, max_log_file = self.parseOptionalInteger(self.max_log_file_value.text())

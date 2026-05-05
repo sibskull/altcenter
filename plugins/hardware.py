@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 
 import plugins
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton,
+from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QPushButton,
                             QScrollArea, QTextBrowser, QStackedWidget,
                             QMessageBox, QApplication, QLabel, QHBoxLayout)
-from PyQt5.QtGui import QStandardItem, QStandardItemModel
-from PyQt5.QtCore import QObject, Qt
-from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot, QProcess
+from PyQt6.QtGui import QStandardItem, QStandardItemModel
+from PyQt6.QtCore import QObject, Qt
+from PyQt6.QtCore import QThread, pyqtSignal, pyqtSlot, QProcess
 # import subprocess
 import webbrowser
 
@@ -288,7 +288,7 @@ class HardwareWindow(QWidget):
                 }
             """)
             self.btn_probe.clicked.connect(self.start_hw_probe)
-            top_layout.addWidget(self.btn_probe, 0, Qt.AlignLeft)
+            top_layout.addWidget(self.btn_probe, 0, Qt.AlignmentFlag.AlignLeft)
 
             self.proc_probe = QProcess(self)
             self.proc_probe.finished.connect(self.on_proc_probe_finished)
@@ -296,8 +296,8 @@ class HardwareWindow(QWidget):
             self.proc_probe.readyReadStandardError.connect(self.on_probe_stderr_ready)
 
             self.link_label = QLabel()
-            self.link_label.setAlignment(Qt.AlignRight)
-            self.link_label.setTextFormat(Qt.RichText)
+            self.link_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+            self.link_label.setTextFormat(Qt.TextFormat.RichText)
             self.link_label.setOpenExternalLinks(True)
             # self.link_label.setText('https://www.basealt.ru/dhsuhgfuseuiuighwuiheiuhwuighuihu')
             self.link_label.setStyleSheet('color: blue; text-decoration: underline; padding: 5px 10px;')
@@ -351,7 +351,7 @@ class HardwareWindow(QWidget):
 
     def get_system_info(self) -> str:
         self.inxi_result = []
-        self.proc_inxi.start("inxi -F -c -y -1")
+        self.proc_inxi.start("inxi", ["-F", "-c", "-y", "-1"])
 
 
     def on_label_click(self, event):
@@ -433,4 +433,4 @@ if __name__ == '__main__':
     app = QApplication([])
     window = HardwareWindow()
     window.show()
-    app.exec_()
+    app.exec()

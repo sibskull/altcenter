@@ -3,9 +3,9 @@
 import plugins
 import os
 import json
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QToolButton, QCheckBox, QFileDialog
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
-from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment, QLocale, QPoint
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QToolButton, QCheckBox, QFileDialog
+from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont
+from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale, QPoint
 
 class JournalsWidget(QWidget):
     def __init__(self, main_window = None):
@@ -111,7 +111,7 @@ class JournalsWidget(QWidget):
         self.btn_journal = QToolButton()
         self.btn_journal.setText("journald")
         self.btn_journal.clicked.connect(self.toggle_journal_popup)
-        top.addWidget(self.btn_journal, 0, Qt.AlignLeft)
+        top.addWidget(self.btn_journal, 0, Qt.AlignmentFlag.AlignLeft)
 
         top.addSpacing(10)
 
@@ -120,7 +120,7 @@ class JournalsWidget(QWidget):
         self.btn_filters = QToolButton()
         self.btn_filters.setText(self.tr("Select filters"))
         self.btn_filters.clicked.connect(self.toggle_filters_popup)
-        top.addWidget(self.btn_filters, 0, Qt.AlignLeft)
+        top.addWidget(self.btn_filters, 0, Qt.AlignmentFlag.AlignLeft)
 
         top.addSpacing(10)
         top.addWidget(QLabel(self.tr("Text:")))
@@ -140,10 +140,10 @@ class JournalsWidget(QWidget):
 
         self.text = QTextEdit()
         self.text.setReadOnly(True)
-        self.text.setLineWrapMode(QTextEdit.NoWrap)
+        self.text.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
 
         f = QFont()
-        f.setStyleHint(QFont.Monospace)
+        f.setStyleHint(QFont.StyleHint.Monospace)
         self.text.setFont(f)
 
         layout.addWidget(self.text, 1)
@@ -190,7 +190,7 @@ class JournalsWidget(QWidget):
         self.update_nav_buttons()
 
     def initJournalPopup(self):
-        self.journal_popup = QWidget(self, Qt.Popup)
+        self.journal_popup = QWidget(self, Qt.WindowType.Popup)
         layout = QVBoxLayout()
         layout.setContentsMargins(8, 8, 8, 8)
         layout.setSpacing(4)
@@ -227,7 +227,7 @@ class JournalsWidget(QWidget):
 
     def on_journal_changed(self, state):
         cb = self.sender()
-        if state != Qt.Checked:
+        if state != Qt.CheckState.Checked.value:
             return
 
         if cb == self.cb_audit and not self.is_expert_mode:
@@ -397,7 +397,7 @@ class JournalsWidget(QWidget):
             self.update_nav_buttons()
             return
 
-        if self.proc_audit != None and self.proc_audit.state() != QProcess.NotRunning:
+        if self.proc_audit != None and self.proc_audit.state() != QProcess.ProcessState.NotRunning:
             return
 
         self.audit_copy_mode = 1
@@ -451,7 +451,7 @@ class JournalsWidget(QWidget):
         return ";;".join(parts)
 
     def loadOutputFormats(self):
-        if self.proc_formats != None and self.proc_formats.state() != QProcess.NotRunning:
+        if self.proc_formats != None and self.proc_formats.state() != QProcess.ProcessState.NotRunning:
             return
 
         self.proc_formats = QProcess(self)
@@ -479,11 +479,10 @@ class JournalsWidget(QWidget):
             self.output_formats = fmts
 
     def on_export_clicked(self):
-        if self.proc_export != None and self.proc_export.state() != QProcess.NotRunning:
+        if self.proc_export != None and self.proc_export.state() != QProcess.ProcessState.NotRunning:
             return
 
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        options = QFileDialog.Option.DontUseNativeDialog
 
         filters = self.build_save_filters()
 
@@ -556,7 +555,7 @@ class JournalsWidget(QWidget):
         self.btn_export.setEnabled(True)
 
     def initFiltersPopup(self):
-        self.filters_popup = QWidget(self, Qt.Popup)
+        self.filters_popup = QWidget(self, Qt.WindowType.Popup)
         popup_layout = QVBoxLayout()
         popup_layout.setContentsMargins(8, 8, 8, 8)
         popup_layout.setSpacing(4)
@@ -679,7 +678,7 @@ class JournalsWidget(QWidget):
             self.loadAudit(forced_fetch_lines)
             return
 
-        if self.proc != None and self.proc.state() != QProcess.NotRunning:
+        if self.proc != None and self.proc.state() != QProcess.ProcessState.NotRunning:
             self.proc.kill()
             self.proc.waitForFinished(1000)
 

@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
-from PyQt5.QtWidgets import QVBoxLayout, QFrame, QStackedWidget, QWidget, QTextBrowser
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QPalette
-from PyQt5.QtCore import QEvent
+from PyQt6.QtWidgets import QVBoxLayout, QFrame, QStackedWidget, QWidget, QTextBrowser
+from PyQt6.QtGui import QStandardItem, QStandardItemModel, QPalette
+from PyQt6.QtCore import QEvent
 
 import locale, os, markdown
 
@@ -27,18 +27,18 @@ class UsefulTextBrowser(QTextBrowser):
         super().changeEvent(event)
 
         if event.type() in (
-            QEvent.PaletteChange,
-            QEvent.ApplicationPaletteChange,
-            QEvent.StyleChange,
+            QEvent.Type.PaletteChange,
+            QEvent.Type.ApplicationPaletteChange,
+            QEvent.Type.StyleChange,
         ):
             self.updateContent()
 
     def updateContent(self):
         palette = self.palette()
-        base_color = palette.color(QPalette.Base).name()
-        text_color = palette.color(QPalette.Text).name()
-        alt_base_color = palette.color(QPalette.AlternateBase).name()
-        link_color = palette.color(QPalette.Link).name()
+        base_color = palette.color(QPalette.ColorRole.Base).name()
+        text_color = palette.color(QPalette.ColorRole.Text).name()
+        alt_base_color = palette.color(QPalette.ColorRole.AlternateBase).name()
+        link_color = palette.color(QPalette.ColorRole.Link).name()
 
         html_text = markdown.markdown(self._markdown_text)
         html_text = html_text.replace("\n</code></pre>", "</code></pre>")
