@@ -18,9 +18,9 @@
 # Place - Suite 330, Boston, MA  02111-1307, USA.
 
 import plugins
-from PyQt5.QtWidgets import QWidget, QTextBrowser, QStackedWidget
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont, QTextDocument
-from PyQt5.QtCore import QUrl
+from PyQt6.QtWidgets import QWidget, QTextBrowser, QStackedWidget
+from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont, QTextDocument
+from PyQt6.QtCore import QUrl
 import locale, os
 
 
@@ -40,15 +40,15 @@ class PluginLicense(plugins.Base):
         self.license_info.setCurrentFont(QFont("monospace", 9))
         self._pane.insertWidget(idx, self.license_info)
 
-        file_path = "/usr/share/alt-notes/license." + locale.getlocale()[0].split( '_' )[0] + ".html"
+        file_path = "/usr/share/alt-notes/license." + locale.getlocale()[0].split('_')[0] + ".html"
 
         if os.path.isfile(file_path):
-            url = QUrl(file_path)
+            url = QUrl.fromLocalFile(file_path)
             self.license_info.setSource(url, QTextDocument.ResourceType.HtmlResource)
         else:
             file_path = "/usr/share/alt-notes/license.all.html"
             if os.path.isfile(file_path):
-                url = QUrl(file_path)
+                url = QUrl.fromLocalFile(file_path)
                 self.license_info.setSource(url, QTextDocument.ResourceType.HtmlResource)
             else:
                 self.license_info.setHtml(f"File '{file_path}' not found.")

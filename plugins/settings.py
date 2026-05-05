@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 
 import plugins
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QGroupBox,
+from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QGroupBox,
                             QGridLayout, QScrollArea, QCheckBox,
-                            QComboBox, QPushButton, QStackedWidget)
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QIcon
-from PyQt5.QtCore import Qt, QSize, QProcess
+                            QComboBox, QPushButton, QStackedWidget, QFrame)
+from PyQt6.QtGui import QStandardItem, QStandardItemModel, QIcon
+from PyQt6.QtCore import Qt, QSize, QProcess
 
 import json
 import os
@@ -64,7 +64,7 @@ class SettingsWidget(QWidget):
         # Создаем область прокрутки
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QScrollArea.NoFrame)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
 
         # Контейнер для содержимого
         container = QWidget()

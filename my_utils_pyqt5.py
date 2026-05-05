@@ -1,14 +1,19 @@
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import QApplication
 
 
 def point_size_to_pixels(point_size):
-    """
-    Переводит размер шрифта из pointSize() в пиксели.
-    """
-    # Получаем текущий DPI из приложения
-    app = QApplication.instance() or QApplication([])
+    app = QApplication.instance()
+    created_app = None
+
+    if app is None:
+        created_app = QApplication([])
+        app = created_app
+
     screen = app.primaryScreen()
+    if screen is None:
+        return 0
+
     dpi = screen.logicalDotsPerInch()
 
     # Формула перевода: pixels = (points * dpi) / 72
@@ -16,8 +21,14 @@ def point_size_to_pixels(point_size):
 
 
 if __name__ == '__main__':
-    # Пример: Получение размера шрифта
-    font = QFont("Arial", 12)  # Установлен размер шрифта в поинтах
+    app = QApplication.instance()
+    created_app = None
+
+    if app is None:
+        created_app = QApplication([])
+        app = created_app
+
+    font = QFont("Arial", 12)
     point_size = font.pointSize()
     pixel_size = point_size_to_pixels(point_size)
 

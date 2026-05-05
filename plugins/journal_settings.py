@@ -3,9 +3,9 @@
 import plugins
 import os
 import json
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont
-from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox
+from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont
+from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
 
 class JournalsWidget(QWidget):
     def __init__(self, main_window = None):
@@ -68,7 +68,7 @@ class JournalsWidget(QWidget):
         vacuum.addWidget(self.btn_vacuum)
 
         self.lbl_vacuum_status = QLabel("")
-        self.lbl_vacuum_status.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.lbl_vacuum_status.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         vacuum.addWidget(self.lbl_vacuum_status)
 
         vacuum.addStretch(1)
@@ -93,7 +93,7 @@ class JournalsWidget(QWidget):
         retention.addWidget(self.btn_retention)
 
         self.lbl_retention_status = QLabel("")
-        self.lbl_retention_status.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.lbl_retention_status.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         retention.addWidget(self.lbl_retention_status)
 
         retention.addStretch(1)
@@ -139,7 +139,7 @@ class JournalsWidget(QWidget):
         apply_limits.addWidget(self.btn_systemmaxuse)
 
         self.lbl_systemmaxuse_status = QLabel("")
-        self.lbl_systemmaxuse_status.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.lbl_systemmaxuse_status.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         apply_limits.addWidget(self.lbl_systemmaxuse_status)
 
         apply_limits.addStretch(1)
@@ -204,7 +204,7 @@ class JournalsWidget(QWidget):
             self.usage_value.setText(self.tr("Failed to read log usage."))
 
     def on_vacuum_clicked(self):
-        if self.proc_vacuum != None and self.proc_vacuum.state() != QProcess.NotRunning:
+        if self.proc_vacuum != None and self.proc_vacuum.state() != QProcess.ProcessState.NotRunning:
             return
 
         t = self.vacuum_value.text().strip()
@@ -244,7 +244,7 @@ class JournalsWidget(QWidget):
             self.lbl_vacuum_status.setText(self.tr("Failed"))
 
     def on_retention_clicked(self):
-        if self.proc_retention != None and self.proc_retention.state() != QProcess.NotRunning:
+        if self.proc_retention != None and self.proc_retention.state() != QProcess.ProcessState.NotRunning:
             return
 
         t = self.retention_value.text().strip()
@@ -292,7 +292,7 @@ class JournalsWidget(QWidget):
             self.lbl_retention_status.setText(self.tr("Failed"))
 
     def on_systemmaxuse_clicked(self):
-        if self.proc_systemmaxuse != None and self.proc_systemmaxuse.state() != QProcess.NotRunning:
+        if self.proc_systemmaxuse != None and self.proc_systemmaxuse.state() != QProcess.ProcessState.NotRunning:
             return
 
         maxuse_mb = None

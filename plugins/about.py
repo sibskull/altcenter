@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 
-from PyQt5.QtWidgets import (QApplication, QWidget,
+from PyQt6.QtWidgets import (QApplication, QWidget,
                              QVBoxLayout, QLabel,
                              QGridLayout, QScrollArea,
                              QSpacerItem, QSizePolicy,
-                             QStackedWidget,
-                             QMenu, QAction)
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QIcon
-from PyQt5.QtCore import Qt
+                             QStackedWidget, QFrame,
+                             QMenu)
+from PyQt6.QtGui import QStandardItem, QStandardItemModel, QIcon, QAction
+from PyQt6.QtCore import Qt
 
 import os
 
@@ -50,7 +50,7 @@ class AboutWidget(QWidget):
             'ALT Server' : "https://www.basealt.ru/alt-server",
             'ALT Virtualization Server' : "https://www.basealt.ru/alt-virtualization",
             'ALT Starterkit' : "https://www.altlinux.org/Starterkits",
-		}
+        }
 
         if name in dictionary:
             name = dictionary[name]
@@ -67,18 +67,18 @@ class AboutWidget(QWidget):
 
         # Создание QScrollArea
         scroll_area = QScrollArea(self)
-        scroll_area.setWidgetResizable(True)  # Ресайз области прокрутки
-        scroll_area.setFrameShape(QScrollArea.NoFrame)
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
 
         # Создание контейнера для виджетов внутри QScrollArea
         container = QWidget()
         # font = QFont('Sans', 11)
         # container.setFont(font)
-        container_layout = QVBoxLayout(container)  # Внутренний лэйаут для контейнера
+        container_layout = QVBoxLayout(container)
         container_layout.setSpacing(10)
 
         # Добавляем Spacer сверху (с помощью QSizePolicy.Expanding)
-        top_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        top_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         container_layout.addItem(top_spacer)
 
         # Создаем метки
@@ -90,12 +90,12 @@ class AboutWidget(QWidget):
 
         # Product logo
         label_logo = QLabel(self)
-        label_logo.setAlignment(Qt.AlignCenter)
+        label_logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         if 'LOGO' in os_info and os_info['LOGO'] != '':
             label_logo.setPixmap(QIcon.fromTheme(os_info['LOGO']).pixmap(128))
 
         label1 = QLabel(os_name)
-        label1.setAlignment(Qt.AlignCenter)
+        label1.setAlignment(Qt.AlignmentFlag.AlignCenter)
         label1.setWordWrap(True)
         label_font = container.font()
         label_font.setPointSize(int(label_font.pointSize() * 1.75))
@@ -105,7 +105,7 @@ class AboutWidget(QWidget):
 
         url = self.translate_os_url(os_info["MY_NAME"])
         label2 = QLabel('')
-        label2.setAlignment(Qt.AlignCenter)
+        label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
         label2.setOpenExternalLinks(True)
         if url != '':
             label2.setText('<a href="%s">%s</a>' % (url, url))
@@ -128,7 +128,7 @@ class AboutWidget(QWidget):
         label_de_name = QLabel(self.tr("DE:"))
         label_de_value = QLabel(de + ' ' + version)
         self.text.append('{} {}'.format(label_de_name.text(), label_de_value.text()))
-        label_de_name.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        label_de_name.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         grid_layout.addWidget(label_de_name, 0, 0)
         grid_layout.addWidget(label_de_value, 0, 1)
 
@@ -138,7 +138,7 @@ class AboutWidget(QWidget):
         label_kernel_name = QLabel(self.tr("Kernel:"))
         label_kernel_value = QLabel(uname.release)
         self.text.append('{} {}'.format(label_kernel_name.text(), label_kernel_value.text()))
-        label_kernel_name.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        label_kernel_name.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         grid_layout.addWidget(label_kernel_name, 1, 0)
         grid_layout.addWidget(label_kernel_value, 1, 1)
 
@@ -147,7 +147,7 @@ class AboutWidget(QWidget):
         label_ds_name = QLabel(self.tr("Display server:"))
         label_ds_value = QLabel(my_utils.get_display_server())
         self.text.append('{} {}'.format(label_ds_name.text(), label_ds_value.text()))
-        label_ds_name.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        label_ds_name.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         grid_layout.addWidget(label_ds_name, 2, 0)
         grid_layout.addWidget(label_ds_value, 2, 1)
 
@@ -176,7 +176,7 @@ class AboutWidget(QWidget):
             label_cpu_value = QLabel(value)
             self.text.append('{} {}'.format(name, value))
 
-            label_cpu_name.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            label_cpu_name.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
             grid_layout.addWidget(label_cpu_name, line, 0)
             grid_layout.addWidget(label_cpu_value, line, 1)
 
@@ -189,7 +189,7 @@ class AboutWidget(QWidget):
         s = f"{total_memory / (1024 ** 3):.2f} {gb}"
         label_ram_value = QLabel(s)
         self.text.append('{} {}\n'.format(label_ram_name.text(), label_ram_value.text()))
-        label_ram_name.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        label_ram_name.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         grid_layout.addWidget(label_ram_name, line, 0)
         grid_layout.addWidget(label_ram_value, line, 1)
 
@@ -198,7 +198,7 @@ class AboutWidget(QWidget):
         container_layout.addLayout(grid_layout)
 
         # Добавляем Spacer снизу
-        bottom_spacer = QSpacerItem(5, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        bottom_spacer = QSpacerItem(5, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         container_layout.addItem(bottom_spacer)
 
         # Добавляем контейнер в scroll_area
@@ -211,7 +211,7 @@ class AboutWidget(QWidget):
         self.setLayout(main_layout)
 
         # Устанавливаем поведение контекстного меню
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
 
 
@@ -226,7 +226,7 @@ class AboutWidget(QWidget):
         copy_action.triggered.connect(self.copy_text)
 
         # Показываем контекстное меню
-        context_menu.exec_(self.mapToGlobal(pos))
+        context_menu.exec(self.mapToGlobal(pos))
 
 
     def copy_text(self):

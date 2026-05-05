@@ -3,9 +3,9 @@
 import plugins
 import os
 import json
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont, QPalette
-from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit
+from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont, QPalette
+from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
 
 class PoliciesWindow(QWidget):
     def __init__(self, main_window=None):
@@ -33,8 +33,8 @@ class PoliciesWindow(QWidget):
 
         self.info_title = QLabel()
         self.info_title.setWordWrap(True)
-        self.info_title.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.info_title.setFont(QFont(self.font().family(), 11, QFont.Bold))
+        self.info_title.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        self.info_title.setFont(QFont(self.font().family(), 11, QFont.Weight.Bold))
 
         self.info_text = QTextEdit()
         self.info_text.setReadOnly(True)
@@ -68,7 +68,7 @@ class PoliciesWindow(QWidget):
         right_w.setVisible(False)
         self.right_panel = right_w
 
-        top = QSplitter(Qt.Horizontal)
+        top = QSplitter(Qt.Orientation.Horizontal)
         top.addWidget(left_w)
         top.addWidget(right_w)
         top.setStretchFactor(0, 3)
@@ -159,7 +159,7 @@ class PoliciesWindow(QWidget):
         return self.tr("Implemented by default and cannot be changed")
 
     def immutableItemColor(self):
-        return self.palette().color(QPalette.Disabled, QPalette.Text)
+        return self.palette().color(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text)
 
     def loc_text(self, item: dict) -> tuple[str, str]:
         title = self.loc(item, "title")
@@ -247,9 +247,9 @@ class PoliciesWindow(QWidget):
                 continue
 
             w = QListWidgetItem(title)
-            w.setData(Qt.UserRole, pid)
-            w.setFlags(w.flags() | Qt.ItemIsUserCheckable)
-            w.setCheckState(Qt.Checked if self._desired_states.get(pid, False) else Qt.Unchecked)
+            w.setData(Qt.ItemDataRole.UserRole, pid)
+            w.setFlags(w.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            w.setCheckState(Qt.CheckState.Checked if self._desired_states.get(pid, False) else Qt.CheckState.Unchecked)
 
             if self.isImmutablePolicy(pid):
                 w.setToolTip(self.immutablePolicyText())
@@ -265,14 +265,14 @@ class PoliciesWindow(QWidget):
             if self._current_id is not None:
                 for i in range(self.list.count()):
                     it = self.list.item(i)
-                    if it.data(Qt.UserRole) == self._current_id:
+                    if it.data(Qt.ItemDataRole.UserRole) == self._current_id:
                         target_row = i
                         break
 
             if target_row < 0:
                 for i in range(self.list.count()):
                     it = self.list.item(i)
-                    if it.data(Qt.UserRole) == "hide-users":
+                    if it.data(Qt.ItemDataRole.UserRole) == "hide-users":
                         target_row = i
                         break
 
@@ -288,8 +288,8 @@ class PoliciesWindow(QWidget):
 
         for i in range(self.list.count()):
             it = self.list.item(i)
-            pid = it.data(Qt.UserRole)
-            it.setCheckState(Qt.Checked if self._desired_states.get(pid, False) else Qt.Unchecked)
+            pid = it.data(Qt.ItemDataRole.UserRole)
+            it.setCheckState(Qt.CheckState.Checked if self._desired_states.get(pid, False) else Qt.CheckState.Unchecked)
 
             if self.isImmutablePolicy(pid):
                 it.setToolTip(self.immutablePolicyText())
@@ -310,7 +310,7 @@ class PoliciesWindow(QWidget):
         return None
 
     def onItemClicked(self, it):
-        pid = it.data(Qt.UserRole)
+        pid = it.data(Qt.ItemDataRole.UserRole)
         self._current_id = pid
         data = self.getItem(pid)
         if not data:
@@ -325,18 +325,18 @@ class PoliciesWindow(QWidget):
         if self._updating_checks:
             return
 
-        pid = it.data(Qt.UserRole)
+        pid = it.data(Qt.ItemDataRole.UserRole)
 
         if self.isImmutablePolicy(pid):
             self._updating_checks = True
-            it.setCheckState(Qt.Checked)
+            it.setCheckState(Qt.CheckState.Checked)
             self._updating_checks = False
             self._desired_states[pid] = True
             self._last_states[pid] = True
             self.refreshApplyButton()
             return
 
-        self._desired_states[pid] = (it.checkState() == Qt.Checked)
+        self._desired_states[pid] = (it.checkState() == Qt.CheckState.Checked)
         self.refreshApplyButton()
 
     def appendLog(self, text):
@@ -411,7 +411,7 @@ class PoliciesWindow(QWidget):
         p.setProcessEnvironment(self.sessionProcessEnvironment())
         p.setProgram("pkexec")
         p.setArguments(args)
-        p.setProcessChannelMode(QProcess.MergedChannels)
+        p.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
         def _finished(code, status, msgs=messages, proc=p):
             if code == 0:
                 if msgs:
