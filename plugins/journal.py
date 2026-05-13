@@ -4,7 +4,7 @@ import plugins
 import os
 import json
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QToolButton, QCheckBox, QFileDialog
-from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont
+from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont, QTextCursor, QTextCharFormat, QColor, QPalette
 from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale, QPoint
 
 class JournalsWidget(QWidget):
@@ -673,6 +673,48 @@ class JournalsWidget(QWidget):
             self.page -= 1
             self.loadJournal()
 
+    def priority_color(self, priority):
+        palette = self.text.palette()
+
+        try:
+            priority = int(priority)
+        except:
+            priority = 6
+
+        if priority <= 2:
+            return QColor("#d32f2f")
+        if priority == 3:
+            return QColor("#ef4444")
+        if priority == 4:
+            return QColor("#d97706")
+        if priority == 5:
+            return palette.color(QPalette.ColorRole.Link)
+        if priority == 7:
+            return palette.color(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text)
+
+        return palette.color(QPalette.ColorRole.Text)
+
+    def set_colored_journal_text(self, records, err=""):
+        self.text.clear()
+
+        cursor = self.text.textCursor()
+        cursor.movePosition(QTextCursor.MoveOperation.Start)
+
+        for record in records:
+            fmt = QTextCharFormat()
+            fmt.setForeground(self.priority_color(record.get("priority", 6)))
+            cursor.insertText(record.get("text", ""), fmt)
+            cursor.insertText("\n", fmt)
+
+        if err:
+            fmt = QTextCharFormat()
+            fmt.setForeground(QColor("#ef4444"))
+            cursor.insertText(err, fmt)
+            if not err.endswith("\n"):
+                cursor.insertText("\n", fmt)
+
+        self.text.setTextCursor(cursor)
+
     def loadJournal(self, forced_fetch_lines=None):
         if self.current_source == "auditd":
             self.loadAudit(forced_fetch_lines)
@@ -709,7 +751,7 @@ class JournalsWidget(QWidget):
 
         req_lines = fetch_lines + 1
 
-        args = ["--no-pager", "-n", str(req_lines)]
+        args = ["--no-pager", "-o", "json", "-n", str(req_lines)]
 
         keys = self.get_selected_filter_keys()
         matches = self.build_filter_matches(keys)
@@ -736,11 +778,37 @@ class JournalsWidget(QWidget):
         out = "".join(self.stdout_buf)
         err = "".join(self.stderr_buf)
 
-        lines_all = out.splitlines(True)
+        records_all = []
 
-        if len(lines_all) > self.current_fetch_lines:
+        for raw in out.splitlines():
+            line = raw.strip()
+            if not line:
+                continue
+
+            try:
+                record = json.loads(line)
+            except:
+                continue
+
+            message = str(record.get("MESSAGE", "")).replace("\r", "").rstrip("\n")
+            source = record.get("_SYSTEMD_UNIT") or record.get("SYSLOG_IDENTIFIER") or record.get("_COMM") or record.get("_TRANSPORT") or ""
+            pid = record.get("_PID")
+
+            prefix = ""
+            if source:
+                prefix = str(source)
+                if pid:
+                    prefix += "[" + str(pid) + "]"
+                prefix += ": "
+
+            records_all.append({
+                "text": prefix + message,
+                "priority": record.get("PRIORITY", 6),
+            })
+
+        if len(records_all) > self.current_fetch_lines:
             self.has_more_older = True
-            lines_all = lines_all[1:]
+            records_all = records_all[1:]
         else:
             self.has_more_older = False
 
@@ -748,23 +816,23 @@ class JournalsWidget(QWidget):
         if self.edit_query != None:
             q = self.edit_query.text().strip()
 
-        lines = lines_all
+        records = records_all
         if q:
             ql = q.lower()
             filtered = []
-            for ln in lines:
-                if ql in ln.lower():
-                    filtered.append(ln)
-            lines = filtered
+            for record in records:
+                if ql in record.get("text", "").lower():
+                    filtered.append(record)
+            records = filtered
 
-            if self.has_more_older and len(lines) < self.rescan_target:
+            if self.has_more_older and len(records) < self.rescan_target:
                 self.loadJournal(self.current_fetch_lines * 2)
                 return
 
-        total = len(lines)
+        total = len(records)
         if total <= 0:
             self.page = 0
-            view = ""
+            view_records = []
         else:
             max_page = (total - 1) // self.limit
             if self.page > max_page:
@@ -779,14 +847,9 @@ class JournalsWidget(QWidget):
             if end > total:
                 end = total
 
-            view = "".join(lines[start:end])
+            view_records = records[start:end]
 
-        if err:
-            if view and not view.endswith("\n"):
-                view += "\n"
-            view += err
-
-        self.text.setPlainText(view)
+        self.set_colored_journal_text(view_records, err)
 
         self.loading = False
         self.update_nav_buttons()
@@ -809,7 +872,7 @@ class PluginJournals(plugins.Base):
         try:
             if hasattr(main_window, '_expert_mode'):
                 main_widget.set_expert_mode(bool(main_window._expert_mode))
-        except Exception:
+        except:
             pass
 
         self.pane.insertWidget(idx, main_widget)
