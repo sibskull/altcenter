@@ -39,6 +39,8 @@ import pathlib
 from ui_mainwindow import Ui_MainWindow
 from plugins import Base
 
+import alterator
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 plugin_path = os.path.join(current_dir, "plugins")
 
@@ -182,6 +184,7 @@ class MainWindow(QWidget, Ui_MainWindow):
         self.expertModeTimer.timeout.connect(self.onExpertModeTimeout)
 
         self._build_expert_ui()
+        self._start_components_probe()
 
     def _build_expert_ui(self):
         self.expertModeButton = QToolButton(self)
@@ -218,6 +221,47 @@ class MainWindow(QWidget, Ui_MainWindow):
             """)
         except Exception:
             pass
+
+    def _start_components_probe(self):
+        self._components_probe_timer = QTimer(self)
+        self._components_probe_timer.setInterval(250)
+        self._components_probe_timer.timeout.connect(self._check_components_probe)
+
+        for p in Base.plugins:
+            starter = getattr(p, 'start_background_probe', None)
+            if callable(starter):
+                try:
+                    starter()
+                    self._components_probe_timer.start()
+                except Exception:
+                    pass
+                break
+
+    def _check_components_probe(self):
+        for p in Base.plugins:
+            finished = getattr(p, 'probe_finished', None)
+            available = getattr(p, 'probe_available', None)
+
+            if not callable(finished) or not callable(available):
+                continue
+
+            try:
+                if not finished():
+                    return
+            except Exception:
+                self._components_probe_timer.stop()
+                return
+
+            self._components_probe_timer.stop()
+
+            try:
+                if available():
+                    self._rebuild_plugins(keep_current=True)
+            except Exception:
+                pass
+            return
+
+        self._components_probe_timer.stop()
 
     def _request_admin_access(self) -> bool:
         proc = QProcess(self)
@@ -296,6 +340,13 @@ class MainWindow(QWidget, Ui_MainWindow):
                 inst_probe = None
 
             if self._plugin_requires_admin(inst_probe) and not self._expert_mode:
+                continue
+
+            try:
+                if inst_probe != None and inst_probe.name == "components":
+                    if not alterator.Components().has_any():
+                        continue
+            except Exception:
                 continue
 
             inst = p(self.list_module_model, self.stack)
