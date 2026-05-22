@@ -227,8 +227,8 @@ class ComponentsWindow(QWidget):
             # Update apt caches before installation
             cmd = f"pkcon refresh force -p -y && pkcon install -p -y {' '.join(install_packages)}"
             self.pending_commands.append({
-                "program": "sh",
-                "args": ["-c", cmd]
+                "program": "pkexec",
+                "args": ["/bin/sh", "-c", cmd]
             })
 
         if not self.pending_commands:
