@@ -344,10 +344,11 @@ class MainWindow(QWidget, Ui_MainWindow):
 
             try:
                 if inst_probe != None and inst_probe.name == "components":
-                    if not alterator.Components().has_any():
+                    has_any = getattr(alterator.Components(), "has_any", None)
+                    if callable(has_any) and not has_any():
                         continue
             except Exception:
-                continue
+                pass
 
             inst = p(self.list_module_model, self.stack)
             self._plugs.append(inst)
