@@ -65,13 +65,13 @@
     },
     {
       "id": "deny-system-accounts",
-      "title": "В графический вход разрешен только UID>=UID_MIN",
+      "title": "Запрет входа системных учётных записей(UID>=UID_MIN) в графическую сессию",
       "title_en": "Only UID>=UID_MIN are allowed for graphical login",
       "section": "Настройка авторизации",
       "subsection": "Настройка параметров политики графического входа",
       "scope": "system",
       "dm": "any",
-      "description": "В графическом входе разрешаются только UID>=UID_MIN; системные учётные записи и root скрываются в списках.",
+      "description": "Вход в графическую сессию разрешается только пользователям с UID>=UID_MIN, системные учётные записи и root скрываются из списков.",
       "description_en": "Only UID>=UID_MIN are allowed at graphical login; system accounts and root are hidden from lists.",
       "apply": [
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; UID_MIN=$(awk '/^[[:space:]]*UID_MIN[[:space:]]+/ { print $2; exit }' /etc/login.defs 2>/dev/null); [ -n \"$UID_MIN\" ] || UID_MIN=1000; mkdir -p /etc/lightdm/lightdm.conf.d /etc/sddm.conf.d /etc/dconf/db/gdm.d; printf 'policy:deny-system-accounts\\nUID_MIN=%s\\n[Seat:*]\\nminimum-uid=%s\\n' \"$UID_MIN\" \"$UID_MIN\" > /etc/lightdm/lightdm.conf.d/50-altcenter-deny-system-accounts.conf; printf 'policy:deny-system-accounts\\nUID_MIN=%s\\n[Users]\\nMinimumUid=%s\\n' \"$UID_MIN\" \"$UID_MIN\" > /etc/sddm.conf.d/50-altcenter-deny-system-accounts.conf; printf 'policy:deny-system-accounts\\nUID_MIN=%s\\n' \"$UID_MIN\" > /etc/dconf/db/gdm.d/50-altcenter-deny-system-accounts"]},
@@ -176,7 +176,7 @@
       "subsection": "Блокирование сеанса: параметры экрана блокировки",
       "scope": "system",
       "dm": "any",
-      "description": "LightDM(KDE): скрыть имя пользователя, кнопки действий и медиа-контролы + отключить уведомления на лочскрине; GDM(GNOME): запрет уведомлений на лочскрине и переключения пользователей; SDDM(KDE): скрыть имя и кнопки на экране блокировки + отключить уведомления.",
+      "description": "LightDM (KDE): скрывает имя пользователя, кнопки действий и элементы управления мультимедиа на экране блокировки, а также отключает уведомления; GDM (GNOME): отключает уведомления на экране блокировки и возможность переключения пользователей; SDDM (KDE): скрывает имя пользователя и кнопки действий на экране блокировки, а также отключает уведомления.",
       "description_en": "LightDM(MATE): disable user switching; GDM(GNOME): disable lock-screen notifications and user switching; SDDM(KDE): hide username and action buttons on the lock screen.",
       "apply": [
         { "type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/dconf/db/gdm.d /etc/dconf/db/local.d /etc/dconf/db/local.d/locks; printf '# altcenter-lock-hide-session-info\\n' > /etc/dconf/db/gdm.d/50-altcenter-lock-hide-session-info; printf '[org/gnome/desktop/notifications]\\nshow-in-lock-screen=false\\n\\n[org/gnome/desktop/lockdown]\\ndisable-user-switching=true\\n' > /etc/dconf/db/local.d/50-altcenter-lock-hide-session-info; printf '/org/gnome/desktop/notifications/show-in-lock-screen\\n/org/gnome/desktop/lockdown/disable-user-switching\\n' > /etc/dconf/db/local.d/locks/50-altcenter-lock-hide-session-info; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true; true"]},
@@ -197,7 +197,7 @@
       "subsection":"Блокирование сеанса: энергосбережение",
       "scope":"system",
       "dm":"any",
-      "description":"Маскирование sleep/suspend/hibernate/hybrid-sleep, игнор событий в logind, запрет polkit; профили GNOME/MATE/KDE отключают автосон.",
+      "description": "Отключает режимы сна, гибернации и гибридного сна: маскирует соответствующие systemd-цели, запрещает обработку событий в logind и блокирует выполнение операций через polkit. Для GNOME, MATE и KDE также отключается автоматический переход в спящий режим.",
       "description_en":"Mask sleep/suspend/hibernate/hybrid-sleep targets, ignore events in logind, deny via polkit; GNOME/MATE/KDE profiles disable auto-suspend.",
       "apply":[
         {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d /etc/systemd/logind.conf.d /etc/polkit-1/rules.d /etc/dconf/db/local.d /etc/dconf/db/local.d/locks /etc/xdg; printf '# altcenter-no-sleep-modes\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-no-sleep-modes.conf; printf '[Login]\\nHandleLidSwitch=ignore\\nHandleLidSwitchExternalPower=ignore\\nHandleSuspendKey=ignore\\nHandleHibernateKey=ignore\\n' > /etc/systemd/logind.conf.d/50-altcenter-no-sleep-modes.conf; systemctl daemon-reload; systemctl mask --now sleep.target suspend.target hibernate.target hybrid-sleep.target 2>/dev/null || true; printf 'polkit.addRule(function(a,s){ if((/^org\\\\.freedesktop\\\\.login1\\\\./).test(a.id) && /(suspend|hibernate|hybrid-sleep)/.test(a.id)) return polkit.Result.NO; if((/^org\\\\.freedesktop\\\\.UPower\\\\./).test(a.id) && /(Suspend|Hibernate)/.test(a.id)) return polkit.Result.NO; });\\n' > /etc/polkit-1/rules.d/50-altcenter-no-sleep-modes.rules; printf '[org/mate/power-manager]\\nsleep-computer-ac=uint32 0\\nsleep-computer-battery=uint32 0\\n' > /etc/dconf/db/local.d/50-altcenter-no-sleep-modes; printf '/org/mate/power-manager/sleep-computer-ac\\n/org/mate/power-manager/sleep-computer-battery\\n' > /etc/dconf/db/local.d/locks/50-altcenter-no-sleep-modes; printf '# altcenter-no-sleep-modes\\n[AC][SuspendSession]\\nidleTime=0\\nsuspendType=0\\n[Battery][SuspendSession]\\nidleTime=0\\nsuspendType=0\\n[AC][DPMS]\\nidleTime=0\\n[Battery][DPMS]\\nidleTime=0\\n' > /etc/xdg/powermanagementprofilesrc; command -v dconf >/dev/null 2>&1 && dconf update 2>/dev/null || true; systemctl reload-or-restart systemd-logind 2>/dev/null || true; true"]},
@@ -239,7 +239,7 @@
       "subsection": "Настройка параметров блокирования сеанса доступа после времени бездействия",
       "scope": "system",
       "dm": "any",
-      "description": "Убирает пункты загрузки в режиме восстановления/фейлсейф, устанавливая GRUB_VMLINUZ_FAILSAFE=false в /etc/sysconfig/grub2 и пересобирая grub.cfg.",
+      "description": "Удаляет пункты загрузки в режиме восстановления (recovery/failsafe) из меню GRUB2, устанавливая параметр GRUB_VMLINUZ_FAILSAFE=false в файле /etc/sysconfig/grub2 с последующей пересборкой grub.cfg.",
       "description_en": "Removes recovery/failsafe boot entries by setting GRUB_VMLINUZ_FAILSAFE=false in /etc/sysconfig/grub2 and rebuilding grub.cfg.",
       "apply": [
         {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; cfg=/etc/sysconfig/grub2; st=/etc/altcenter/policy-state/grub-disable-recovery-mode.prev; mkdir -p /etc/sysconfig /etc/altcenter/policy-state /etc/lightdm/lightdm.conf.d; [ -f \"$cfg\" ] || : > \"$cfg\"; [ -f \"$st\" ] || (grep -E '^[[:space:]]*#?[[:space:]]*GRUB_VMLINUZ_FAILSAFE=' \"$cfg\" | tail -n1 > \"$st\" || : > \"$st\"); sed -ri '/^[[:space:]]*#?[[:space:]]*GRUB_VMLINUZ_FAILSAFE=/d' \"$cfg\" || true; printf '\\nGRUB_VMLINUZ_FAILSAFE=false # altcenter-grub-disable-recovery-mode\\n' >> \"$cfg\"; if command -v update-grub >/dev/null 2>&1; then update-grub 2>/dev/null || true; elif command -v grub-mkconfig >/dev/null 2>&1; then out=/boot/grub/grub.cfg; [ -f /boot/grub2/grub.cfg ] && out=/boot/grub2/grub.cfg; grub-mkconfig -o \"$out\" 2>/dev/null || true; fi; : > /etc/lightdm/lightdm.conf.d/50-altcenter-grub-disable-recovery-mode.conf; true"]},
@@ -254,7 +254,7 @@
     },
     {
       "id": "deny-root-ssh-login",
-      "title": "Запрет удаленного доступа по ssh с правами root",
+      "title": "Запрет удалённого входа по SSH от имени root",
       "title_en": "Disallow remote SSH access as root",
       "section": "Настройка авторизации",
       "subsection": "Настройка параметров политики удаленного доступа",
