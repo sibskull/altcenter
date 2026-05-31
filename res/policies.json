@@ -272,6 +272,48 @@
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-deny-root-ssh-login.conf 2>/dev/null || true; rm -f /etc/sddm.conf.d/50-altcenter-deny-root-ssh-login.conf 2>/dev/null || true; rm -f /etc/dconf/db/gdm.d/50-altcenter-deny-root-ssh-login 2>/dev/null || true"]},
         {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; systemctl reload sshd.service 2>/dev/null || systemctl restart sshd.service 2>/dev/null || service sshd reload 2>/dev/null || service sshd restart 2>/dev/null || true"]}
       ]
-    }        
+    },
+    {
+      "id": "deny-removable-mount",
+      "title": "Запрет монтирования съёмных носителей",
+      "title_en": "Disallow mounting removable media",
+      "section": "Настройка учетных записей и управление доступом",
+      "subsection": "Ограничение действий с внешними носителями",
+      "scope": "system",
+      "dm": "any",
+      "description": "Запрещает пользователям, кроме root, монтировать съёмные носители через udisks2. Политика блокирует polkit-действия filesystem-mount.",
+      "description_en": "Disallows users except root from mounting removable media via udisks2. The policy blocks filesystem-mount polkit actions.",
+      "apply": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d /etc/polkit-1/rules.d; printf 'policy:deny-removable-mount\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-deny-removable-mount.conf; printf 'polkit.addRule(function(action, subject) {\\n    if (action.id.indexOf(\"org.freedesktop.udisks2.filesystem-mount\") == 0) {\\n        if (subject.user != \"root\") {\\n            return polkit.Result.NO;\\n        }\\n    }\\n});\\n' > /etc/polkit-1/rules.d/50-altcenter-deny-removable-mount.rules"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/dconf/db/gdm.d /etc/polkit-1/rules.d; printf 'policy:deny-removable-mount\\n' > /etc/dconf/db/gdm.d/50-altcenter-deny-removable-mount; printf 'polkit.addRule(function(action, subject) {\\n    if (action.id.indexOf(\"org.freedesktop.udisks2.filesystem-mount\") == 0) {\\n        if (subject.user != \"root\") {\\n            return polkit.Result.NO;\\n        }\\n    }\\n});\\n' > /etc/polkit-1/rules.d/50-altcenter-deny-removable-mount.rules"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; mkdir -p /etc/sddm.conf.d /etc/polkit-1/rules.d; printf 'policy:deny-removable-mount\\n' > /etc/sddm.conf.d/50-altcenter-deny-removable-mount.conf; printf 'polkit.addRule(function(action, subject) {\\n    if (action.id.indexOf(\"org.freedesktop.udisks2.filesystem-mount\") == 0) {\\n        if (subject.user != \"root\") {\\n            return polkit.Result.NO;\\n        }\\n    }\\n});\\n' > /etc/polkit-1/rules.d/50-altcenter-deny-removable-mount.rules"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-deny-removable-mount.conf 2>/dev/null || true; rm -f /etc/polkit-1/rules.d/50-altcenter-deny-removable-mount.rules 2>/dev/null || true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/dconf/db/gdm.d/50-altcenter-deny-removable-mount 2>/dev/null || true; rm -f /etc/polkit-1/rules.d/50-altcenter-deny-removable-mount.rules 2>/dev/null || true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sddm.conf.d/50-altcenter-deny-removable-mount.conf 2>/dev/null || true; rm -f /etc/polkit-1/rules.d/50-altcenter-deny-removable-mount.rules 2>/dev/null || true"]}
+      ]
+    },
+    {
+      "id": "deny-removable-format",
+      "title": "Запрет форматирования съёмных носителей",
+      "title_en": "Disallow formatting removable media",
+      "section": "Настройка учетных записей и управление доступом",
+      "subsection": "Ограничение действий с внешними носителями",
+      "scope": "system",
+      "dm": "any",
+      "description": "Запрещает пользователям, кроме root, форматировать и изменять съёмные носители через графические приложения и udisks2. Политика блокирует polkit-действия modify-device.",
+      "description_en": "Disallows users except root from formatting and modifying removable media via graphical applications and udisks2. The policy blocks modify-device polkit actions.",
+      "apply": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d /etc/polkit-1/rules.d; printf 'policy:deny-removable-format\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-deny-removable-format.conf; printf 'polkit.addRule(function(action, subject) {\\n    if (action.id.indexOf(\"org.freedesktop.udisks2.modify-device\") == 0) {\\n        if (subject.user != \"root\") {\\n            return polkit.Result.NO;\\n        }\\n    }\\n});\\n' > /etc/polkit-1/rules.d/50-altcenter-deny-removable-format.rules"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/dconf/db/gdm.d /etc/polkit-1/rules.d; printf 'policy:deny-removable-format\\n' > /etc/dconf/db/gdm.d/50-altcenter-deny-removable-format; printf 'polkit.addRule(function(action, subject) {\\n    if (action.id.indexOf(\"org.freedesktop.udisks2.modify-device\") == 0) {\\n        if (subject.user != \"root\") {\\n            return polkit.Result.NO;\\n        }\\n    }\\n});\\n' > /etc/polkit-1/rules.d/50-altcenter-deny-removable-format.rules"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; mkdir -p /etc/sddm.conf.d /etc/polkit-1/rules.d; printf 'policy:deny-removable-format\\n' > /etc/sddm.conf.d/50-altcenter-deny-removable-format.conf; printf 'polkit.addRule(function(action, subject) {\\n    if (action.id.indexOf(\"org.freedesktop.udisks2.modify-device\") == 0) {\\n        if (subject.user != \"root\") {\\n            return polkit.Result.NO;\\n        }\\n    }\\n});\\n' > /etc/polkit-1/rules.d/50-altcenter-deny-removable-format.rules"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-deny-removable-format.conf 2>/dev/null || true; rm -f /etc/polkit-1/rules.d/50-altcenter-deny-removable-format.rules 2>/dev/null || true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/dconf/db/gdm.d/50-altcenter-deny-removable-format 2>/dev/null || true; rm -f /etc/polkit-1/rules.d/50-altcenter-deny-removable-format.rules 2>/dev/null || true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sddm.conf.d/50-altcenter-deny-removable-format.conf 2>/dev/null || true; rm -f /etc/polkit-1/rules.d/50-altcenter-deny-removable-format.rules 2>/dev/null || true"]}
+      ]
+    }    
   ]
 }
