@@ -314,6 +314,48 @@
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/dconf/db/gdm.d/50-altcenter-deny-removable-format 2>/dev/null || true; rm -f /etc/polkit-1/rules.d/50-altcenter-deny-removable-format.rules 2>/dev/null || true"]},
         {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sddm.conf.d/50-altcenter-deny-removable-format.conf 2>/dev/null || true; rm -f /etc/polkit-1/rules.d/50-altcenter-deny-removable-format.rules 2>/dev/null || true"]}
       ]
-    }    
+    },
+    {
+      "id": "deny-wifi-access",
+      "title": "Ограничение доступа к Wi-Fi",
+      "title_en": "Restrict Wi-Fi access",
+      "section": "Настройка учетных записей и управление доступом",
+      "subsection": "Ограничение доступа к сетевым функциям",
+      "scope": "system",
+      "dm": "any",
+      "description": "Отключает Wi-Fi и запрещает пользователям, кроме root, включать Wi-Fi через NetworkManager.",
+      "description_en": "Disables Wi-Fi and prevents users except root from enabling Wi-Fi via NetworkManager.",
+      "apply": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d /etc/polkit-1/rules.d; printf 'policy:deny-wifi-access\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-deny-wifi-access.conf; nmcli radio wifi off 2>/dev/null || true; printf 'polkit.addRule(function(action, subject) {\\n    if (action.id == \"org.freedesktop.NetworkManager.enable-disable-wifi\") {\\n        if (subject.user != \"root\") {\\n            return polkit.Result.NO;\\n        }\\n    }\\n});\\n' > /etc/polkit-1/rules.d/50-altcenter-deny-wifi-access.rules"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/dconf/db/gdm.d /etc/polkit-1/rules.d; printf 'policy:deny-wifi-access\\n' > /etc/dconf/db/gdm.d/50-altcenter-deny-wifi-access; nmcli radio wifi off 2>/dev/null || true; printf 'polkit.addRule(function(action, subject) {\\n    if (action.id == \"org.freedesktop.NetworkManager.enable-disable-wifi\") {\\n        if (subject.user != \"root\") {\\n            return polkit.Result.NO;\\n        }\\n    }\\n});\\n' > /etc/polkit-1/rules.d/50-altcenter-deny-wifi-access.rules"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; mkdir -p /etc/sddm.conf.d /etc/polkit-1/rules.d; printf 'policy:deny-wifi-access\\n' > /etc/sddm.conf.d/50-altcenter-deny-wifi-access.conf; nmcli radio wifi off 2>/dev/null || true; printf 'polkit.addRule(function(action, subject) {\\n    if (action.id == \"org.freedesktop.NetworkManager.enable-disable-wifi\") {\\n        if (subject.user != \"root\") {\\n            return polkit.Result.NO;\\n        }\\n    }\\n});\\n' > /etc/polkit-1/rules.d/50-altcenter-deny-wifi-access.rules"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-deny-wifi-access.conf 2>/dev/null || true; rm -f /etc/polkit-1/rules.d/50-altcenter-deny-wifi-access.rules 2>/dev/null || true; nmcli radio wifi on 2>/dev/null || true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/dconf/db/gdm.d/50-altcenter-deny-wifi-access 2>/dev/null || true; rm -f /etc/polkit-1/rules.d/50-altcenter-deny-wifi-access.rules 2>/dev/null || true; nmcli radio wifi on 2>/dev/null || true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sddm.conf.d/50-altcenter-deny-wifi-access.conf 2>/dev/null || true; rm -f /etc/polkit-1/rules.d/50-altcenter-deny-wifi-access.rules 2>/dev/null || true; nmcli radio wifi on 2>/dev/null || true"]}
+      ]
+    },
+    {
+      "id": "deny-bluetooth-access",
+      "title": "Ограничение доступа к Bluetooth",
+      "title_en": "Restrict Bluetooth access",
+      "section": "Настройка учетных записей и управление доступом",
+      "subsection": "Ограничение доступа к сетевым функциям",
+      "scope": "system",
+      "dm": "any",
+      "description": "Отключает Bluetooth и запрещает запуск bluetooth.service через systemd.",
+      "description_en": "Disables Bluetooth and prevents bluetooth.service from being started via systemd.",
+      "apply": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d; printf 'policy:deny-bluetooth-access\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-deny-bluetooth-access.conf; systemctl mask --now bluetooth.service 2>/dev/null || true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/dconf/db/gdm.d; printf 'policy:deny-bluetooth-access\\n' > /etc/dconf/db/gdm.d/50-altcenter-deny-bluetooth-access; systemctl mask --now bluetooth.service 2>/dev/null || true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; mkdir -p /etc/sddm.conf.d; printf 'policy:deny-bluetooth-access\\n' > /etc/sddm.conf.d/50-altcenter-deny-bluetooth-access.conf; systemctl mask --now bluetooth.service 2>/dev/null || true"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-deny-bluetooth-access.conf 2>/dev/null || true; systemctl unmask bluetooth.service 2>/dev/null || true; systemctl enable --now bluetooth.service 2>/dev/null || true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/dconf/db/gdm.d/50-altcenter-deny-bluetooth-access 2>/dev/null || true; systemctl unmask bluetooth.service 2>/dev/null || true; systemctl enable --now bluetooth.service 2>/dev/null || true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sddm.conf.d/50-altcenter-deny-bluetooth-access.conf 2>/dev/null || true; systemctl unmask bluetooth.service 2>/dev/null || true; systemctl enable --now bluetooth.service 2>/dev/null || true"]}
+      ]
+    }  
   ]
 }
