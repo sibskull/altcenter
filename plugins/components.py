@@ -225,7 +225,7 @@ class ComponentsWindow(QWidget):
         # TODO: need use D-Bus Alterator call
         if install_packages:
             # Update apt caches before installation
-            cmd = f"pkcon refresh force -p -y && pkcon install -p -y {' '.join(install_packages)}"
+            cmd = f"apt-get update && apt-get install -y {' '.join(install_packages)}"
             self.pending_commands.append({
                 "program": "pkexec",
                 "args": ["/bin/sh", "-c", cmd]
@@ -282,12 +282,12 @@ class ComponentsWindow(QWidget):
 
 
     def on_install_output(self):
-        output = self.proc_install.readAllStandardOutput().data().decode()
+        output = self.proc_install.readAllStandardOutput().data().decode(errors="replace")
         self.append_to_console(output)
 
 
     def on_install_error(self):
-        error = self.proc_install.readAllStandardError().data().decode()
+        error = self.proc_install.readAllStandardError().data().decode(errors="replace")
         self.append_to_console(error, is_error=True)
 
 
@@ -300,11 +300,10 @@ class ComponentsWindow(QWidget):
                 continue
 
             process = QProcess()
-            process.start("rpm", ["-q"] + comp.packages)
+            process.start("rpm", ["-q", "--whatprovides"] + comp.packages)
             process.waitForFinished(3000)
 
-            output = process.readAllStandardOutput().data().decode()
-            all_installed = all(pkg in output for pkg in comp.packages)
+            all_installed = (process.exitCode() == 0)
 
             new_state = Qt.CheckState.Checked if all_installed else Qt.CheckState.Unchecked
             comp._installed = all_installed
