@@ -30,6 +30,7 @@ class ComponentsWindow(QWidget):
 
         self.components_info = [] # List of components
         self.component_map = {}
+        self.package_installed_map = {}
 
         self.update_timer = QTimer()
         self.update_timer.setInterval(60000)  # 60 сек
@@ -292,6 +293,8 @@ class ComponentsWindow(QWidget):
 
 
     def update_checkboxes(self):
+        self.package_installed_map = {}
+
         for i in range(self.list_widget.count()):
             item = self.list_widget.item(i)
             comp_name = item.data(Qt.ItemDataRole.UserRole)
@@ -303,7 +306,11 @@ class ComponentsWindow(QWidget):
             process.start("rpm", ["-q", "--whatprovides"] + comp.packages)
             process.waitForFinished(3000)
 
+            missing = process.readAllStandardError().data().decode(errors="replace")
             all_installed = (process.exitCode() == 0)
+
+            for pkg in comp.packages:
+                self.package_installed_map[pkg] = (pkg not in missing)
 
             new_state = Qt.CheckState.Checked if all_installed else Qt.CheckState.Unchecked
             comp._installed = all_installed
@@ -327,7 +334,8 @@ class ComponentsWindow(QWidget):
             if comp.packages:
                 lines.append(self.tr("This component consists of:"))
                 for pkg in comp.packages:
-                    lines.append(f"  - {pkg}")
+                    mark = " ✓" if self.package_installed_map.get(pkg, False) else ""
+                    lines.append(f"  - {pkg}{mark}")
             else:
                 lines.append(self.tr("This component: ") + comp["key"])
 
