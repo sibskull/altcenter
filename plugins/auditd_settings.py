@@ -27,6 +27,7 @@ class JournalsWidget(QWidget):
         self.privileged_commands_audit_checkbox = None
         self.network_config_audit_checkbox = None
         self.kernel_module_audit_checkbox = None
+        self.system_power_audit_checkbox = None
         self.account_modification_audit_checkbox = None
         self.file_delete_audit_checkbox = None
         self.mount_export_audit_checkbox = None
@@ -158,6 +159,14 @@ class JournalsWidget(QWidget):
 
         kernel_module_audit.addStretch(1)
         layout.addLayout(kernel_module_audit)
+
+        system_power_audit = QHBoxLayout()
+
+        self.system_power_audit_checkbox = QCheckBox(self.tr("Audit system shutdown and reboot"))
+        system_power_audit.addWidget(self.system_power_audit_checkbox)
+
+        system_power_audit.addStretch(1)
+        layout.addLayout(system_power_audit)
 
         account_modification_audit = QHBoxLayout()
 
@@ -439,6 +448,7 @@ class JournalsWidget(QWidget):
             self.privileged_commands_audit_checkbox.setChecked(False)
             self.network_config_audit_checkbox.setChecked(False)
             self.kernel_module_audit_checkbox.setChecked(False)
+            self.system_power_audit_checkbox.setChecked(False)
             self.account_modification_audit_checkbox.setChecked(False)
             self.file_delete_audit_checkbox.setChecked(False)
             self.mount_export_audit_checkbox.setChecked(False)
@@ -511,6 +521,19 @@ class JournalsWidget(QWidget):
             and self.hasRuleForPath(lines, "/etc/sysctl.conf")
         )
 
+        system_power_rule = self.hasAllExistingPaths(lines, [
+            "/usr/bin/loginctl",
+            "/bin/loginctl",
+            "/usr/sbin/reboot",
+            "/sbin/reboot",
+            "/usr/sbin/poweroff",
+            "/sbin/poweroff",
+            "/usr/sbin/shutdown",
+            "/sbin/shutdown",
+            "/usr/sbin/halt",
+            "/sbin/halt",
+        ])
+
         account_modification_rule = self.hasAllExistingPaths(lines, [
             "/usr/sbin/adduser",
             "/usr/sbin/useradd",
@@ -581,6 +604,7 @@ class JournalsWidget(QWidget):
         self.privileged_commands_audit_checkbox.setChecked(privileged_commands_rule)
         self.network_config_audit_checkbox.setChecked(network_config_rule)
         self.kernel_module_audit_checkbox.setChecked(kernel_module_rule)
+        self.system_power_audit_checkbox.setChecked(system_power_rule)
         self.account_modification_audit_checkbox.setChecked(account_modification_rule)
         self.file_delete_audit_checkbox.setChecked(file_delete_rule)
         self.mount_export_audit_checkbox.setChecked(mount_export_rule)
@@ -776,6 +800,25 @@ class JournalsWidget(QWidget):
                 ]
             )
 
+        system_power_rules = ""
+        if self.system_power_audit_checkbox.isChecked():
+            system_power_rules = self.buildWatchRules(
+                "system_power",
+                "system_power",
+                [
+                    ("/usr/bin/loginctl", "x"),
+                    ("/bin/loginctl", "x"),
+                    ("/usr/sbin/reboot", "x"),
+                    ("/sbin/reboot", "x"),
+                    ("/usr/sbin/poweroff", "x"),
+                    ("/sbin/poweroff", "x"),
+                    ("/usr/sbin/shutdown", "x"),
+                    ("/sbin/shutdown", "x"),
+                    ("/usr/sbin/halt", "x"),
+                    ("/sbin/halt", "x"),
+                ]
+            )
+
         account_modification_rules = ""
         if self.account_modification_audit_checkbox.isChecked():
             account_modification_rules = self.buildWatchRules(
@@ -859,6 +902,7 @@ class JournalsWidget(QWidget):
             + privileged_commands_rules
             + network_config_rules
             + kernel_module_rules
+            + system_power_rules
             + account_modification_rules
             + file_delete_rules
             + mount_export_rules
