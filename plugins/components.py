@@ -258,6 +258,18 @@ class ComponentsWindow(QWidget):
         self.console.ensureCursorVisible()
 
 
+    def filter_console_output(self, text):
+        filtered_lines = []
+
+        for line in text.splitlines(True):
+            if line.strip() == "egrep: warning: egrep is obsolescent; using grep -E":
+                continue
+
+            filtered_lines.append(line)
+
+        return "".join(filtered_lines)
+
+
     def refresh_installed_status(self):
         self.load_components_from_dbus()
         self.populate_list()
@@ -284,11 +296,13 @@ class ComponentsWindow(QWidget):
 
     def on_install_output(self):
         output = self.proc_install.readAllStandardOutput().data().decode(errors="replace")
+        output = self.filter_console_output(output)
         self.append_to_console(output)
 
 
     def on_install_error(self):
         error = self.proc_install.readAllStandardError().data().decode(errors="replace")
+        error = self.filter_console_output(error)
         self.append_to_console(error, is_error=True)
 
 

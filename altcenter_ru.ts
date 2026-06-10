@@ -130,7 +130,7 @@
 <context>
     <name>Components</name>
     <message>
-        <location filename="plugins/components.py" line="346"/>
+        <location filename="plugins/components.py" line="353"/>
         <source>Components</source>
         <translation>Компоненты</translation>
     </message>
@@ -293,42 +293,42 @@
 <context>
     <name>ComponentsWindow</name>
     <message>
-        <location filename="plugins/components.py" line="68"/>
+        <location filename="plugins/components.py" line="69"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="103"/>
+        <location filename="plugins/components.py" line="104"/>
         <source>Show console</source>
         <translation>Показать консоль</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="103"/>
+        <location filename="plugins/components.py" line="104"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="271"/>
+        <location filename="plugins/components.py" line="272"/>
         <source>Operation completed successfully.</source>
         <translation>Операция успешно завершена.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="273"/>
+        <location filename="plugins/components.py" line="274"/>
         <source>The operation failed with an error.</source>
         <translation>Операция завершилась с ошибкой.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="329"/>
+        <location filename="plugins/components.py" line="335"/>
         <source>This component consists of:</source>
         <translation>Этот компонент состоит из:</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="333"/>
+        <location filename="plugins/components.py" line="340"/>
         <source>This component: </source>
         <translation>Данный компонент: </translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="63"/>
+        <location filename="plugins/components.py" line="64"/>
         <source>The complete process of installing or removing components will be shown here.</source>
         <translation>Здесь будет показан полный процесс установки или удаления компонентов.</translation>
     </message>
@@ -908,7 +908,7 @@ Please try again later</source>
         <translation>Фильтры:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="622"/>
+        <location filename="plugins/journal.py" line="621"/>
         <source>Select filters</source>
         <translation>Выбранные фильтры</translation>
     </message>
@@ -1008,12 +1008,12 @@ Please try again later</source>
         <translation>Текущий объем журнала:</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="78"/>
+        <location filename="plugins/auditd_settings.py" line="79"/>
         <source>SystemKeepFree (MB):</source>
         <translation>Объем свободного места (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="56"/>
+        <location filename="plugins/auditd_settings.py" line="57"/>
         <source>SystemMaxFileSize (MB):</source>
         <translation>Максимальный объем файла журнала (МБ):</translation>
     </message>
@@ -1033,7 +1033,7 @@ Please try again later</source>
         <translation>Сохранить</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="494"/>
+        <location filename="plugins/journal.py" line="493"/>
         <source>Save log</source>
         <translation>Сохранить журнал</translation>
     </message>
@@ -1063,7 +1063,7 @@ Please try again later</source>
         <translation>3) Расположение журналов: /var/log/audit/audit.log</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="89"/>
+        <location filename="plugins/auditd_settings.py" line="90"/>
         <source>AdminSpaceLeft (MB):</source>
         <translation>Критический объем свободного места (МБ):</translation>
     </message>
@@ -1083,100 +1083,110 @@ Please try again later</source>
         <translation>Максимальный объем файла журнала (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="100"/>
+        <location filename="plugins/auditd_settings.py" line="101"/>
         <source>Audit password and account changes</source>
         <translation>Аудит изменений паролей и учётных записей</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="108"/>
+        <location filename="plugins/auditd_settings.py" line="109"/>
         <source>Audit audit configuration changes</source>
         <translation>Аудит изменений конфигурации audit</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="116"/>
+        <location filename="plugins/auditd_settings.py" line="117"/>
         <source>Audit audit log read/export</source>
         <translation>Аудит чтения/экспорта журнала audit</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="124"/>
+        <location filename="plugins/auditd_settings.py" line="125"/>
         <source>Audit journald configuration changes</source>
         <translation>Аудит изменений конфигурации journald</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="132"/>
+        <location filename="plugins/auditd_settings.py" line="133"/>
         <source>Audit password policy configuration changes</source>
         <translation>Аудит изменений конфигурации политики паролей</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="140"/>
+        <location filename="plugins/auditd_settings.py" line="141"/>
         <source>Audit privileged commands usage</source>
         <translation>Аудит использования привилегированных команд</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="148"/>
+        <location filename="plugins/auditd_settings.py" line="149"/>
         <source>Audit network environment changes</source>
         <translation>Аудит изменений сетевого окружения</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="156"/>
+        <location filename="plugins/auditd_settings.py" line="157"/>
         <source>Audit kernel module changes</source>
         <translation>Аудит изменений модулей ядра</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="164"/>
+        <location filename="plugins/auditd_settings.py" line="173"/>
         <source>Audit account modification commands</source>
         <translation>Аудит команд изменения учётных записей</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="679"/>
+        <location filename="plugins/auditd_settings.py" line="703"/>
         <source>Critical free space must be lower than minimum free space</source>
         <translation>Критический объём свободного места должен быть меньше минимального объёма свободного места</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="67"/>
+        <location filename="plugins/auditd_settings.py" line="68"/>
         <source>Maximum number of log files:</source>
         <translation>Максимальное количество файлов журнала:</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="172"/>
+        <location filename="plugins/auditd_settings.py" line="181"/>
         <source>Audit file deletion events</source>
         <translation>Аудит событий удаления файлов</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="180"/>
+        <location filename="plugins/auditd_settings.py" line="189"/>
         <source>Audit information export to media</source>
         <translation>Аудит событий экспорта информации на носитель</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="188"/>
+        <location filename="plugins/auditd_settings.py" line="197"/>
         <source>Audit discretionary access changes</source>
         <translation>Аудит изменений в дискреционном доступе</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="196"/>
+        <location filename="plugins/auditd_settings.py" line="205"/>
         <source>Audit unauthorized access attempts</source>
         <translation>Аудит попыток несанкционированного доступа</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="646"/>
+        <location filename="plugins/auditd_settings.py" line="670"/>
         <source>Enter a value from 2 to 999 to &apos;Maximum number of log files&apos;</source>
         <translation>Введите значение от 2 до 999 для &quot;Максимального количества файлов журнала&quot;</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="165"/>
+        <source>Audit system shutdown and reboot</source>
+        <translation>Аудит событий завершения и перезагрузки системы</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="174"/>
+        <source>Audit filesystem mount operations</source>
+        <translation type="obsolete">Аудит событий монтирования файловой системы</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="ui_mainwindow.py" line="103"/>
+        <location filename="ui_mainwindow.py" line="101"/>
         <source>ALT Center</source>
         <translation>Альт Центр</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="104"/>
+        <location filename="ui_mainwindow.py" line="102"/>
         <source>Do not run on next sesion start</source>
         <translation>Не загружать в начале следующего сеанса</translation>
     </message>
     <message>
-        <location filename="ui_mainwindow.py" line="105"/>
+        <location filename="ui_mainwindow.py" line="103"/>
         <source>&amp;Close</source>
         <translation>В&amp;ыход</translation>
     </message>
@@ -1246,7 +1256,7 @@ Please try again later</source>
         <translation type="obsolete">Версия:</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="230"/>
+        <location filename="mainwindow.py" line="193"/>
         <source>Expert mode</source>
         <translation>Режим эксперта</translation>
     </message>
@@ -1267,7 +1277,7 @@ Please try again later</source>
         <translation>Документация</translation>
     </message>
     <message>
-        <location filename="plugins/documentation.py" line="36"/>
+        <location filename="plugins/documentation.py" line="38"/>
         <source>Open ALT Linux documentation</source>
         <translation>Открыть документацию ALT Linux</translation>
     </message>
@@ -1283,7 +1293,7 @@ Please try again later</source>
 <context>
     <name>PluginJournals</name>
     <message>
-        <location filename="plugins/journal.py" line="801"/>
+        <location filename="plugins/journal.py" line="863"/>
         <source>System logs</source>
         <translation>Системные журналы</translation>
     </message>
@@ -1293,7 +1303,7 @@ Please try again later</source>
         <translation>Настройки журналов</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="962"/>
+        <location filename="plugins/auditd_settings.py" line="1006"/>
         <source>Auditd logs settings</source>
         <translation>Настройки журналов аудита</translation>
     </message>
@@ -1309,7 +1319,7 @@ Please try again later</source>
 <context>
     <name>PluginPolicies</name>
     <message>
-        <location filename="plugins/policies.py" line="438"/>
+        <location filename="plugins/policies.py" line="504"/>
         <source>Policy</source>
         <translation>Политики</translation>
     </message>
@@ -1325,7 +1335,7 @@ Please try again later</source>
 <context>
     <name>PluginUseful</name>
     <message>
-        <location filename="plugins/useful.py" line="28"/>
+        <location filename="plugins/useful.py" line="104"/>
         <source>Useful Information</source>
         <translation>Полезная информация</translation>
     </message>
@@ -1338,7 +1348,7 @@ Please try again later</source>
         <translation>Поиск</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="300"/>
+        <location filename="plugins/policies.py" line="361"/>
         <source>Show console</source>
         <translation>Показать консоль</translation>
     </message>
@@ -1348,32 +1358,32 @@ Please try again later</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="298"/>
+        <location filename="plugins/policies.py" line="359"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="359"/>
+        <location filename="plugins/policies.py" line="422"/>
         <source>Policies are not activated; authenticate to apply policies</source>
         <translation>Политики не активированы, авторизуйтесь чтобы применить политики</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="400"/>
+        <location filename="plugins/policies.py" line="466"/>
         <source>Policy</source>
         <translation>Политики</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="402"/>
+        <location filename="plugins/policies.py" line="468"/>
         <source>activated</source>
         <translation>активировано</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="402"/>
+        <location filename="plugins/policies.py" line="468"/>
         <source>deactivated</source>
         <translation>деактивировано</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="425"/>
+        <location filename="plugins/policies.py" line="491"/>
         <source>apply</source>
         <translation>применение</translation>
     </message>
@@ -1383,7 +1393,7 @@ Please try again later</source>
         <translation type="obsolete">изменений нет</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="114"/>
+        <location filename="plugins/policies.py" line="159"/>
         <source>Implemented by default and cannot be changed</source>
         <translation>Реализовано по умолчанию и не подлежит изменению</translation>
     </message>
@@ -1474,12 +1484,12 @@ Please try again later</source>
 <context>
     <name>app</name>
     <message>
-        <location filename="mainwindow.py" line="480"/>
+        <location filename="mainwindow.py" line="502"/>
         <source>Run at session startup</source>
         <translation>Запустить в начале сеанса</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="481"/>
+        <location filename="mainwindow.py" line="503"/>
         <source>List available modules and exit</source>
         <translation>Показать список доступных модулей</translation>
     </message>
