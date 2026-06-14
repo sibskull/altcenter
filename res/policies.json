@@ -356,6 +356,27 @@
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/dconf/db/gdm.d/50-altcenter-deny-bluetooth-access 2>/dev/null || true; systemctl unmask bluetooth.service 2>/dev/null || true; systemctl enable --now bluetooth.service 2>/dev/null || true"]},
         {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sddm.conf.d/50-altcenter-deny-bluetooth-access.conf 2>/dev/null || true; systemctl unmask bluetooth.service 2>/dev/null || true; systemctl enable --now bluetooth.service 2>/dev/null || true"]}
       ]
-    }  
+    },
+    {
+      "id": "manage-network-services",
+      "title": "Управление запуском сетевых сервисов",
+      "title_en": "Manage network service startup",
+      "section": "Настройка учетных записей и управление доступом",
+      "subsection": "Ограничение доступа к сетевым функциям",
+      "scope": "system",
+      "dm": "any",
+      "description": "Блокирует запуск сетевых сервисов на рабочей станции: Avahi, Apache HTTP Server, NFS, NetBIOS, rpcbind, Samba, FTP-сервер, Winbind и XRDP. Политика маскирует службы через systemd.",
+      "description_en": "Blocks startup of network services on a workstation: Avahi, Apache HTTP Server, NFS, NetBIOS, rpcbind, Samba, FTP server, Winbind and XRDP. The policy masks services via systemd.",
+      "apply": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d; printf 'policy:manage-network-services\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-manage-network-services.conf; systemctl mask --now avahi-daemon.service httpd2.service nfs-server.service nmb.service rpcbind.service smb.service vsftpd.service winbind.service xrdp-sesman.service xrdp.service 2>/dev/null || true; true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/dconf/db/gdm.d; printf 'policy:manage-network-services\\n' > /etc/dconf/db/gdm.d/50-altcenter-manage-network-services; systemctl mask --now avahi-daemon.service httpd2.service nfs-server.service nmb.service rpcbind.service smb.service vsftpd.service winbind.service xrdp-sesman.service xrdp.service 2>/dev/null || true; true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; mkdir -p /etc/sddm.conf.d; printf 'policy:manage-network-services\\n' > /etc/sddm.conf.d/50-altcenter-manage-network-services.conf; systemctl mask --now avahi-daemon.service httpd2.service nfs-server.service nmb.service rpcbind.service smb.service vsftpd.service winbind.service xrdp-sesman.service xrdp.service 2>/dev/null || true; true"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-manage-network-services.conf 2>/dev/null || true; systemctl unmask avahi-daemon.service httpd2.service nfs-server.service nmb.service rpcbind.service smb.service vsftpd.service winbind.service xrdp-sesman.service xrdp.service 2>/dev/null || true; true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/dconf/db/gdm.d/50-altcenter-manage-network-services 2>/dev/null || true; systemctl unmask avahi-daemon.service httpd2.service nfs-server.service nmb.service rpcbind.service smb.service vsftpd.service winbind.service xrdp-sesman.service xrdp.service 2>/dev/null || true; true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sddm.conf.d/50-altcenter-manage-network-services.conf 2>/dev/null || true; systemctl unmask avahi-daemon.service httpd2.service nfs-server.service nmb.service rpcbind.service smb.service vsftpd.service winbind.service xrdp-sesman.service xrdp.service 2>/dev/null || true; true"]}
+      ]
+    }
   ]
 }
