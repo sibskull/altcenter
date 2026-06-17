@@ -27,6 +27,8 @@ class ComponentsWindow(QWidget):
         self.btn_install = None
         self.proc_install = None
         self.pending_commands = []
+        self.checkbox_state = {}
+        self.updating_checkboxes = False
 
         self.components_info = [] # List of components
         self.component_map = {}
@@ -44,6 +46,7 @@ class ComponentsWindow(QWidget):
         self.list_widget = QListWidget()
         self.list_widget.itemClicked.connect(self.show_item_info)
         self.list_widget.currentItemChanged.connect(self.onCurrentItemChanged)
+        self.list_widget.itemChanged.connect(self.save_checkboxes)
         splitter.addWidget(self.list_widget)
 
         self.info_panel = QTextEdit()
@@ -69,6 +72,7 @@ class ComponentsWindow(QWidget):
         self.btn_install = QPushButton(self.tr("Apply"))
         self.btn_install.clicked.connect(self.start_installation)
         self.btn_install.setMinimumHeight(30)
+        self.btn_install.setEnabled(False)
 
         self.btn_toggle_console = QPushButton(self.tr("Show console"))
         self.btn_toggle_console.setCheckable(True)
@@ -135,6 +139,7 @@ class ComponentsWindow(QWidget):
             self.components_info.extend(clist)
 
     def populate_list(self):
+        self.updating_checkboxes = True
         self.list_widget.clear()
         for comp in self.components_info:
             item = QListWidgetItem(comp.display_name)
@@ -142,7 +147,26 @@ class ComponentsWindow(QWidget):
             item.setData(Qt.ItemDataRole.UserRole, comp.name)
             item.setCheckState(Qt.CheckState.Unchecked)
             self.list_widget.addItem(item)
+        self.updating_checkboxes = False
         self.update_checkboxes()
+
+    def save_checkboxes(self, item=None, save=False):
+        if self.updating_checkboxes and not save:
+            return
+
+        current_state = {}
+
+        for i in range(self.list_widget.count()):
+            list_item = self.list_widget.item(i)
+            comp_name = list_item.data(Qt.ItemDataRole.UserRole)
+            current_state[comp_name] = list_item.checkState()
+
+        if save:
+            self.checkbox_state = current_state
+            self.btn_install.setEnabled(False)
+            return
+
+        self.btn_install.setEnabled(current_state != self.checkbox_state)
 
     def get_components_to_install(self):
         selected = []
@@ -236,6 +260,7 @@ class ComponentsWindow(QWidget):
             widget.unsetCursor()
             return
 
+        self.btn_install.setEnabled(False)
         self.run_next_command()
 
     def run_next_command(self):
@@ -307,7 +332,11 @@ class ComponentsWindow(QWidget):
 
 
     def update_checkboxes(self):
+        if self.btn_install != None and self.btn_install.isEnabled():
+            return
+
         self.package_installed_map = {}
+        self.updating_checkboxes = True
 
         for i in range(self.list_widget.count()):
             item = self.list_widget.item(i)
@@ -330,6 +359,9 @@ class ComponentsWindow(QWidget):
             comp._installed = all_installed
             if item.checkState() != new_state:
                 item.setCheckState(new_state)
+
+        self.updating_checkboxes = False
+        self.save_checkboxes(save=True)
 
 
     def show_item_info(self, item):
