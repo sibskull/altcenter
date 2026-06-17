@@ -377,6 +377,27 @@
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/dconf/db/gdm.d/50-altcenter-manage-network-services 2>/dev/null || true; systemctl unmask avahi-daemon.service httpd2.service nfs-server.service nmb.service rpcbind.service smb.service vsftpd.service winbind.service xrdp-sesman.service xrdp.service 2>/dev/null || true; true"]},
         {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sddm.conf.d/50-altcenter-manage-network-services.conf 2>/dev/null || true; systemctl unmask avahi-daemon.service httpd2.service nfs-server.service nmb.service rpcbind.service smb.service vsftpd.service winbind.service xrdp-sesman.service xrdp.service 2>/dev/null || true; true"]}
       ]
+    },
+    {
+      "id": "disable-sysrq",
+      "title": "Включение блокировки клавиши SysRq",
+      "title_en": "Enable SysRq key blocking",
+      "section": "Настройка учетных записей и управление доступом",
+      "subsection": "Ограничение доступа к системным функциям",
+      "scope": "system",
+      "dm": "any",
+      "description": "Отключает механизм Magic SysRq. Политика меняет параметр kernel.sysrq.",
+      "description_en": "Disables the Magic SysRq mechanism. The policy changes the kernel.sysrq parameter.",
+      "apply": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d; printf 'policy:disable-sysrq\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-disable-sysrq.conf; mkdir -p /etc/sysctl.d; printf 'kernel.sysrq = 0\\n' > /etc/sysctl.d/99-altcenter-disable-sysrq.conf; sysctl -w kernel.sysrq=0 >/dev/null 2>&1 || true; true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/dconf/db/gdm.d; printf 'policy:disable-sysrq\\n' > /etc/dconf/db/gdm.d/50-altcenter-disable-sysrq; mkdir -p /etc/sysctl.d; printf 'kernel.sysrq = 0\\n' > /etc/sysctl.d/99-altcenter-disable-sysrq.conf; sysctl -w kernel.sysrq=0 >/dev/null 2>&1 || true; true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; mkdir -p /etc/sddm.conf.d; printf 'policy:disable-sysrq\\n' > /etc/sddm.conf.d/50-altcenter-disable-sysrq.conf; mkdir -p /etc/sysctl.d; printf 'kernel.sysrq = 0\\n' > /etc/sysctl.d/99-altcenter-disable-sysrq.conf; sysctl -w kernel.sysrq=0 >/dev/null 2>&1 || true; true"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-disable-sysrq.conf 2>/dev/null || true; rm -f /etc/sysctl.d/99-altcenter-disable-sysrq.conf 2>/dev/null || true; sysctl -w kernel.sysrq=1 >/dev/null 2>&1 || true; true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/dconf/db/gdm.d/50-altcenter-disable-sysrq 2>/dev/null || true; rm -f /etc/sysctl.d/99-altcenter-disable-sysrq.conf 2>/dev/null || true; sysctl -w kernel.sysrq=1 >/dev/null 2>&1 || true; true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sddm.conf.d/50-altcenter-disable-sysrq.conf 2>/dev/null || true; rm -f /etc/sysctl.d/99-altcenter-disable-sysrq.conf 2>/dev/null || true; sysctl -w kernel.sysrq=1 >/dev/null 2>&1 || true; true"]}
+      ]
     }
   ]
 }
