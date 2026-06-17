@@ -398,6 +398,27 @@
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/dconf/db/gdm.d/50-altcenter-disable-sysrq 2>/dev/null || true; rm -f /etc/sysctl.d/99-altcenter-disable-sysrq.conf 2>/dev/null || true; sysctl -w kernel.sysrq=1 >/dev/null 2>&1 || true; true"]},
         {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sddm.conf.d/50-altcenter-disable-sysrq.conf 2>/dev/null || true; rm -f /etc/sysctl.d/99-altcenter-disable-sysrq.conf 2>/dev/null || true; sysctl -w kernel.sysrq=1 >/dev/null 2>&1 || true; true"]}
       ]
+    },
+    {
+      "id": "restrict-ptrace",
+      "title": "Включение блокировки трассировки ptrace",
+      "title_en": "Enable ptrace tracing restriction",
+      "section": "Настройка учетных записей и управление доступом",
+      "subsection": "Ограничение доступа к системным функциям",
+      "scope": "system",
+      "dm": "any",
+      "description": "Запрещает обычным пользователям подключаться к процессам через ptrace. Ставит ptrace_scope = 2.",
+      "description_en": "Disallows regular users from connecting to processes via ptrace. Sets ptrace_scope = 2.",
+      "apply": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/lightdm/lightdm.conf.d /etc/sysctl.d; printf 'policy:restrict-ptrace\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-restrict-ptrace.conf; printf 'kernel.yama.ptrace_scope = 2\\n' > /etc/sysctl.d/99-altcenter-restrict-ptrace.conf; sysctl -w kernel.yama.ptrace_scope=2 >/dev/null 2>&1 || true; true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; mkdir -p /etc/dconf/db/gdm.d /etc/sysctl.d; printf 'policy:restrict-ptrace\\n' > /etc/dconf/db/gdm.d/50-altcenter-restrict-ptrace; printf 'kernel.yama.ptrace_scope = 2\\n' > /etc/sysctl.d/99-altcenter-restrict-ptrace.conf; sysctl -w kernel.yama.ptrace_scope=2 >/dev/null 2>&1 || true; true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; mkdir -p /etc/sddm.conf.d /etc/sysctl.d; printf 'policy:restrict-ptrace\\n' > /etc/sddm.conf.d/50-altcenter-restrict-ptrace.conf; printf 'kernel.yama.ptrace_scope = 2\\n' > /etc/sysctl.d/99-altcenter-restrict-ptrace.conf; sysctl -w kernel.yama.ptrace_scope=2 >/dev/null 2>&1 || true; true"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-restrict-ptrace.conf /etc/sysctl.d/99-altcenter-restrict-ptrace.conf; sysctl -w kernel.yama.ptrace_scope=1 >/dev/null 2>&1 || true; true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/dconf/db/gdm.d/50-altcenter-restrict-ptrace /etc/sysctl.d/99-altcenter-restrict-ptrace.conf; sysctl -w kernel.yama.ptrace_scope=1 >/dev/null 2>&1 || true; true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sddm.conf.d/50-altcenter-restrict-ptrace.conf /etc/sysctl.d/99-altcenter-restrict-ptrace.conf; sysctl -w kernel.yama.ptrace_scope=1 >/dev/null 2>&1 || true; true"]}
+      ]
     }
   ]
 }
