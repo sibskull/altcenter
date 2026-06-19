@@ -419,6 +419,27 @@
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; rm -f /etc/dconf/db/gdm.d/50-altcenter-restrict-ptrace /etc/sysctl.d/99-altcenter-restrict-ptrace.conf; sysctl -w kernel.yama.ptrace_scope=1 >/dev/null 2>&1 || true; true"]},
         {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; rm -f /etc/sddm.conf.d/50-altcenter-restrict-ptrace.conf /etc/sysctl.d/99-altcenter-restrict-ptrace.conf; sysctl -w kernel.yama.ptrace_scope=1 >/dev/null 2>&1 || true; true"]}
       ]
+    },
+    {
+      "id": "block-podman",
+      "title": "Управление запуском контейнеров Podman",
+      "title_en": "Manage Podman container startup",
+      "section": "Настройка учетных записей и управление доступом",
+      "subsection": "Ограничение доступа к системным функциям",
+      "scope": "system",
+      "dm": "any",
+      "description": "Блокирует запуск и управление контейнерами Podman для пользователей.",
+      "description_en": "Blocks starting and managing Podman containers for users.",
+      "apply": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; binary=$(command -v podman); mkdir -p /var/lib/altcenter/policies /etc/lightdm/lightdm.conf.d; if [ ! -f /var/lib/altcenter/policies/podman-mode ]; then stat -c '%a' \"$binary\" > /var/lib/altcenter/policies/podman-mode; printf '%s\\n' \"$binary\" > /var/lib/altcenter/policies/podman-path; fi; chmod 700 \"$binary\"; printf 'policy:block-podman\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-block-podman.conf"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; binary=$(command -v podman); mkdir -p /var/lib/altcenter/policies /etc/dconf/db/gdm.d; if [ ! -f /var/lib/altcenter/policies/podman-mode ]; then stat -c '%a' \"$binary\" > /var/lib/altcenter/policies/podman-mode; printf '%s\\n' \"$binary\" > /var/lib/altcenter/policies/podman-path; fi; chmod 700 \"$binary\"; printf 'policy:block-podman\\n' > /etc/dconf/db/gdm.d/50-altcenter-block-podman"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; binary=$(command -v podman); mkdir -p /var/lib/altcenter/policies /etc/sddm.conf.d; if [ ! -f /var/lib/altcenter/policies/podman-mode ]; then stat -c '%a' \"$binary\" > /var/lib/altcenter/policies/podman-mode; printf '%s\\n' \"$binary\" > /var/lib/altcenter/policies/podman-path; fi; chmod 700 \"$binary\"; printf 'policy:block-podman\\n' > /etc/sddm.conf.d/50-altcenter-block-podman.conf"]}
+      ],
+      "revert": [
+        {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","set -e; if [ -f /var/lib/altcenter/policies/podman-path ] && [ -f /var/lib/altcenter/policies/podman-mode ]; then binary=$(cat /var/lib/altcenter/policies/podman-path); mode=$(cat /var/lib/altcenter/policies/podman-mode); [ -e \"$binary\" ] && chmod \"$mode\" \"$binary\" || true; fi; rm -f /var/lib/altcenter/policies/podman-path /var/lib/altcenter/policies/podman-mode; rm -f /etc/lightdm/lightdm.conf.d/50-altcenter-block-podman.conf 2>/dev/null || true"]},
+        {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","set -e; if [ -f /var/lib/altcenter/policies/podman-path ] && [ -f /var/lib/altcenter/policies/podman-mode ]; then binary=$(cat /var/lib/altcenter/policies/podman-path); mode=$(cat /var/lib/altcenter/policies/podman-mode); [ -e \"$binary\" ] && chmod \"$mode\" \"$binary\" || true; fi; rm -f /var/lib/altcenter/policies/podman-path /var/lib/altcenter/policies/podman-mode; rm -f /etc/dconf/db/gdm.d/50-altcenter-block-podman 2>/dev/null || true"]},
+        {"type":"cmd","dm":"sddm","run":["/bin/sh","-c","set -e; if [ -f /var/lib/altcenter/policies/podman-path ] && [ -f /var/lib/altcenter/policies/podman-mode ]; then binary=$(cat /var/lib/altcenter/policies/podman-path); mode=$(cat /var/lib/altcenter/policies/podman-mode); [ -e \"$binary\" ] && chmod \"$mode\" \"$binary\" || true; fi; rm -f /var/lib/altcenter/policies/podman-path /var/lib/altcenter/policies/podman-mode; rm -f /etc/sddm.conf.d/50-altcenter-block-podman.conf 2>/dev/null || true"]}
+      ]
     }
   ]
 }

@@ -3,6 +3,7 @@
 import plugins
 import os
 import json
+import subprocess
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont, QPalette
 from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
@@ -21,6 +22,7 @@ class PoliciesWindow(QWidget):
         self._baseline_ready = False
         self._updating_checks = False
         self._apply_in_progress = False
+        self._package_states = {}
 
         self.search = QLineEdit()
         self.search.setPlaceholderText(self.tr("Search"))
@@ -135,6 +137,47 @@ class PoliciesWindow(QWidget):
 
         return True
 
+    def policyRequiredPackage(self, pid):
+        pid = str(pid or "").lower()
+
+        if "podman" in pid:
+            return "podman"
+
+        return None
+
+    def isPolicyAvailable(self, pid):
+        package = self.policyRequiredPackage(pid)
+        if not package:
+            return True
+
+        if package in self._package_states:
+            return self._package_states[package]
+
+        try:
+            result = subprocess.run(
+                ["rpm", "-q", package],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+            )
+            self._package_states[package] = (result.returncode == 0)
+        except Exception:
+            self._package_states[package] = False
+
+        return self._package_states[package]
+
+    def unavailablePolicyText(self, pid):
+        package = self.policyRequiredPackage(pid)
+        if not package:
+            return ""
+
+        command = "'sudo apt-get install " + package + "'"
+
+        if self.currentLanguage() == "ru":
+            return "Установите пакет " + package + " и перезапустите ALT Center.\n\nКоманда:\n" + command
+
+        return "Install the " + package + " package and restart ALT Center.\n\nCommand:\n" + command
+
     def getSystemUidMin(self):
         for path in ("/tmp/altcenter_login.defs", "/etc/login.defs"):
             try:
@@ -166,6 +209,8 @@ class PoliciesWindow(QWidget):
 
         if self.isImmutablePolicy(item.get("id")):
             description = self.immutablePolicyText()
+        elif not self.isPolicyAvailable(item.get("id")):
+            description = self.unavailablePolicyText(item.get("id"))
         else:
             description = self.loc(item, "description")
 
@@ -254,6 +299,10 @@ class PoliciesWindow(QWidget):
             if self.isImmutablePolicy(pid):
                 w.setToolTip(self.immutablePolicyText())
                 w.setForeground(immutable_color)
+            elif not self.isPolicyAvailable(pid):
+                w.setFlags(w.flags() & ~Qt.ItemFlag.ItemIsUserCheckable)
+                w.setToolTip(self.unavailablePolicyText(pid))
+                w.setForeground(immutable_color)
 
             self.list.addItem(w)
 
@@ -293,6 +342,10 @@ class PoliciesWindow(QWidget):
 
             if self.isImmutablePolicy(pid):
                 it.setToolTip(self.immutablePolicyText())
+                it.setForeground(immutable_color)
+            elif not self.isPolicyAvailable(pid):
+                it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsUserCheckable)
+                it.setToolTip(self.unavailablePolicyText(pid))
                 it.setForeground(immutable_color)
 
         self._updating_checks = False
@@ -336,6 +389,14 @@ class PoliciesWindow(QWidget):
             self.refreshApplyButton()
             return
 
+        if not self.isPolicyAvailable(pid):
+            self._updating_checks = True
+            it.setCheckState(Qt.CheckState.Checked if self._last_states.get(pid, False) else Qt.CheckState.Unchecked)
+            self._updating_checks = False
+            self._desired_states[pid] = self._last_states.get(pid, False)
+            self.refreshApplyButton()
+            return
+
         self._desired_states[pid] = (it.checkState() == Qt.CheckState.Checked)
         self.refreshApplyButton()
 
@@ -347,6 +408,8 @@ class PoliciesWindow(QWidget):
         for item in self._items:
             pid = item.get("id")
             if not self.isPolicyVisible(pid):
+                continue
+            if not self.isPolicyAvailable(pid):
                 continue
             if self._desired_states.get(pid, False):
                 ids.append(pid)
@@ -387,6 +450,8 @@ class PoliciesWindow(QWidget):
         for item in self._items:
             pid = item.get("id")
             if not self.isPolicyVisible(pid):
+                continue
+            if not self.isPolicyAvailable(pid):
                 continue
             if self.isImmutablePolicy(pid):
                 continue
@@ -450,6 +515,9 @@ class PoliciesWindow(QWidget):
             pid = item.get("id")
 
             if not self.isPolicyVisible(pid):
+                continue
+
+            if not self.isPolicyAvailable(pid):
                 continue
 
             if self.isImmutablePolicy(pid):
