@@ -65,7 +65,7 @@
     },
     {
       "id": "deny-system-accounts",
-      "title": "Запрет входа системных учётных записей(UID>=UID_MIN) в графическую сессию",
+      "title": "Запрет входа системных учётных записей (UID<=UID_MIN) в графическую сессию",
       "title_en": "Only UID>=UID_MIN are allowed for graphical login",
       "section": "Настройка авторизации",
       "subsection": "Настройка параметров политики графического входа",
