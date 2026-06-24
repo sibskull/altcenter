@@ -34,6 +34,10 @@ class PoliciesWindow(QWidget):
         self.list.itemChanged.connect(self.onItemChanged)
 
         self.info_title = QLabel()
+        self.info_title.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse | Qt.TextInteractionFlag.TextSelectableByKeyboard
+        )
+        self.info_title.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.info_title.setWordWrap(True)
         self.info_title.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         self.info_title.setFont(QFont(self.font().family(), 11, QFont.Weight.Bold))
