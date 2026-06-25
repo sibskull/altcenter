@@ -573,4 +573,8 @@ window.altLogo.setPixmap(QIcon.fromTheme("basealt").pixmap(64))
 window.show()
 
 # Start the application
-sys.exit(app.exec())
+exit_code = app.exec()
+settings.sync()
+sys.stdout.flush()
+sys.stderr.flush()
+os._exit(exit_code)
