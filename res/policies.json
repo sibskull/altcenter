@@ -8,8 +8,8 @@
       "subsection": "Параметры графического входа",
       "scope": "system",
       "dm": "any",
-      "description": "Отключение автоматического входа без запроса пароля для LightDM, GDM, SDDM.",
-      "description_en": "Disable automatic login without a password prompt for LightDM, GDM, and SDDM.",
+      "description": "Запрещает вход в систему для пользователей, у которых не установлен пароль учётной записи.",
+      "description_en": "Disallows login for users who do not have an account password set.",
       "apply": [
         {"type":"cmd","dm":"lightdm","run":["/bin/sh","-c","mkdir -p /etc/lightdm/lightdm.conf.d; printf '[Seat:*]\\nautologin-user=\\n' > /etc/lightdm/lightdm.conf.d/50-altcenter-no-autologin.conf; sed -i -r '/^\\s*autologin-user\\s*=.*/d' /etc/lightdm/lightdm.conf 2>/dev/null || true"]},
         {"type":"cmd","dm":"gdm","run":["/bin/sh","-c","mkdir -p /etc/gdm; if [ -f /etc/gdm/custom.conf ]; then if grep -q '^\\[daemon\\]' /etc/gdm/custom.conf; then if grep -q '^AutomaticLoginEnable=' /etc/gdm/custom.conf; then sed -i -r 's/^\\s*AutomaticLoginEnable\\s*=.*/AutomaticLoginEnable=false/' /etc/gdm/custom.conf; else printf 'AutomaticLoginEnable=false\\n' >> /etc/gdm/custom.conf; fi; else printf '[daemon]\\nAutomaticLoginEnable=false\\n' >> /etc/gdm/custom.conf; fi; else printf '[daemon]\\nAutomaticLoginEnable=false\\n' > /etc/gdm/custom.conf; fi; touch /etc/gdm/50-altcenter-no-autologin"]},

@@ -212,7 +212,7 @@ class PoliciesWindow(QWidget):
         title = self.loc(item, "title")
 
         if self.isImmutablePolicy(item.get("id")):
-            description = self.immutablePolicyText()
+            description = self.loc(item, "description") + "\n\n" + self.immutablePolicyText()
         elif not self.isPolicyAvailable(item.get("id")):
             description = self.unavailablePolicyText(item.get("id"))
         else:
