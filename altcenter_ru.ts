@@ -130,7 +130,7 @@
 <context>
     <name>Components</name>
     <message>
-        <location filename="plugins/components.py" line="353"/>
+        <location filename="plugins/components.py" line="399"/>
         <source>Components</source>
         <translation>Компоненты</translation>
     </message>
@@ -293,44 +293,122 @@
 <context>
     <name>ComponentsWindow</name>
     <message>
-        <location filename="plugins/components.py" line="69"/>
+        <location filename="plugins/components.py" line="72"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="104"/>
+        <location filename="plugins/components.py" line="108"/>
         <source>Show console</source>
         <translation>Показать консоль</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="104"/>
+        <location filename="plugins/components.py" line="108"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="272"/>
+        <location filename="plugins/components.py" line="309"/>
         <source>Operation completed successfully.</source>
         <translation>Операция успешно завершена.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="274"/>
+        <location filename="plugins/components.py" line="311"/>
         <source>The operation failed with an error.</source>
         <translation>Операция завершилась с ошибкой.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="335"/>
+        <location filename="plugins/components.py" line="381"/>
         <source>This component consists of:</source>
         <translation>Этот компонент состоит из:</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="340"/>
+        <location filename="plugins/components.py" line="386"/>
         <source>This component: </source>
         <translation>Данный компонент: </translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="64"/>
+        <location filename="plugins/components.py" line="67"/>
         <source>The complete process of installing or removing components will be shown here.</source>
         <translation>Здесь будет показан полный процесс установки или удаления компонентов.</translation>
+    </message>
+</context>
+<context>
+    <name>FSTECWidget</name>
+    <message>
+        <location filename="plugins/fstec.py" line="41"/>
+        <source>Boot Option</source>
+        <translation>Параметры загрузки</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="42"/>
+        <source>Sysctl Option</source>
+        <translation>Параметры sysctl</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="43"/>
+        <source>Kernel Option</source>
+        <translation>Параметры ядра</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="75"/>
+        <source>Option</source>
+        <translation>Параметр</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="75"/>
+        <source>Current</source>
+        <translation>Текущее</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="75"/>
+        <source>Recommended value</source>
+        <translation>Рекомендуемое</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="75"/>
+        <source>Check result</source>
+        <translation>Результат</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="75"/>
+        <source>Alternative</source>
+        <translation>Альтернатива</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="129"/>
+        <source>Saved FSTEC check result not found</source>
+        <translation>Сохраненый результат рекомендаций ФСТЕК не найден</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="53"/>
+        <source>unknown</source>
+        <translation>неизвестно</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="56"/>
+        <source>not present</source>
+        <translation>отсутствует</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="59"/>
+        <source>no value</source>
+        <translation>без значения</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="62"/>
+        <source>None</source>
+        <translation>отсутствует</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="65"/>
+        <source>is not set</source>
+        <translation>не задано</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="68"/>
+        <source>config not found</source>
+        <translation>конфигурация не найдена</translation>
     </message>
 </context>
 <context>
@@ -1283,6 +1361,14 @@ Please try again later</source>
     </message>
 </context>
 <context>
+    <name>PluginFSTEC</name>
+    <message>
+        <location filename="plugins/fstec.py" line="153"/>
+        <source>FSTEC recommendations</source>
+        <translation>Рекомендации ФСТЭК</translation>
+    </message>
+</context>
+<context>
     <name>PluginHardware</name>
     <message>
         <location filename="plugins/hardware.py" line="420"/>
@@ -1319,7 +1405,7 @@ Please try again later</source>
 <context>
     <name>PluginPolicies</name>
     <message>
-        <location filename="plugins/policies.py" line="504"/>
+        <location filename="plugins/policies.py" line="576"/>
         <source>Policy</source>
         <translation>Политики</translation>
     </message>
@@ -1343,47 +1429,47 @@ Please try again later</source>
 <context>
     <name>PoliciesWindow</name>
     <message>
-        <location filename="plugins/policies.py" line="26"/>
+        <location filename="plugins/policies.py" line="28"/>
         <source>Search</source>
         <translation>Поиск</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="361"/>
+        <location filename="plugins/policies.py" line="428"/>
         <source>Show console</source>
         <translation>Показать консоль</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="45"/>
+        <location filename="plugins/policies.py" line="51"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="359"/>
+        <location filename="plugins/policies.py" line="426"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="422"/>
+        <location filename="plugins/policies.py" line="491"/>
         <source>Policies are not activated; authenticate to apply policies</source>
         <translation>Политики не активированы, авторизуйтесь чтобы применить политики</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="466"/>
+        <location filename="plugins/policies.py" line="538"/>
         <source>Policy</source>
         <translation>Политики</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="468"/>
+        <location filename="plugins/policies.py" line="540"/>
         <source>activated</source>
         <translation>активировано</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="468"/>
+        <location filename="plugins/policies.py" line="540"/>
         <source>deactivated</source>
         <translation>деактивировано</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="491"/>
+        <location filename="plugins/policies.py" line="563"/>
         <source>apply</source>
         <translation>применение</translation>
     </message>
@@ -1393,12 +1479,12 @@ Please try again later</source>
         <translation type="obsolete">изменений нет</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="159"/>
+        <location filename="plugins/policies.py" line="206"/>
         <source>Implemented by default and cannot be changed</source>
         <translation>Реализовано по умолчанию и не подлежит изменению</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="54"/>
+        <location filename="plugins/policies.py" line="60"/>
         <source>All changes made while applying policies will be shown here.</source>
         <translation>Здесь будут показаны все изменения, выполняемые при применении политик.</translation>
     </message>
@@ -1484,12 +1570,12 @@ Please try again later</source>
 <context>
     <name>app</name>
     <message>
-        <location filename="mainwindow.py" line="502"/>
+        <location filename="mainwindow.py" line="518"/>
         <source>Run at session startup</source>
         <translation>Запустить в начале сеанса</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="503"/>
+        <location filename="mainwindow.py" line="519"/>
         <source>List available modules and exit</source>
         <translation>Показать список доступных модулей</translation>
     </message>
