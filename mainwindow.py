@@ -264,6 +264,9 @@ class MainWindow(QWidget, Ui_MainWindow):
         self._components_probe_timer.stop()
 
     def _request_admin_access(self) -> bool:
+        import os
+        import shlex
+
         proc = QProcess(self)
         loop = QEventLoop(self)
         ok = {'v': False}
@@ -272,8 +275,21 @@ class MainWindow(QWidget, Ui_MainWindow):
             ok['v'] = (exit_status == QProcess.ExitStatus.NormalExit and exit_code == 0)
             loop.quit()
 
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        fstec_script = os.path.join(base_dir, "res", "fstec_check.py")
+
+        cmd = (
+            "cat /etc/audit/auditd.conf > /tmp/altcenter_auditd.conf && "
+            "chmod 644 /tmp/altcenter_auditd.conf && "
+            "cat /etc/audit/rules.d/*.rules > /tmp/altcenter_audit.rules 2>/dev/null || : && "
+            "chmod 644 /tmp/altcenter_audit.rules 2>/dev/null || : && "
+            "cat /etc/login.defs > /tmp/altcenter_login.defs 2>/dev/null || : && "
+            "chmod 644 /tmp/altcenter_login.defs 2>/dev/null || : && "
+            "/usr/bin/python3 " + shlex.quote(fstec_script)
+        )
+
         proc.finished.connect(_done)
-        proc.start('pkexec', ['/bin/sh', '-c', 'cat /etc/audit/auditd.conf > /tmp/altcenter_auditd.conf && chmod 644 /tmp/altcenter_auditd.conf && cat /etc/audit/rules.d/*.rules > /tmp/altcenter_audit.rules 2>/dev/null || : && chmod 644 /tmp/altcenter_audit.rules 2>/dev/null || : && cat /etc/login.defs > /tmp/altcenter_login.defs 2>/dev/null || : && chmod 644 /tmp/altcenter_login.defs 2>/dev/null || :'])
+        proc.start('pkexec', ['/bin/sh', '-c', cmd])
         loop.exec()
         proc.deleteLater()
         return ok['v']
