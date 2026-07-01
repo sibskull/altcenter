@@ -3,8 +3,8 @@
 import plugins
 import json
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QLabel, QTableWidget, QTableWidgetItem, QHeaderView, QTabWidget, QAbstractItemView
-from PyQt6.QtGui import QStandardItem, QStandardItemModel
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QLabel, QTreeWidget, QTreeWidgetItem, QAbstractItemView, QPlainTextEdit, QHeaderView
+from PyQt6.QtGui import QStandardItem, QStandardItemModel, QColor, QBrush
 from PyQt6.QtCore import Qt
 
 
@@ -15,10 +15,8 @@ class FSTECWidget(QWidget):
         self.main_window = main_window
 
         self.status_label = None
-        self.tabs = None
-        self.boot_table = None
-        self.sysctl_table = None
-        self.kernel_table = None
+        self.tree = None
+        self.details = None
 
         self.initUI()
         self.loadSavedResults()
@@ -32,19 +30,38 @@ class FSTECWidget(QWidget):
         self.status_label.setVisible(False)
         layout.addWidget(self.status_label)
 
-        self.tabs = QTabWidget()
+        self.tree = QTreeWidget()
+        self.tree.setColumnCount(2)
+        self.tree.setHeaderLabels([
+            self.tr("Option"),
+            self.tr("Check result")
+        ])
+        self.tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Interactive)
+        self.tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Interactive)
+        self.tree.header().setStretchLastSection(False)
+        self.tree.header().setSectionsMovable(True)
+        self.tree.header().setMinimumSectionSize(80)
+        self.tree.setAlternatingRowColors(True)
+        self.tree.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.tree.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.tree.itemSelectionChanged.connect(self.onSelectionChanged)
 
-        self.boot_table = self.createTable()
-        self.sysctl_table = self.createTable()
-        self.kernel_table = self.createTable()
+        layout.addWidget(self.tree, 1)
 
-        self.tabs.addTab(self.boot_table, self.tr("Boot Option"))
-        self.tabs.addTab(self.sysctl_table, self.tr("Sysctl Option"))
-        self.tabs.addTab(self.kernel_table, self.tr("Kernel Option"))
-
-        layout.addWidget(self.tabs, 1)
+        self.details = QPlainTextEdit()
+        self.details.setReadOnly(True)
+        self.details.setMinimumHeight(70)
+        self.details.setMaximumHeight(105)
+        self.details.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.details.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.details.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+        self.details.setPlainText("")
+        layout.addWidget(self.details)
 
         self.setLayout(layout)
+
+    def sanitize_str(self, input_str):
+        return "" if input_str is None else str(input_str)
 
     def displayValue(self, value):
         text = self.sanitize_str(value)
@@ -69,54 +86,76 @@ class FSTECWidget(QWidget):
 
         return text
 
-    def createTable(self):
-        table = QTableWidget()
-        table.setColumnCount(5)
-        table.setHorizontalHeaderLabels([
-            self.tr("Option"),
-            self.tr("Current"),
-            self.tr("Recommended value"),
-            self.tr("Check result"),
-            self.tr("Alternative")
+    def groupDisplayName(self, name):
+        if name == "boot":
+            return self.tr("Boot Option")
+
+        if name == "sysctl":
+            return self.tr("Sysctl Option")
+
+        if name == "kernel":
+            return self.tr("Kernel Option")
+
+        return name
+
+    def resultBrush(self, value):
+        text = self.sanitize_str(value)
+
+        if text == "OK":
+            return QBrush(QColor("#2e7d32"))
+
+        if text == "FAIL":
+            return QBrush(QColor("#c62828"))
+
+        if text == "unknown":
+            return QBrush(QColor("#ef6c00"))
+
+        return QBrush(QColor("#616161"))
+
+    def makeGroupItem(self, title):
+        item = QTreeWidgetItem([title, ""])
+        font = item.font(0)
+        font.setBold(True)
+        item.setFont(0, font)
+        item.setFont(1, font)
+        item.setData(0, Qt.ItemDataRole.UserRole, None)
+        return item
+
+    def makeResultItem(self, row):
+        option = self.sanitize_str(row[0]) if len(row) > 0 else ""
+        current = self.sanitize_str(row[1]) if len(row) > 1 else ""
+        recommended = self.sanitize_str(row[2]) if len(row) > 2 else ""
+        result = self.sanitize_str(row[3]) if len(row) > 3 else ""
+        alternative = self.sanitize_str(row[4]) if len(row) > 4 else ""
+
+        item = QTreeWidgetItem([
+            self.displayValue(option),
+            self.displayValue(result)
         ])
 
-        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Interactive)
-        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Interactive)
-        table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Interactive)
-        table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.Interactive)
-        table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.Interactive)
-        table.horizontalHeader().setStretchLastSection(False)
-        table.horizontalHeader().setSectionsMovable(True)
+        item.setForeground(1, self.resultBrush(result))
+        item.setData(0, Qt.ItemDataRole.UserRole, {
+            "option": option,
+            "current": current,
+            "recommended": recommended,
+            "result": result,
+            "alternative": alternative
+        })
 
-        table.verticalHeader().setVisible(False)
+        return item
 
-        table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        table.setAlternatingRowColors(True)
-        table.setWordWrap(False)
+    def addGroup(self, name, rows):
+        group_item = self.makeGroupItem(self.groupDisplayName(name))
+        self.tree.addTopLevelItem(group_item)
 
-        return table
+        for row in rows:
+            group_item.addChild(self.makeResultItem(row))
 
-    def sanitize_str(self, input_str):
-        return "" if input_str is None else str(input_str)
+        group_item.setExpanded(True)
 
-    def setTableRows(self, table, rows):
-        table.setRowCount(len(rows))
-
-        for row_index, row in enumerate(rows):
-            for column_index, value in enumerate(row):
-                item = QTableWidgetItem(self.displayValue(value))
-                item.setTextAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)
-                table.setItem(row_index, column_index, item)
-
-        table.resizeColumnsToContents()
-        table.setColumnWidth(4, table.columnWidth(4) + 40)
-        table.resizeRowsToContents()
-
-    def clearTables(self):
-        self.boot_table.setRowCount(0)
-        self.sysctl_table.setRowCount(0)
-        self.kernel_table.setRowCount(0)
+    def clearTree(self):
+        self.tree.clear()
+        self.details.setPlainText("")
 
     def loadSavedResults(self):
         path = "/tmp/altcenter_fstec_check.json"
@@ -125,23 +164,46 @@ class FSTECWidget(QWidget):
             with open(path, "r", encoding="utf-8", errors="replace") as f:
                 data = json.load(f)
         except:
-            self.clearTables()
+            self.clearTree()
             self.status_label.setText(self.tr("Saved FSTEC check result not found"))
             self.status_label.setVisible(True)
             return
 
-        self.setTableRows(self.boot_table, data.get("boot", []))
-        self.setTableRows(self.sysctl_table, data.get("sysctl", []))
-        self.setTableRows(self.kernel_table, data.get("kernel", []))
+        self.status_label.setText("")
+        self.status_label.setVisible(False)
 
-        warning = data.get("warning", "")
+        self.clearTree()
 
-        if warning:
-            self.status_label.setText(self.tr(warning))
-            self.status_label.setVisible(True)
-        else:
-            self.status_label.setText("")
-            self.status_label.setVisible(False)
+        self.addGroup("boot", data.get("boot", []))
+        self.addGroup("sysctl", data.get("sysctl", []))
+        self.addGroup("kernel", data.get("kernel", []))
+
+        self.tree.resizeColumnToContents(0)
+        self.tree.resizeColumnToContents(1)
+
+    def onSelectionChanged(self):
+        items = self.tree.selectedItems()
+
+        if not items:
+            self.details.setPlainText("")
+            return
+
+        item = items[0]
+        data = item.data(0, Qt.ItemDataRole.UserRole)
+
+        if data is None:
+            self.details.setPlainText(item.text(0))
+            return
+
+        lines = [
+            "%s: %s" % (self.tr("Option"), self.displayValue(data.get("option", ""))),
+            "%s: %s" % (self.tr("Current"), self.displayValue(data.get("current", ""))),
+            "%s: %s" % (self.tr("Recommended value"), self.displayValue(data.get("recommended", ""))),
+            "%s: %s" % (self.tr("Check result"), self.displayValue(data.get("result", ""))),
+            "%s: %s" % (self.tr("Alternative"), self.displayValue(data.get("alternative", "")))
+        ]
+
+        self.details.setPlainText("\n".join(lines))
 
 class PluginFSTEC(plugins.Base):
     requires_admin = True
