@@ -74,13 +74,19 @@ def compare_sysctl():
     rows = []
 
     for key, ref_val in sysctl_dict.items():
-        ret = subprocess.run(['/sbin/sysctl', key],
-                             stderr=subprocess.DEVNULL,
-                             stdout=subprocess.PIPE).stdout.decode('utf-8')
-        if (os.geteuid() != 0) and (key in sudo_calls) or not ret:
+        proc = subprocess.run(['/sbin/sysctl', key],
+                              stderr=subprocess.DEVNULL,
+                              stdout=subprocess.PIPE)
+
+        ret = proc.stdout.decode('utf-8')
+        parts = ret.split()
+
+        if (os.geteuid() != 0) and (key in sudo_calls):
             cur_val, cur_result = "unknown", "unknown"
+        elif proc.returncode != 0 or not ret or len(parts) < 3:
+            cur_val, cur_result = "not in system", "FAIL"
         else:
-            cmd, cur_val = ret.split()[0], ret.split()[2]
+            cmd, cur_val = parts[0], parts[2]
             cur_result = "OK" if cur_val == ref_val[0] else "FAIL"
 
         rows.append([
@@ -120,7 +126,7 @@ def compare_cmdline():
 
             rows.append([
                 sanitize_str(key),
-                "not present",
+                "not in system",
                 sanitize_str(ref_val_tmp),
                 "FAIL",
                 sanitize_str(ref_val[1])
@@ -151,7 +157,7 @@ def compare_config():
         if not ret:
             rows.append([
                 key,
-                "None",
+                "not in system",
                 ref_val[0],
                 "FAIL",
                 ref_val[1] if ref_val[1] else ''
@@ -171,7 +177,7 @@ def compare_config():
         else:
             rows.append([
                 key,
-                "is not set",
+                "not configured",
                 ref_val[0],
                 "FAIL",
                 ref_val[1] if ref_val[1] else ''

@@ -69,8 +69,11 @@ class FSTECWidget(QWidget):
         if text == "unknown":
             return self.tr("unknown")
 
-        if text == "not present":
-            return self.tr("not present")
+        if text == "not in system":
+            return self.tr("not in system")
+
+        if text == "not configured":
+            return self.tr("not configured")
 
         if text == "no value":
             return self.tr("no value")
@@ -197,7 +200,7 @@ class FSTECWidget(QWidget):
 
         lines = [
             "%s: %s" % (self.tr("Option"), self.displayValue(data.get("option", ""))),
-            "%s: %s" % (self.tr("Current"), self.displayValue(data.get("current", ""))),
+            "%s: %s" % (self.tr("Current value"), self.displayValue(data.get("current", ""))),
             "%s: %s" % (self.tr("Recommended value"), self.displayValue(data.get("recommended", ""))),
             "%s: %s" % (self.tr("Check result"), self.displayValue(data.get("result", ""))),
             "%s: %s" % (self.tr("Alternative"), self.displayValue(data.get("alternative", "")))
