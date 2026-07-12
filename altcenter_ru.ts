@@ -130,7 +130,7 @@
 <context>
     <name>Components</name>
     <message>
-        <location filename="plugins/components.py" line="399"/>
+        <location filename="plugins/components.py" line="447"/>
         <source>Components</source>
         <translation>Компоненты</translation>
     </message>
@@ -308,22 +308,22 @@
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="309"/>
+        <location filename="plugins/components.py" line="357"/>
         <source>Operation completed successfully.</source>
         <translation>Операция успешно завершена.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="311"/>
+        <location filename="plugins/components.py" line="359"/>
         <source>The operation failed with an error.</source>
         <translation>Операция завершилась с ошибкой.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="381"/>
+        <location filename="plugins/components.py" line="429"/>
         <source>This component consists of:</source>
         <translation>Этот компонент состоит из:</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="386"/>
+        <location filename="plugins/components.py" line="434"/>
         <source>This component: </source>
         <translation>Данный компонент: </translation>
     </message>
@@ -331,6 +331,16 @@
         <location filename="plugins/components.py" line="67"/>
         <source>The complete process of installing or removing components will be shown here.</source>
         <translation>Здесь будет показан полный процесс установки или удаления компонентов.</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="278"/>
+        <source>Package</source>
+        <translation>Пакет</translation>
+    </message>
+    <message>
+        <location filename="plugins/components.py" line="278"/>
+        <source>was not installed</source>
+        <translation>не был установлен</translation>
     </message>
 </context>
 <context>

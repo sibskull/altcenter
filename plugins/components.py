@@ -249,11 +249,42 @@ class ComponentsWindow(QWidget):
 
         # TODO: need use D-Bus Alterator call
         if install_packages:
-            # Update apt caches before installation
-            cmd = f"apt-get update && apt-get install -y {' '.join(install_packages)}"
+            cmd = (
+                "package_text=\"$1\"; "
+                "not_installed_text=\"$2\"; "
+                "shift 2; "
+                "apt-get update || exit 1; "
+                "packages=''; "
+                "for pkg in \"$@\"; do "
+                "if rpm -q --whatprovides \"$pkg\" >/dev/null 2>&1; then "
+                ":; "
+                "elif apt-get -s install \"$pkg\" >/dev/null 2>&1; then "
+                "packages=\"$packages $pkg\"; "
+                "fi; "
+                "done; "
+                "if [ -n \"$packages\" ]; then "
+                "apt-get install -y $packages || true; "
+                "fi; "
+                "failed=0; "
+                "for pkg in \"$@\"; do "
+                "rpm -q --whatprovides \"$pkg\" >/dev/null 2>&1 || { "
+                "printf '\\n%s %s %s\\n' \"$package_text\" \"$pkg\" \"$not_installed_text\" >&2; "
+                "failed=1; "
+                "}; "
+                "done; "
+                "exit \"$failed\""
+            )
+
             self.pending_commands.append({
                 "program": "pkexec",
-                "args": ["/bin/sh", "-c", cmd]
+                "args": [
+                    "/bin/sh",
+                    "-c",
+                    cmd,
+                    "sh",
+                    self.tr("Package"),
+                    self.tr("was not installed")
+                ] + install_packages
             })
 
         if not self.pending_commands:
@@ -296,8 +327,25 @@ class ComponentsWindow(QWidget):
 
 
     def refresh_installed_status(self):
+        current_item = self.list_widget.currentItem()
+        current_component = None
+
+        if current_item != None:
+            current_component = current_item.data(Qt.ItemDataRole.UserRole)
+
         self.load_components_from_dbus()
         self.populate_list()
+
+        if current_component == None:
+            return
+
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+
+            if item.data(Qt.ItemDataRole.UserRole) == current_component:
+                self.list_widget.setCurrentItem(item)
+                self.show_item_info(item)
+                break
 
 
     def on_install_finished(self, exit_code, exit_status):
