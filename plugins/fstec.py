@@ -3,7 +3,7 @@
 import plugins
 import json
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QLabel, QTreeWidget, QTreeWidgetItem, QAbstractItemView, QPlainTextEdit, QHeaderView
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QLabel, QTreeWidget, QTreeWidgetItem, QAbstractItemView, QPlainTextEdit, QHeaderView, QPushButton, QFileDialog
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QColor, QBrush
 from PyQt6.QtCore import Qt
 
@@ -17,6 +17,7 @@ class FSTECWidget(QWidget):
         self.status_label = None
         self.tree = None
         self.details = None
+        self.btn_export = None
 
         self.initUI()
         self.loadSavedResults()
@@ -57,6 +58,16 @@ class FSTECWidget(QWidget):
         self.details.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
         self.details.setPlainText("")
         layout.addWidget(self.details)
+
+        bottom = QHBoxLayout()
+
+        self.btn_export = QPushButton(self.tr("Save"))
+        self.btn_export.clicked.connect(self.onExportClicked)
+        bottom.addWidget(self.btn_export)
+
+        bottom.addStretch(1)
+
+        layout.addLayout(bottom)
 
         self.setLayout(layout)
 
@@ -183,6 +194,45 @@ class FSTECWidget(QWidget):
 
         self.tree.resizeColumnToContents(0)
         self.tree.resizeColumnToContents(1)
+
+    def onExportClicked(self):
+        options = QFileDialog.Option.DontUseNativeDialog
+
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            self.tr("Save check result"),
+            "fstec.json",
+            "JSON (*.json)",
+            options=options
+        )
+
+        if not path:
+            return
+
+        if not path.lower().endswith(".json"):
+            path += ".json"
+
+        result = {}
+
+        for i in range(self.tree.topLevelItemCount()):
+            group_item = self.tree.topLevelItem(i)
+            rows = []
+
+            for j in range(group_item.childCount()):
+                item = group_item.child(j)
+
+                rows.append({
+                    self.tr("Option"): item.text(0),
+                    self.tr("Check result"): item.text(1)
+                })
+
+            result[group_item.text(0)] = rows
+
+        try:
+            with open(path, "w", encoding="utf-8", errors="replace") as f:
+                json.dump(result, f, ensure_ascii=False, indent=2)
+        except:
+            pass
 
     def onSelectionChanged(self):
         items = self.tree.selectedItems()

@@ -346,52 +346,52 @@
 <context>
     <name>FSTECWidget</name>
     <message>
-        <location filename="plugins/fstec.py" line="94"/>
+        <location filename="plugins/fstec.py" line="105"/>
         <source>Boot Option</source>
         <translation>Параметры загрузки</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="97"/>
+        <location filename="plugins/fstec.py" line="108"/>
         <source>Sysctl Option</source>
         <translation>Параметры sysctl</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="100"/>
+        <location filename="plugins/fstec.py" line="111"/>
         <source>Kernel Option</source>
         <translation>Параметры ядра</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="202"/>
+        <location filename="plugins/fstec.py" line="252"/>
         <source>Option</source>
         <translation>Параметр</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="203"/>
+        <location filename="plugins/fstec.py" line="253"/>
         <source>Current value</source>
         <translation>Текущее значение</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="204"/>
+        <location filename="plugins/fstec.py" line="254"/>
         <source>Recommended value</source>
         <translation>Рекомендуемое значение</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="205"/>
+        <location filename="plugins/fstec.py" line="255"/>
         <source>Check result</source>
         <translation>Результат</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="206"/>
+        <location filename="plugins/fstec.py" line="256"/>
         <source>Alternative</source>
         <translation>Альтернатива</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="171"/>
+        <location filename="plugins/fstec.py" line="182"/>
         <source>Saved FSTEC check result not found</source>
         <translation>Сохраненый результат рекомендаций ФСТЕК не найден</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="70"/>
+        <location filename="plugins/fstec.py" line="81"/>
         <source>unknown</source>
         <translation>Неизвестно</translation>
     </message>
@@ -401,34 +401,44 @@
         <translation type="obsolete">отсутствует</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="79"/>
+        <location filename="plugins/fstec.py" line="90"/>
         <source>no value</source>
         <translation>Без значения</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="82"/>
+        <location filename="plugins/fstec.py" line="93"/>
         <source>None</source>
         <translation>Отсутствует</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="85"/>
+        <location filename="plugins/fstec.py" line="96"/>
         <source>is not set</source>
         <translation>Не задано</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="88"/>
+        <location filename="plugins/fstec.py" line="99"/>
         <source>config not found</source>
         <translation>Конфигурация не найдена</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="73"/>
+        <location filename="plugins/fstec.py" line="84"/>
         <source>not in system</source>
         <translation>Нет в системе</translation>
     </message>
     <message>
-        <location filename="plugins/fstec.py" line="76"/>
+        <location filename="plugins/fstec.py" line="87"/>
         <source>not configured</source>
         <translation>Не настроен</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="64"/>
+        <source>Save</source>
+        <translation>Сохранить</translation>
+    </message>
+    <message>
+        <location filename="plugins/fstec.py" line="201"/>
+        <source>Save check result</source>
+        <translation>Сохранить результат проверки</translation>
     </message>
 </context>
 <context>
@@ -1383,7 +1393,7 @@ Please try again later</source>
 <context>
     <name>PluginFSTEC</name>
     <message>
-        <location filename="plugins/fstec.py" line="218"/>
+        <location filename="plugins/fstec.py" line="268"/>
         <source>FSTEC recommendations</source>
         <translation>Рекомендации ФСТЭК</translation>
     </message>
