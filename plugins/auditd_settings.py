@@ -37,9 +37,19 @@ class JournalsWidget(QWidget):
         self.btn_apply = None
         self.lbl_status = None
 
+        self.initial_form_state = None
+        self.form_loading = False
+
         self.initUI()
+
+        self.form_loading = True
         self.loadSavedLimits()
         self.loadSavedRules()
+        self.form_loading = False
+
+        self.connectFormSignals()
+        self.initial_form_state = self.getFormState()
+        self.updateApplyButton()
 
     def initUI(self):
         root_layout = QVBoxLayout(self)
@@ -212,6 +222,7 @@ class JournalsWidget(QWidget):
 
         self.btn_apply = QPushButton(self.tr("Apply"))
         self.btn_apply.setMinimumHeight(32)
+        self.btn_apply.setEnabled(False)
         self.btn_apply.clicked.connect(self.on_apply_clicked)
         apply_layout.addWidget(self.btn_apply)
 
@@ -226,6 +237,69 @@ class JournalsWidget(QWidget):
 
         scroll.setWidget(container)
         root_layout.addWidget(scroll)
+
+    def connectFormSignals(self):
+        self.max_log_file_value.textChanged.connect(self.onFormChanged)
+        self.num_logs_value.textChanged.connect(self.onFormChanged)
+        self.space_left_value.textChanged.connect(self.onFormChanged)
+        self.admin_space_left_value.textChanged.connect(self.onFormChanged)
+
+        self.identity_audit_checkbox.stateChanged.connect(self.onFormChanged)
+        self.audit_config_audit_checkbox.stateChanged.connect(self.onFormChanged)
+        self.audit_log_read_checkbox.stateChanged.connect(self.onFormChanged)
+        self.journald_config_audit_checkbox.stateChanged.connect(self.onFormChanged)
+        self.password_policy_audit_checkbox.stateChanged.connect(self.onFormChanged)
+        self.privileged_commands_audit_checkbox.stateChanged.connect(self.onFormChanged)
+        self.network_config_audit_checkbox.stateChanged.connect(self.onFormChanged)
+        self.kernel_module_audit_checkbox.stateChanged.connect(self.onFormChanged)
+        self.system_power_audit_checkbox.stateChanged.connect(self.onFormChanged)
+        self.account_modification_audit_checkbox.stateChanged.connect(self.onFormChanged)
+        self.file_delete_audit_checkbox.stateChanged.connect(self.onFormChanged)
+        self.mount_export_audit_checkbox.stateChanged.connect(self.onFormChanged)
+        self.discretionary_access_audit_checkbox.stateChanged.connect(self.onFormChanged)
+        self.unauthorized_access_audit_checkbox.stateChanged.connect(self.onFormChanged)
+
+    def getFormState(self):
+        return (
+            self.max_log_file_value.text().strip(),
+            self.num_logs_value.text().strip(),
+            self.space_left_value.text().strip(),
+            self.admin_space_left_value.text().strip(),
+            self.identity_audit_checkbox.isChecked(),
+            self.audit_config_audit_checkbox.isChecked(),
+            self.audit_log_read_checkbox.isChecked(),
+            self.journald_config_audit_checkbox.isChecked(),
+            self.password_policy_audit_checkbox.isChecked(),
+            self.privileged_commands_audit_checkbox.isChecked(),
+            self.network_config_audit_checkbox.isChecked(),
+            self.kernel_module_audit_checkbox.isChecked(),
+            self.system_power_audit_checkbox.isChecked(),
+            self.account_modification_audit_checkbox.isChecked(),
+            self.file_delete_audit_checkbox.isChecked(),
+            self.mount_export_audit_checkbox.isChecked(),
+            self.discretionary_access_audit_checkbox.isChecked(),
+            self.unauthorized_access_audit_checkbox.isChecked(),
+        )
+
+    def onFormChanged(self, *args):
+        if self.form_loading:
+            return
+
+        self.updateApplyButton()
+
+    def updateApplyButton(self):
+        if self.btn_apply == None:
+            return
+
+        if self.proc_apply != None and self.proc_apply.state() != QProcess.ProcessState.NotRunning:
+            self.btn_apply.setEnabled(False)
+            return
+
+        if self.initial_form_state == None:
+            self.btn_apply.setEnabled(False)
+            return
+
+        self.btn_apply.setEnabled(self.getFormState() != self.initial_form_state)
 
     def buildAuditdConfig(self, max_log_file, num_logs, space_left, admin_space_left):
         path = "/etc/audit/auditd.conf"
@@ -652,6 +726,10 @@ class JournalsWidget(QWidget):
         if self.proc_apply != None and self.proc_apply.state() != QProcess.ProcessState.NotRunning:
             return
 
+        if self.initial_form_state == None or self.getFormState() == self.initial_form_state:
+            self.updateApplyButton()
+            return
+
         ok, max_log_file = self.parseOptionalInteger(self.max_log_file_value.text())
         if not ok:
             self.lbl_status.setText(self.tr("Enter a numeric value"))
@@ -983,12 +1061,16 @@ class JournalsWidget(QWidget):
     def on_apply_finished(self, exit_code, exit_status):
         err = self.proc_apply.readAllStandardError().data().decode(errors="replace").strip()
 
-        self.btn_apply.setEnabled(True)
-
         if exit_code == 0:
             self.lbl_status.setText(self.tr("Done"))
+
+            self.form_loading = True
             self.loadSavedLimits()
             self.loadSavedRules()
+            self.initial_form_state = self.getFormState()
+            self.form_loading = False
+
+            self.updateApplyButton()
             return
 
         if err:
@@ -996,6 +1078,7 @@ class JournalsWidget(QWidget):
         else:
             self.lbl_status.setText(self.tr("Failed"))
 
+        self.updateApplyButton()
 
 class PluginJournals(plugins.Base):
     requires_admin = True
