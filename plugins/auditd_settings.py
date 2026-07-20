@@ -3,7 +3,7 @@
 import plugins
 import os
 import json
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QCheckBox, QScrollArea
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QCheckBox, QScrollArea, QFrame, QPlainTextEdit
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont
 from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
 
@@ -37,6 +37,15 @@ class JournalsWidget(QWidget):
         self.btn_apply = None
         self.lbl_status = None
 
+        self.custom_rules = []
+        self.custom_rules_title = None
+        self.custom_rules_widget = None
+        self.custom_rules_layout = None
+        self.custom_rule_name = None
+        self.custom_rule_text = None
+        self.btn_add_custom_rule = None
+        self.lbl_custom_rule_status = None
+
         self.initial_form_state = None
         self.form_loading = False
 
@@ -50,6 +59,7 @@ class JournalsWidget(QWidget):
         self.connectFormSignals()
         self.initial_form_state = self.getFormState()
         self.updateApplyButton()
+        self.updateAddRuleButton()
 
     def initUI(self):
         root_layout = QVBoxLayout(self)
@@ -218,6 +228,20 @@ class JournalsWidget(QWidget):
         unauthorized_access_audit.addStretch(1)
         layout.addLayout(unauthorized_access_audit)
 
+        self.custom_rules_title = QLabel(self.tr("User rules"))
+        custom_rules_title_font = self.custom_rules_title.font()
+        custom_rules_title_font.setBold(True)
+        self.custom_rules_title.setFont(custom_rules_title_font)
+        self.custom_rules_title.setVisible(False)
+        layout.addWidget(self.custom_rules_title)
+
+        self.custom_rules_widget = QWidget()
+        self.custom_rules_layout = QVBoxLayout(self.custom_rules_widget)
+        self.custom_rules_layout.setContentsMargins(0, 0, 0, 0)
+        self.custom_rules_layout.setSpacing(6)
+        self.custom_rules_widget.setVisible(False)
+        layout.addWidget(self.custom_rules_widget)
+
         apply_layout = QHBoxLayout()
 
         self.btn_apply = QPushButton(self.tr("Apply"))
@@ -233,10 +257,74 @@ class JournalsWidget(QWidget):
         apply_layout.addStretch(1)
         layout.addLayout(apply_layout)
 
+        separator = QFrame()
+        separator.setFrameShape(QFrame.Shape.HLine)
+        separator.setFrameShadow(QFrame.Shadow.Sunken)
+        layout.addWidget(separator)
+
+        custom_rule_title = QLabel(self.tr("Add user rule"))
+        custom_rule_title_font = custom_rule_title.font()
+        custom_rule_title_font.setBold(True)
+        custom_rule_title.setFont(custom_rule_title_font)
+        layout.addWidget(custom_rule_title)
+
+        custom_rule_name_layout = QHBoxLayout()
+        custom_rule_name_layout.addWidget(QLabel(self.tr("Rule name:")))
+
+        self.custom_rule_name = QLineEdit()
+        self.custom_rule_name.setMaxLength(120)
+        self.custom_rule_name.textChanged.connect(self.updateAddRuleButton)
+        custom_rule_name_layout.addWidget(self.custom_rule_name, 1)
+
+        custom_rule_name_layout.addStretch(1)
+        layout.addLayout(custom_rule_name_layout)
+
+        layout.addWidget(QLabel(self.tr("Rule:")))
+
+        self.custom_rule_text = QPlainTextEdit()
+        self.custom_rule_text.setMinimumHeight(70)
+        self.custom_rule_text.setMaximumHeight(100)
+        self.custom_rule_text.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+        self.custom_rule_text.textChanged.connect(self.updateAddRuleButton)
+        layout.addWidget(self.custom_rule_text)
+
+        custom_rule_buttons_layout = QHBoxLayout()
+
+        self.btn_add_custom_rule = QPushButton(self.tr("Add rule"))
+        self.btn_add_custom_rule.setEnabled(False)
+        self.btn_add_custom_rule.clicked.connect(self.onAddCustomRuleClicked)
+        custom_rule_buttons_layout.addWidget(self.btn_add_custom_rule)
+
+        self.lbl_custom_rule_status = QLabel("")
+        self.lbl_custom_rule_status.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.lbl_custom_rule_status.setWordWrap(True)
+        custom_rule_buttons_layout.addWidget(self.lbl_custom_rule_status, 1)
+
+        custom_rule_buttons_layout.addStretch(1)
+        layout.addLayout(custom_rule_buttons_layout)
+
         layout.addStretch(1)
 
         scroll.setWidget(container)
         root_layout.addWidget(scroll)
+
+    def getRuleCheckboxes(self):
+        return [
+            self.identity_audit_checkbox,
+            self.audit_config_audit_checkbox,
+            self.audit_log_read_checkbox,
+            self.journald_config_audit_checkbox,
+            self.password_policy_audit_checkbox,
+            self.privileged_commands_audit_checkbox,
+            self.network_config_audit_checkbox,
+            self.kernel_module_audit_checkbox,
+            self.system_power_audit_checkbox,
+            self.account_modification_audit_checkbox,
+            self.file_delete_audit_checkbox,
+            self.mount_export_audit_checkbox,
+            self.discretionary_access_audit_checkbox,
+            self.unauthorized_access_audit_checkbox,
+        ]
 
     def connectFormSignals(self):
         self.max_log_file_value.textChanged.connect(self.onFormChanged)
@@ -244,20 +332,8 @@ class JournalsWidget(QWidget):
         self.space_left_value.textChanged.connect(self.onFormChanged)
         self.admin_space_left_value.textChanged.connect(self.onFormChanged)
 
-        self.identity_audit_checkbox.stateChanged.connect(self.onFormChanged)
-        self.audit_config_audit_checkbox.stateChanged.connect(self.onFormChanged)
-        self.audit_log_read_checkbox.stateChanged.connect(self.onFormChanged)
-        self.journald_config_audit_checkbox.stateChanged.connect(self.onFormChanged)
-        self.password_policy_audit_checkbox.stateChanged.connect(self.onFormChanged)
-        self.privileged_commands_audit_checkbox.stateChanged.connect(self.onFormChanged)
-        self.network_config_audit_checkbox.stateChanged.connect(self.onFormChanged)
-        self.kernel_module_audit_checkbox.stateChanged.connect(self.onFormChanged)
-        self.system_power_audit_checkbox.stateChanged.connect(self.onFormChanged)
-        self.account_modification_audit_checkbox.stateChanged.connect(self.onFormChanged)
-        self.file_delete_audit_checkbox.stateChanged.connect(self.onFormChanged)
-        self.mount_export_audit_checkbox.stateChanged.connect(self.onFormChanged)
-        self.discretionary_access_audit_checkbox.stateChanged.connect(self.onFormChanged)
-        self.unauthorized_access_audit_checkbox.stateChanged.connect(self.onFormChanged)
+        for checkbox in self.getRuleCheckboxes():
+            checkbox.stateChanged.connect(self.onFormChanged)
 
     def getFormState(self):
         return (
@@ -300,6 +376,89 @@ class JournalsWidget(QWidget):
             return
 
         self.btn_apply.setEnabled(self.getFormState() != self.initial_form_state)
+
+    def updateAddRuleButton(self, *args):
+        if self.btn_add_custom_rule == None:
+            return
+
+        has_name = self.custom_rule_name.text().strip() != ""
+        has_rule = self.custom_rule_text.toPlainText().strip() != ""
+        self.btn_add_custom_rule.setEnabled(has_name and has_rule)
+
+    def getExistingRuleNames(self):
+        names = set()
+
+        for checkbox in self.getRuleCheckboxes():
+            names.add(checkbox.text().strip().casefold())
+
+        for item in self.custom_rules:
+            names.add(item["name"].strip().casefold())
+
+        return names
+
+    def validateCustomRuleName(self, name):
+        value = name.strip()
+
+        if not value:
+            return False, self.tr("Enter a rule name")
+
+        if value.casefold() in self.getExistingRuleNames():
+            return False, self.tr("A rule with this name already exists")
+
+        return True, ""
+
+    def validateCustomRule(self, rule):
+        value = rule.strip()
+
+        if not value:
+            return False, self.tr("Enter a rule")
+
+        for item in self.custom_rules:
+            if item["rule"].strip().casefold() == value.casefold():
+                return False, self.tr("A rule with this description already exists")
+
+        return True, ""
+
+    def addCustomRuleToList(self, name, rule):
+        item_widget = QWidget()
+        item_layout = QVBoxLayout(item_widget)
+        item_layout.setContentsMargins(0, 0, 0, 0)
+
+        checkbox = QCheckBox(name)
+        checkbox.setChecked(False)
+        item_layout.addWidget(checkbox)
+
+        self.custom_rules_layout.addWidget(item_widget)
+        self.custom_rules.append({
+            "name": name,
+            "rule": rule,
+            "checkbox": checkbox,
+            "widget": item_widget,
+        })
+
+        self.custom_rules_title.setVisible(True)
+        self.custom_rules_widget.setVisible(True)
+        
+    def onAddCustomRuleClicked(self):
+        name = self.custom_rule_name.text().strip()
+        rule = self.custom_rule_text.toPlainText().strip()
+
+        valid, error = self.validateCustomRuleName(name)
+        if not valid:
+            self.lbl_custom_rule_status.setText(error)
+            return
+
+        valid, error = self.validateCustomRule(rule)
+        if not valid:
+            self.lbl_custom_rule_status.setText(error)
+            return
+
+        self.addCustomRuleToList(name, rule)
+
+        self.custom_rule_name.setText("")
+        self.custom_rule_text.setPlainText("")
+        self.lbl_custom_rule_status.setText(self.tr("Rule added"))
+        self.updateAddRuleButton()
 
     def buildAuditdConfig(self, max_log_file, num_logs, space_left, admin_space_left):
         path = "/etc/audit/auditd.conf"
