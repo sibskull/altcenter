@@ -3,6 +3,7 @@
 import plugins
 import os
 import json
+import base64
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QCheckBox, QScrollArea, QFrame, QPlainTextEdit
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont
 from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
@@ -14,6 +15,7 @@ class JournalsWidget(QWidget):
 
         self.proc_apply = None
         self.proc_load = None
+        self.proc_save_custom = None
 
         self.max_log_file_value = None
         self.num_logs_value = None
@@ -45,6 +47,7 @@ class JournalsWidget(QWidget):
         self.custom_rule_text = None
         self.btn_add_custom_rule = None
         self.lbl_custom_rule_status = None
+        self.pending_custom_rule = None
 
         self.initial_form_state = None
         self.form_loading = False
@@ -54,6 +57,7 @@ class JournalsWidget(QWidget):
         self.form_loading = True
         self.loadSavedLimits()
         self.loadSavedRules()
+        self.loadSavedCustomRules()
         self.form_loading = False
 
         self.connectFormSignals()
@@ -290,7 +294,7 @@ class JournalsWidget(QWidget):
 
         custom_rule_buttons_layout = QHBoxLayout()
 
-        self.btn_add_custom_rule = QPushButton(self.tr("Add rule"))
+        self.btn_add_custom_rule = QPushButton(self.tr("Save rule"))
         self.btn_add_custom_rule.setEnabled(False)
         self.btn_add_custom_rule.clicked.connect(self.onAddCustomRuleClicked)
         custom_rule_buttons_layout.addWidget(self.btn_add_custom_rule)
@@ -336,7 +340,7 @@ class JournalsWidget(QWidget):
             checkbox.stateChanged.connect(self.onFormChanged)
 
     def getFormState(self):
-        return (
+        state = (
             self.max_log_file_value.text().strip(),
             self.num_logs_value.text().strip(),
             self.space_left_value.text().strip(),
@@ -356,6 +360,17 @@ class JournalsWidget(QWidget):
             self.discretionary_access_audit_checkbox.isChecked(),
             self.unauthorized_access_audit_checkbox.isChecked(),
         )
+
+        custom_state = []
+
+        for item in self.custom_rules:
+            custom_state.append((
+                item["name"].strip(),
+                item["rule"].strip(),
+                item["checkbox"].isChecked(),
+            ))
+
+        return state + (tuple(custom_state),)
 
     def onFormChanged(self, *args):
         if self.form_loading:
@@ -379,6 +394,10 @@ class JournalsWidget(QWidget):
 
     def updateAddRuleButton(self, *args):
         if self.btn_add_custom_rule == None:
+            return
+
+        if self.proc_save_custom != None and self.proc_save_custom.state() != QProcess.ProcessState.NotRunning:
+            self.btn_add_custom_rule.setEnabled(False)
             return
 
         has_name = self.custom_rule_name.text().strip() != ""
@@ -419,13 +438,14 @@ class JournalsWidget(QWidget):
 
         return True, ""
 
-    def addCustomRuleToList(self, name, rule):
+    def addCustomRuleToList(self, name, rule, enabled = False):
         item_widget = QWidget()
         item_layout = QVBoxLayout(item_widget)
         item_layout.setContentsMargins(0, 0, 0, 0)
 
         checkbox = QCheckBox(name)
-        checkbox.setChecked(False)
+        checkbox.setChecked(enabled)
+        checkbox.stateChanged.connect(self.onFormChanged)
         item_layout.addWidget(checkbox)
 
         self.custom_rules_layout.addWidget(item_widget)
@@ -439,7 +459,55 @@ class JournalsWidget(QWidget):
         self.custom_rules_title.setVisible(True)
         self.custom_rules_widget.setVisible(True)
         
+    def loadSavedCustomRules(self):
+        path = "/etc/altcenter/auditd_custom_rules.json"
+        enabled_path = "/etc/audit/rules.d/71-altcenter-custom.rules"
+
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as f:
+                data = json.load(f)
+        except:
+            return
+
+        try:
+            with open(enabled_path, "r", encoding="utf-8", errors="replace") as f:
+                enabled_rules = f.read()
+        except:
+            enabled_rules = ""
+
+        if not isinstance(data, list):
+            return
+
+        for item in data:
+            if not isinstance(item, dict):
+                continue
+
+            name = str(item.get("name", "")).strip()
+            rule = str(item.get("rule", "")).strip()
+
+            if not name or not rule:
+                continue
+
+            if name.casefold() in self.getExistingRuleNames():
+                continue
+
+            duplicate_rule = False
+
+            for current_item in self.custom_rules:
+                if current_item["rule"].strip().casefold() == rule.casefold():
+                    duplicate_rule = True
+                    break
+
+            if duplicate_rule:
+                continue
+
+            enabled = rule in enabled_rules
+            self.addCustomRuleToList(name, rule, enabled)
+
     def onAddCustomRuleClicked(self):
+        if self.proc_save_custom != None and self.proc_save_custom.state() != QProcess.ProcessState.NotRunning:
+            return
+
         name = self.custom_rule_name.text().strip()
         rule = self.custom_rule_text.toPlainText().strip()
 
@@ -453,11 +521,88 @@ class JournalsWidget(QWidget):
             self.lbl_custom_rule_status.setText(error)
             return
 
-        self.addCustomRuleToList(name, rule)
+        custom_rules_data = []
 
-        self.custom_rule_name.setText("")
-        self.custom_rule_text.setPlainText("")
-        self.lbl_custom_rule_status.setText(self.tr("Rule added"))
+        for item in self.custom_rules:
+            custom_rules_data.append({
+                "name": item["name"],
+                "rule": item["rule"],
+            })
+
+        custom_rules_data.append({
+            "name": name,
+            "rule": rule,
+        })
+
+        custom_rules_json = json.dumps(
+            custom_rules_data,
+            ensure_ascii=False,
+            indent=2
+        ) + "\n"
+
+        custom_rules_json_base64 = base64.b64encode(
+            custom_rules_json.encode("utf-8")
+        ).decode("ascii")
+
+        cmd = (
+            "mkdir -p /etc/altcenter && "
+            f"printf '%s' '{custom_rules_json_base64}' | base64 -d > /etc/altcenter/auditd_custom_rules.json && "
+            "chmod 644 /etc/altcenter/auditd_custom_rules.json"
+        )
+
+        self.pending_custom_rule = {
+            "name": name,
+            "rule": rule,
+        }
+
+        self.lbl_custom_rule_status.setText("")
+        self.custom_rule_name.setEnabled(False)
+        self.custom_rule_text.setEnabled(False)
+        self.btn_add_custom_rule.setEnabled(False)
+
+        self.proc_save_custom = QProcess(self)
+        env = QProcessEnvironment.systemEnvironment()
+        self.proc_save_custom.setProcessEnvironment(env)
+        self.proc_save_custom.finished.connect(self.onSaveCustomRuleFinished)
+        self.proc_save_custom.start("pkexec", ["sh", "-c", cmd])
+
+    def onSaveCustomRuleFinished(self, exit_code, exit_status):
+        err = self.proc_save_custom.readAllStandardError().data().decode(errors="replace").strip()
+
+        self.custom_rule_name.setEnabled(True)
+        self.custom_rule_text.setEnabled(True)
+
+        if exit_code == 0 and self.pending_custom_rule != None:
+            name = self.pending_custom_rule["name"]
+            rule = self.pending_custom_rule["rule"]
+
+            self.form_loading = True
+            self.addCustomRuleToList(name, rule, False)
+
+            if self.initial_form_state != None:
+                saved_custom_state = list(self.initial_form_state[-1])
+                saved_custom_state.append((name, rule, False))
+                self.initial_form_state = self.initial_form_state[:-1] + (tuple(saved_custom_state),)
+            else:
+                self.initial_form_state = self.getFormState()
+
+            self.form_loading = False
+
+            self.custom_rule_name.setText("")
+            self.custom_rule_text.setPlainText("")
+            self.lbl_custom_rule_status.setText(self.tr("Rule saved"))
+            self.pending_custom_rule = None
+            self.updateAddRuleButton()
+            self.updateApplyButton()
+            return
+
+        self.pending_custom_rule = None
+
+        if err:
+            self.lbl_custom_rule_status.setText(err)
+        else:
+            self.lbl_custom_rule_status.setText(self.tr("Failed"))
+
         self.updateAddRuleButton()
 
     def buildAuditdConfig(self, max_log_file, num_logs, space_left, admin_space_left):
@@ -1148,6 +1293,16 @@ class JournalsWidget(QWidget):
         )
         managed_rules = managed_rules.replace("'", "'\"'\"'")
 
+        custom_enabled_rules = ""
+
+        for item in self.custom_rules:
+            if item["checkbox"].isChecked():
+                custom_enabled_rules += item["rule"].strip() + "\n"
+
+        custom_enabled_rules_base64 = base64.b64encode(
+            custom_enabled_rules.encode("utf-8")
+        ).decode("ascii")
+
         self.lbl_status.setText("")
         self.btn_apply.setEnabled(False)
 
@@ -1163,6 +1318,12 @@ class JournalsWidget(QWidget):
                 ": > /etc/audit/rules.d/70-altcenter.rules && "
                 "chmod 600 /etc/audit/rules.d/70-altcenter.rules"
             )
+
+        custom_rules_cmd = (
+            "mkdir -p /etc/audit/rules.d && "
+            f"printf '%s' '{custom_enabled_rules_base64}' | base64 -d > /etc/audit/rules.d/71-altcenter-custom.rules && "
+            "chmod 600 /etc/audit/rules.d/71-altcenter-custom.rules"
+        )
 
         config_cmd = ""
 
@@ -1205,6 +1366,7 @@ class JournalsWidget(QWidget):
             config_cmd
             + "cat /etc/audit/auditd.conf > /tmp/altcenter_auditd.conf && chmod 644 /tmp/altcenter_auditd.conf && "
             + rules_cmd + " && "
+            + custom_rules_cmd + " && "
             + "cat /etc/audit/rules.d/*.rules > /tmp/altcenter_audit.rules 2>/dev/null || : && "
             + "chmod 644 /tmp/altcenter_audit.rules 2>/dev/null || : && "
             + "if command -v augenrules >/dev/null 2>&1; then augenrules --load; fi && "
