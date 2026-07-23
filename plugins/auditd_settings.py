@@ -6,7 +6,7 @@ import json
 import base64
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QCheckBox, QScrollArea, QFrame, QPlainTextEdit
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont
-from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
+from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale, QEvent
 
 class JournalsWidget(QWidget):
     def __init__(self, main_window = None):
@@ -48,6 +48,7 @@ class JournalsWidget(QWidget):
         self.btn_add_custom_rule = None
         self.lbl_custom_rule_status = None
         self.pending_custom_rule = None
+        self.custom_rule_info_panel = None
 
         self.initial_form_state = None
         self.form_loading = False
@@ -310,7 +311,20 @@ class JournalsWidget(QWidget):
         layout.addStretch(1)
 
         scroll.setWidget(container)
-        root_layout.addWidget(scroll)
+
+        splitter = QSplitter(Qt.Orientation.Horizontal)
+        splitter.addWidget(scroll)
+
+        self.custom_rule_info_panel = QTextEdit()
+        self.custom_rule_info_panel.setReadOnly(True)
+        self.custom_rule_info_panel.setMinimumWidth(200)
+        self.custom_rule_info_panel.setVisible(False)
+        splitter.addWidget(self.custom_rule_info_panel)
+
+        splitter.setStretchFactor(0, 3)
+        splitter.setStretchFactor(1, 2)
+
+        root_layout.addWidget(splitter)
 
     def getRuleCheckboxes(self):
         return [
@@ -440,12 +454,19 @@ class JournalsWidget(QWidget):
 
     def addCustomRuleToList(self, name, rule, enabled = False):
         item_widget = QWidget()
+        item_widget.setProperty("custom_rule", rule)
+        item_widget.installEventFilter(self)
+        item_widget.setCursor(Qt.CursorShape.PointingHandCursor)
+
         item_layout = QVBoxLayout(item_widget)
         item_layout.setContentsMargins(0, 0, 0, 0)
 
         checkbox = QCheckBox(name)
+        checkbox.setCursor(Qt.CursorShape.PointingHandCursor)
+        checkbox.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         checkbox.setChecked(enabled)
         checkbox.stateChanged.connect(self.onFormChanged)
+        checkbox.clicked.connect(lambda checked, value=rule: self.showCustomRuleInfo(value))
         item_layout.addWidget(checkbox)
 
         self.custom_rules_layout.addWidget(item_widget)
@@ -458,6 +479,23 @@ class JournalsWidget(QWidget):
 
         self.custom_rules_title.setVisible(True)
         self.custom_rules_widget.setVisible(True)
+
+    def eventFilter(self, watched, event):
+        if (
+            event.type() == QEvent.Type.MouseButtonPress
+            and event.button() == Qt.MouseButton.LeftButton
+        ):
+            for item in self.custom_rules:
+                if item["widget"] == watched:
+                    item["checkbox"].setFocus(Qt.FocusReason.MouseFocusReason)
+                    self.showCustomRuleInfo(item["rule"])
+                    return True
+
+        return super().eventFilter(watched, event)
+
+    def showCustomRuleInfo(self, rule):
+        self.custom_rule_info_panel.setPlainText(rule)
+        self.custom_rule_info_panel.setVisible(True)
         
     def loadSavedCustomRules(self):
         path = "/etc/altcenter/auditd_custom_rules.json"
