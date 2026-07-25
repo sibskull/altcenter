@@ -4,7 +4,7 @@ import plugins
 import os
 import json
 import base64
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QCheckBox, QScrollArea, QFrame, QPlainTextEdit
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QCheckBox, QScrollArea, QFrame, QPlainTextEdit, QMessageBox
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont
 from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale, QEvent
 
@@ -440,15 +440,39 @@ class JournalsWidget(QWidget):
 
         return True, ""
 
-    def validateCustomRule(self, rule):
+    def validateCustomRule(self, rule, check_duplicate = True):
         value = rule.strip()
 
         if not value:
             return False, self.tr("Enter a rule")
 
-        for item in self.custom_rules:
-            if item["rule"].strip().casefold() == value.casefold():
-                return False, self.tr("A rule with this description already exists")
+        lines = [line.strip() for line in value.splitlines() if line.strip()]
+
+        for line in lines:
+            parts = line.split()
+
+            if len(parts) != 6 or parts[0] != "-w" or parts[2] != "-p" or parts[4] != "-k":
+                return False, self.tr("Use the format: -w /path -p rwax -k key")
+
+            path = parts[1]
+            permissions = parts[3]
+            key = parts[5]
+
+            if not path.startswith("/") or not os.path.exists(path):
+                return False, self.tr("The monitored path must be absolute and must exist")
+
+            if not permissions or any(value not in "rwax" for value in permissions) or len(set(permissions)) != len(permissions):
+                return False, self.tr("Permissions may contain only r, w, a and x")
+
+            allowed_key_characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
+
+            if len(key) > 31 or any(value not in allowed_key_characters for value in key):
+                return False, self.tr("The key may contain up to 31 Latin letters, digits, _ and -")
+
+        if check_duplicate:
+            for item in self.custom_rules:
+                if item["rule"].strip().casefold() == value.casefold():
+                    return False, self.tr("A rule with this description already exists")
 
         return True, ""
 
@@ -497,6 +521,24 @@ class JournalsWidget(QWidget):
         if delete_item == None:
             return
 
+        enabled = delete_item["checkbox"].isChecked()
+
+        try:
+            with open("/etc/altcenter/auditd_custom_enabled.rules", "r", encoding="utf-8", errors="replace") as f:
+                enabled_lines = {line.strip() for line in f.read().splitlines() if line.strip()}
+                rule_lines = [line.strip() for line in delete_item["rule"].splitlines() if line.strip()]
+                enabled = enabled or (bool(rule_lines) and all(line in enabled_lines for line in rule_lines))
+        except:
+            pass
+
+        if enabled:
+            QMessageBox.information(
+                self,
+                self.tr("Active rule"),
+                self.tr("Disable the rule and apply the changes before deleting it")
+            )
+            return
+
         custom_rules_data = []
         custom_enabled_rules = ""
 
@@ -539,6 +581,8 @@ class JournalsWidget(QWidget):
             "chmod 644 /etc/altcenter/auditd_custom_rules.json && "
             f"printf '%s' '{custom_enabled_rules_base64}' | base64 -d > /etc/audit/rules.d/71-altcenter-custom.rules && "
             "chmod 600 /etc/audit/rules.d/71-altcenter-custom.rules && "
+            f"printf '%s' '{custom_enabled_rules_base64}' | base64 -d > /etc/altcenter/auditd_custom_enabled.rules && "
+            "chmod 644 /etc/altcenter/auditd_custom_enabled.rules && "
             "if command -v augenrules >/dev/null 2>&1; then augenrules --load >/dev/null 2>&1; fi"
         )
 
@@ -585,7 +629,7 @@ class JournalsWidget(QWidget):
         
     def loadSavedCustomRules(self):
         path = "/etc/altcenter/auditd_custom_rules.json"
-        enabled_path = "/etc/audit/rules.d/71-altcenter-custom.rules"
+        enabled_path = "/etc/altcenter/auditd_custom_enabled.rules"
 
         try:
             with open(path, "r", encoding="utf-8", errors="replace") as f:
@@ -625,7 +669,9 @@ class JournalsWidget(QWidget):
             if duplicate_rule:
                 continue
 
-            enabled = rule in enabled_rules
+            enabled_lines = {line.strip() for line in enabled_rules.splitlines() if line.strip()}
+            rule_lines = [line.strip() for line in rule.splitlines() if line.strip()]
+            enabled = bool(rule_lines) and all(line in enabled_lines for line in rule_lines)
             self.addCustomRuleToList(name, rule, enabled)
 
     def onAddCustomRuleClicked(self):
@@ -1421,6 +1467,14 @@ class JournalsWidget(QWidget):
 
         for item in self.custom_rules:
             if item["checkbox"].isChecked():
+                valid, error = self.validateCustomRule(item["rule"], False)
+
+                if not valid:
+                    self.lbl_status.setText(
+                        self.tr('Rule "%s": %s') % (item["name"], error)
+                    )
+                    return
+
                 custom_enabled_rules += item["rule"].strip() + "\n"
 
         custom_enabled_rules_base64 = base64.b64encode(
@@ -1444,9 +1498,11 @@ class JournalsWidget(QWidget):
             )
 
         custom_rules_cmd = (
-            "mkdir -p /etc/audit/rules.d && "
+            "mkdir -p /etc/audit/rules.d /etc/altcenter && "
             f"printf '%s' '{custom_enabled_rules_base64}' | base64 -d > /etc/audit/rules.d/71-altcenter-custom.rules && "
-            "chmod 600 /etc/audit/rules.d/71-altcenter-custom.rules"
+            "chmod 600 /etc/audit/rules.d/71-altcenter-custom.rules && "
+            f"printf '%s' '{custom_enabled_rules_base64}' | base64 -d > /etc/altcenter/auditd_custom_enabled.rules && "
+            "chmod 644 /etc/altcenter/auditd_custom_enabled.rules"
         )
 
         config_cmd = ""
