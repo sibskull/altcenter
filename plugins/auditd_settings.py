@@ -458,7 +458,7 @@ class JournalsWidget(QWidget):
         item_widget.installEventFilter(self)
         item_widget.setCursor(Qt.CursorShape.PointingHandCursor)
 
-        item_layout = QVBoxLayout(item_widget)
+        item_layout = QHBoxLayout(item_widget)
         item_layout.setContentsMargins(0, 0, 0, 0)
 
         checkbox = QCheckBox(name)
@@ -467,7 +467,13 @@ class JournalsWidget(QWidget):
         checkbox.setChecked(enabled)
         checkbox.stateChanged.connect(self.onFormChanged)
         checkbox.clicked.connect(lambda checked, value=rule: self.showCustomRuleInfo(value))
-        item_layout.addWidget(checkbox)
+        item_layout.addWidget(checkbox, 1)
+
+        delete_button = QPushButton("×")
+        delete_button.setFixedSize(24, 24)
+        delete_button.setToolTip(self.tr("Delete rule"))
+        delete_button.clicked.connect(lambda checked = False, widget = item_widget: self.deleteCustomRule(widget))
+        item_layout.addWidget(delete_button)
 
         self.custom_rules_layout.addWidget(item_widget)
         self.custom_rules.append({
@@ -479,6 +485,86 @@ class JournalsWidget(QWidget):
 
         self.custom_rules_title.setVisible(True)
         self.custom_rules_widget.setVisible(True)
+
+    def deleteCustomRule(self, widget):
+        delete_item = None
+
+        for item in self.custom_rules:
+            if item["widget"] == widget:
+                delete_item = item
+                break
+
+        if delete_item == None:
+            return
+
+        custom_rules_data = []
+        custom_enabled_rules = ""
+
+        for item in self.custom_rules:
+            if item == delete_item:
+                continue
+
+            custom_rules_data.append({
+                "name": item["name"],
+                "rule": item["rule"],
+            })
+
+            if item["checkbox"].isChecked():
+                custom_enabled_rules += item["rule"].strip() + "\n"
+
+        custom_rules_json = json.dumps(
+            custom_rules_data,
+            ensure_ascii=False,
+            indent=2
+        ) + "\n"
+
+        custom_rules_json_base64 = base64.b64encode(
+            custom_rules_json.encode("utf-8")
+        ).decode("ascii")
+
+        custom_enabled_rules_base64 = base64.b64encode(
+            custom_enabled_rules.encode("utf-8")
+        ).decode("ascii")
+
+        name = delete_item["name"]
+        rule = delete_item["rule"]
+
+        self.lbl_custom_rule_status.setText(
+            self.tr('Deleting rule "%s"') % name
+        )
+
+        cmd = (
+            "mkdir -p /etc/altcenter /etc/audit/rules.d && "
+            f"printf '%s' '{custom_rules_json_base64}' | base64 -d > /etc/altcenter/auditd_custom_rules.json && "
+            "chmod 644 /etc/altcenter/auditd_custom_rules.json && "
+            f"printf '%s' '{custom_enabled_rules_base64}' | base64 -d > /etc/audit/rules.d/71-altcenter-custom.rules && "
+            "chmod 600 /etc/audit/rules.d/71-altcenter-custom.rules && "
+            "if command -v augenrules >/dev/null 2>&1; then augenrules --load >/dev/null 2>&1; fi"
+        )
+
+        exit_code = QProcess.execute("pkexec", ["sh", "-c", cmd])
+
+        if exit_code != 0:
+            self.lbl_custom_rule_status.setText(self.tr("Failed"))
+            return
+
+        self.custom_rules.remove(delete_item)
+        self.custom_rules_layout.removeWidget(delete_item["widget"])
+        delete_item["widget"].deleteLater()
+
+        if self.custom_rule_info_panel.toPlainText().strip() == rule.strip():
+            self.custom_rule_info_panel.clear()
+            self.custom_rule_info_panel.setVisible(False)
+
+        if not self.custom_rules:
+            self.custom_rules_title.setVisible(False)
+            self.custom_rules_widget.setVisible(False)
+
+        self.initial_form_state = self.getFormState()
+        self.lbl_custom_rule_status.setText(
+            self.tr('Rule "%s" deleted') % name
+        )
+        self.updateApplyButton()
 
     def eventFilter(self, watched, event):
         if (
