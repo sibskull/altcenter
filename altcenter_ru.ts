@@ -1116,12 +1116,12 @@ Please try again later</source>
         <translation>Текущий объем журнала:</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="79"/>
+        <location filename="plugins/auditd_settings.py" line="104"/>
         <source>SystemKeepFree (MB):</source>
         <translation>Объем свободного места (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="57"/>
+        <location filename="plugins/auditd_settings.py" line="82"/>
         <source>SystemMaxFileSize (MB):</source>
         <translation>Максимальный объем файла журнала (МБ):</translation>
     </message>
@@ -1171,7 +1171,7 @@ Please try again later</source>
         <translation>3) Расположение журналов: /var/log/audit/audit.log</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="90"/>
+        <location filename="plugins/auditd_settings.py" line="115"/>
         <source>AdminSpaceLeft (MB):</source>
         <translation>Критический объем свободного места (МБ):</translation>
     </message>
@@ -1191,94 +1191,189 @@ Please try again later</source>
         <translation>Максимальный объем файла журнала (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="101"/>
+        <location filename="plugins/auditd_settings.py" line="126"/>
         <source>Audit password and account changes</source>
         <translation>Аудит изменений паролей и учётных записей</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="109"/>
+        <location filename="plugins/auditd_settings.py" line="134"/>
         <source>Audit audit configuration changes</source>
         <translation>Аудит изменений конфигурации audit</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="117"/>
+        <location filename="plugins/auditd_settings.py" line="142"/>
         <source>Audit audit log read/export</source>
         <translation>Аудит чтения/экспорта журнала audit</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="125"/>
+        <location filename="plugins/auditd_settings.py" line="150"/>
         <source>Audit journald configuration changes</source>
         <translation>Аудит изменений конфигурации journald</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="133"/>
+        <location filename="plugins/auditd_settings.py" line="158"/>
         <source>Audit password policy configuration changes</source>
         <translation>Аудит изменений конфигурации политики паролей</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="141"/>
+        <location filename="plugins/auditd_settings.py" line="166"/>
         <source>Audit privileged commands usage</source>
         <translation>Аудит использования привилегированных команд</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="149"/>
+        <location filename="plugins/auditd_settings.py" line="174"/>
         <source>Audit network environment changes</source>
-        <translation>Аудит изменений сетевого окружения</translation>
+        <translation>Аудит событий монтирования файловой системы</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="157"/>
+        <location filename="plugins/auditd_settings.py" line="182"/>
         <source>Audit kernel module changes</source>
         <translation>Аудит изменений модулей ядра</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="173"/>
+        <location filename="plugins/auditd_settings.py" line="198"/>
         <source>Audit account modification commands</source>
         <translation>Аудит команд изменения учётных записей</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="703"/>
+        <location filename="plugins/auditd_settings.py" line="1255"/>
         <source>Critical free space must be lower than minimum free space</source>
         <translation>Критический объём свободного места должен быть меньше минимального объёма свободного места</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="68"/>
+        <location filename="plugins/auditd_settings.py" line="93"/>
         <source>Maximum number of log files:</source>
         <translation>Максимальное количество файлов журнала:</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="181"/>
+        <location filename="plugins/auditd_settings.py" line="206"/>
         <source>Audit file deletion events</source>
         <translation>Аудит событий удаления файлов</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="189"/>
+        <location filename="plugins/auditd_settings.py" line="214"/>
         <source>Audit information export to media</source>
         <translation>Аудит событий экспорта информации на носитель</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="197"/>
+        <location filename="plugins/auditd_settings.py" line="222"/>
         <source>Audit discretionary access changes</source>
         <translation>Аудит изменений в дискреционном доступе</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="205"/>
+        <location filename="plugins/auditd_settings.py" line="230"/>
         <source>Audit unauthorized access attempts</source>
         <translation>Аудит попыток несанкционированного доступа</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="670"/>
+        <location filename="plugins/auditd_settings.py" line="1222"/>
         <source>Enter a value from 2 to 999 to &apos;Maximum number of log files&apos;</source>
         <translation>Введите значение от 2 до 999 для &quot;Максимального количества файлов журнала&quot;</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="165"/>
+        <location filename="plugins/auditd_settings.py" line="190"/>
         <source>Audit system shutdown and reboot</source>
         <translation>Аудит событий завершения и перезагрузки системы</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="174"/>
-        <source>Audit filesystem mount operations</source>
-        <translation type="obsolete">Аудит событий монтирования файловой системы</translation>
+        <location filename="plugins/auditd_settings.py" line="236"/>
+        <source>User rules</source>
+        <translation>Пользовательские правила</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="270"/>
+        <source>Add user rule</source>
+        <translation>Добавить пользовательское правило</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="277"/>
+        <source>Rule name:</source>
+        <translation>Название правила:</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="287"/>
+        <source>Rule:</source>
+        <translation>Правило:</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="298"/>
+        <source>Save rule</source>
+        <translation>Сохранить правило</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="436"/>
+        <source>Enter a rule name</source>
+        <translation>Введите название правила</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="439"/>
+        <source>A rule with this name already exists</source>
+        <translation>Правило с таким названием уже существует</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="447"/>
+        <source>Enter a rule</source>
+        <translation>Введите правило</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="455"/>
+        <source>Use the format: -w /path -p rwax -k key</source>
+        <translation>Используйте формат: -w /path -p rwax -k ключ</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="462"/>
+        <source>The monitored path must be absolute and must exist</source>
+        <translation>Путь должен быть абсолютным и должен существовать</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="465"/>
+        <source>Permissions may contain only r, w, a and x</source>
+        <translation>Разрешения могут содержать только r, w, a и x</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="470"/>
+        <source>The key may contain up to 31 Latin letters, digits, _ and -</source>
+        <translation>Ключ может содержать до 31 латинской буквы, цифры, _ и -</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="475"/>
+        <source>A rule with this description already exists</source>
+        <translation>Правило с таким описанием уже существует</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="498"/>
+        <source>Delete rule</source>
+        <translation>Удалить правило</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="535"/>
+        <source>Active rule</source>
+        <translation>Активное правило</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="535"/>
+        <source>Disable the rule and apply the changes before deleting it</source>
+        <translation>Отключите правило и примените изменения перед удалением</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="574"/>
+        <source>Deleting rule &quot;%s&quot;</source>
+        <translation>Удаление правила &quot;%s&quot;</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="608"/>
+        <source>Rule &quot;%s&quot; deleted</source>
+        <translation>Правило &quot;%s&quot; удалено</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="763"/>
+        <source>Rule saved</source>
+        <translation>Правило сохранено</translation>
+    </message>
+    <message>
+        <location filename="plugins/auditd_settings.py" line="1473"/>
+        <source>Rule &quot;%s&quot;: %s</source>
+        <translation>Правило &quot;%s&quot;: %s</translation>
     </message>
 </context>
 <context>
@@ -1419,7 +1514,7 @@ Please try again later</source>
         <translation>Настройки журналов</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="1006"/>
+        <location filename="plugins/auditd_settings.py" line="1590"/>
         <source>Auditd logs settings</source>
         <translation>Настройки журналов аудита</translation>
     </message>
