@@ -581,9 +581,9 @@ class JournalsWidget(QWidget):
             "chmod 644 /etc/altcenter/auditd_custom_rules.json && "
             f"printf '%s' '{custom_enabled_rules_base64}' | base64 -d > /etc/audit/rules.d/71-altcenter-custom.rules && "
             "chmod 600 /etc/audit/rules.d/71-altcenter-custom.rules && "
+            "if command -v augenrules >/dev/null 2>&1; then augenrules --load >/dev/null 2>&1; else exit 1; fi && "
             f"printf '%s' '{custom_enabled_rules_base64}' | base64 -d > /etc/altcenter/auditd_custom_enabled.rules && "
-            "chmod 644 /etc/altcenter/auditd_custom_enabled.rules && "
-            "if command -v augenrules >/dev/null 2>&1; then augenrules --load >/dev/null 2>&1; fi"
+            "chmod 644 /etc/altcenter/auditd_custom_enabled.rules"
         )
 
         exit_code = QProcess.execute("pkexec", ["sh", "-c", cmd])
@@ -1500,9 +1500,7 @@ class JournalsWidget(QWidget):
         custom_rules_cmd = (
             "mkdir -p /etc/audit/rules.d /etc/altcenter && "
             f"printf '%s' '{custom_enabled_rules_base64}' | base64 -d > /etc/audit/rules.d/71-altcenter-custom.rules && "
-            "chmod 600 /etc/audit/rules.d/71-altcenter-custom.rules && "
-            f"printf '%s' '{custom_enabled_rules_base64}' | base64 -d > /etc/altcenter/auditd_custom_enabled.rules && "
-            "chmod 644 /etc/altcenter/auditd_custom_enabled.rules"
+            "chmod 600 /etc/audit/rules.d/71-altcenter-custom.rules"
         )
 
         config_cmd = ""
@@ -1547,9 +1545,10 @@ class JournalsWidget(QWidget):
             + "cat /etc/audit/auditd.conf > /tmp/altcenter_auditd.conf && chmod 644 /tmp/altcenter_auditd.conf && "
             + rules_cmd + " && "
             + custom_rules_cmd + " && "
-            + "cat /etc/audit/rules.d/*.rules > /tmp/altcenter_audit.rules 2>/dev/null || : && "
-            + "chmod 644 /tmp/altcenter_audit.rules 2>/dev/null || : && "
-            + "if command -v augenrules >/dev/null 2>&1; then augenrules --load; fi && "
+            + "if command -v augenrules >/dev/null 2>&1; then augenrules --load; else exit 1; fi && "
+            + f"printf '%s' '{custom_enabled_rules_base64}' | base64 -d > /etc/altcenter/auditd_custom_enabled.rules && "
+            + "chmod 644 /etc/altcenter/auditd_custom_enabled.rules && "
+            + "(cat /etc/audit/rules.d/*.rules > /tmp/altcenter_audit.rules 2>/dev/null && chmod 644 /tmp/altcenter_audit.rules 2>/dev/null || :) && "
             + "if command -v service >/dev/null 2>&1; then service auditd restart; else systemctl restart auditd; fi"
         )
 
