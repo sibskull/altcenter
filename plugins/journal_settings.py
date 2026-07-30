@@ -35,8 +35,13 @@ class JournalsWidget(QWidget):
         self.systemkeepfree_value = None
         self.systemmaxfilesize_value = None
 
+        self.initial_limits_state = None
+
         self.initUI()
         self.loadSavedLimits()
+        self.initial_limits_state = self.getLimitsState()
+        self.connectLimitSignals()
+        self.updateApplyButton()
         self.loadUsage()
 
     def initUI(self):
@@ -135,6 +140,7 @@ class JournalsWidget(QWidget):
         apply_limits = QHBoxLayout()
 
         self.btn_systemmaxuse = QPushButton(self.tr("Apply"))
+        self.btn_systemmaxuse.setEnabled(False)
         self.btn_systemmaxuse.clicked.connect(self.on_systemmaxuse_clicked)
         apply_limits.addWidget(self.btn_systemmaxuse)
 
@@ -148,8 +154,39 @@ class JournalsWidget(QWidget):
         layout.addStretch(1)
         self.setLayout(layout)
 
+    def getLimitsState(self):
+        return (
+            self.systemmaxuse_value.text().strip(),
+            self.systemkeepfree_value.text().strip(),
+            self.systemmaxfilesize_value.text().strip(),
+        )
+
+    def connectLimitSignals(self):
+        self.systemmaxuse_value.textChanged.connect(self.updateApplyButton)
+        self.systemkeepfree_value.textChanged.connect(self.updateApplyButton)
+        self.systemmaxfilesize_value.textChanged.connect(self.updateApplyButton)
+
+    def updateApplyButton(self, *args):
+        if self.btn_systemmaxuse == None:
+            return
+
+        if self.proc_systemmaxuse != None and self.proc_systemmaxuse.state() != QProcess.ProcessState.NotRunning:
+            self.btn_systemmaxuse.setEnabled(False)
+            return
+
+        if self.initial_limits_state == None:
+            self.btn_systemmaxuse.setEnabled(False)
+            return
+
+        self.btn_systemmaxuse.setEnabled(self.getLimitsState() != self.initial_limits_state)
+
     def loadSavedLimits(self):
         path = "/etc/systemd/journald.conf.d/altcenter.conf"
+
+        self.systemmaxuse_value.setText("")
+        self.systemkeepfree_value.setText("")
+        self.systemmaxfilesize_value.setText("")
+
         try:
             with open(path, "r", encoding="utf-8", errors="replace") as f:
                 lines = f.read().splitlines()
@@ -295,6 +332,10 @@ class JournalsWidget(QWidget):
         if self.proc_systemmaxuse != None and self.proc_systemmaxuse.state() != QProcess.ProcessState.NotRunning:
             return
 
+        if self.initial_limits_state == None or self.getLimitsState() == self.initial_limits_state:
+            self.updateApplyButton()
+            return
+
         maxuse_mb = None
         keepfree_mb = None
         maxfilesize_mb = None
@@ -364,10 +405,11 @@ class JournalsWidget(QWidget):
     def on_systemmaxuse_finished(self, exit_code, exit_status):
         err = self.proc_systemmaxuse.readAllStandardError().data().decode(errors="replace").strip()
 
-        self.btn_systemmaxuse.setEnabled(True)
-
         if exit_code == 0:
             self.lbl_systemmaxuse_status.setText(self.tr("Done"))
+            self.loadSavedLimits()
+            self.initial_limits_state = self.getLimitsState()
+            self.updateApplyButton()
             self.loadUsage()
             return
 
@@ -376,6 +418,7 @@ class JournalsWidget(QWidget):
         else:
             self.lbl_systemmaxuse_status.setText(self.tr("Failed"))
 
+        self.updateApplyButton()
 
 class PluginJournals(plugins.Base):
     requires_admin = True
