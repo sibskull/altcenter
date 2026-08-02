@@ -1483,6 +1483,7 @@ class JournalsWidget(QWidget):
 
         self.lbl_status.setText("")
         self.btn_apply.setEnabled(False)
+        self.custom_rules_widget.setEnabled(False)
 
         if managed_rules:
             rules_cmd = (
@@ -1560,6 +1561,8 @@ class JournalsWidget(QWidget):
 
     def on_apply_finished(self, exit_code, exit_status):
         err = self.proc_apply.readAllStandardError().data().decode(errors="replace").strip()
+
+        self.custom_rules_widget.setEnabled(True)
 
         if exit_code == 0:
             self.lbl_status.setText(self.tr("Done"))
