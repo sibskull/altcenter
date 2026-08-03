@@ -41,6 +41,9 @@ class SettingsWidget(QWidget):
         if hasattr(self, 'system_center_btn') and self.system_center_btn is not None:
             self.system_center_btn.setVisible(self.is_expert_mode)
 
+        if hasattr(self, 'altha_btn') and self.altha_btn is not None:
+            self.altha_btn.setVisible(self.is_expert_mode)
+
     def init_widgets(self):
         """Инициализация всех виджетов"""
         # Основные настройки
@@ -209,6 +212,7 @@ class SettingsWidget(QWidget):
         self.applications_btn = None
         self.third_party_btn = None
         self.system_center_btn = None
+        self.altha_btn = None
 
         if my_utils.check_package_installed("appinstall"):
             apps['en'].append({
@@ -217,6 +221,14 @@ class SettingsWidget(QWidget):
                 'command': 'appinstall',
                 'expert_only': True
             })
+
+        apps['en'].append({
+            'icon': 'security-high',
+            'name': 'AltHA',
+            'command': '',
+            'tooltip': self.tr('Linux security module settings'),
+            'expert_only': True
+        })
 
         # Создаем кнопки для каждого приложения
         for i, app in enumerate(apps['en']):
@@ -242,6 +254,8 @@ class SettingsWidget(QWidget):
                     self.applications_btn = button
                 elif app.get('name') == self.tr('Third party applications'):
                     self.third_party_btn = button
+                elif app.get('name') == 'AltHA':
+                    self.altha_btn = button
 
             if app['command'] != '':
                 button.clicked.connect(lambda checked, cmd=app['command']: self.launch_app(cmd))
