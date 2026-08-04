@@ -3,7 +3,8 @@
 import plugins
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QGroupBox,
                             QGridLayout, QScrollArea, QCheckBox,
-                            QComboBox, QPushButton, QStackedWidget, QFrame)
+                            QComboBox, QPushButton, QStackedWidget, QFrame,
+                            QMessageBox)
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QIcon
 from PyQt6.QtCore import Qt, QSize, QProcess
 
@@ -223,6 +224,7 @@ class SettingsWidget(QWidget):
             })
 
         apps['en'].append({
+            'id': 'altha',
             'icon': 'security-high',
             'name': 'AltHA',
             'command': '',
@@ -254,10 +256,12 @@ class SettingsWidget(QWidget):
                     self.applications_btn = button
                 elif app.get('name') == self.tr('Third party applications'):
                     self.third_party_btn = button
-                elif app.get('name') == 'AltHA':
+                elif app.get('id') == 'altha':
                     self.altha_btn = button
 
-            if app['command'] != '':
+            if app.get('id') == 'altha':
+                button.clicked.connect(self.onAltHaClicked)
+            elif app['command'] != '':
                 button.clicked.connect(lambda checked, cmd=app['command']: self.launch_app(cmd))
             else:
                 # Disable button
@@ -302,6 +306,51 @@ class SettingsWidget(QWidget):
         self.loadSettings()
 
         self.set_expert_mode(self.is_expert_mode)
+
+    def onAltHaClicked(self):
+        try:
+            with open("/tmp/altcenter_altha_sysctl", "r", encoding="utf-8", errors="replace") as f:
+                altha_available = f.read().strip() != ""
+        except:
+            altha_available = False
+
+        if altha_available:
+            display = os.environ.get("DISPLAY", "")
+            xauthority = os.environ.get("XAUTHORITY", "")
+
+            args = [
+                "DISPLAY=" + display,
+                "QT_QPA_PLATFORM=xcb",
+            ]
+
+            if xauthority:
+                args.append("XAUTHORITY=" + xauthority)
+
+            args.extend([
+                "/usr/sbin/alterator-standalone",
+                "secsetup"
+            ])
+
+            QProcess.startDetached(
+                "/usr/bin/pkexec",
+                ["/usr/bin/env"] + args
+            )
+            return
+
+        QMessageBox.information(
+            self,
+            "AltHA",
+            self.tr(
+                "1. Для включения модуля AltHA необходимо использовать ядро сборки un-def.\n\n"
+                "2. В файле /etc/sysconfig/grub2 в строку "
+                "GRUB_CMDLINE_LINUX_DEFAULT добавьте параметр altha=1.\n\n"
+                "Пример:\n"
+                "GRUB_CMDLINE_LINUX_DEFAULT='quiet splash altha=1'\n\n"
+                "3. После изменения выполните команду:\n"
+                "sudo update-grub\n\n"
+                "4. Перезагрузите систему и выберите в меню GRUB ядро un-def."
+            )
+        )
 
     def launch_apps(self):
         if my_utils.check_package_installed("gnome-software"):
