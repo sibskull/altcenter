@@ -341,14 +341,14 @@ class SettingsWidget(QWidget):
             self,
             "AltHA",
             self.tr(
-                "1. Для включения модуля AltHA необходимо использовать ядро сборки un-def.\n\n"
-                "2. В файле /etc/sysconfig/grub2 в строку "
-                "GRUB_CMDLINE_LINUX_DEFAULT добавьте параметр altha=1.\n\n"
-                "Пример:\n"
+                "1. To enable the AltHA module, you must use an un-def kernel build.\n\n"
+                "2. In the /etc/sysconfig/grub2 file, add the altha=1 parameter "
+                "to the GRUB_CMDLINE_LINUX_DEFAULT line.\n\n"
+                "Example:\n"
                 "GRUB_CMDLINE_LINUX_DEFAULT='quiet splash altha=1'\n\n"
-                "3. После изменения выполните команду:\n"
+                "3. After making the change, run the following command:\n"
                 "sudo update-grub\n\n"
-                "4. Перезагрузите систему и выберите в меню GRUB ядро un-def."
+                "4. Reboot the system and select the un-def kernel from the GRUB menu."
             )
         )
 

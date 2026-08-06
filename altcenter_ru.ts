@@ -388,7 +388,7 @@
     <message>
         <location filename="plugins/fstec.py" line="182"/>
         <source>Saved FSTEC check result not found</source>
-        <translation>Сохраненый результат рекомендаций ФСТЕК не найден</translation>
+        <translation type="unfinished">Сохранённый результат рекомендаций ФСТЭК не найден</translation>
     </message>
     <message>
         <location filename="plugins/fstec.py" line="81"/>
@@ -1051,67 +1051,67 @@ Please try again later</source>
         <translation type="obsolete">Текущей размер журнала (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="60"/>
+        <location filename="plugins/journal_settings.py" line="65"/>
         <source>Vacuum to size (MB):</source>
         <translation>Уменьшить до объема (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="66"/>
+        <location filename="plugins/journal_settings.py" line="71"/>
         <source>Vacuum</source>
         <translation>Уменьшить</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="79"/>
+        <location filename="plugins/journal_settings.py" line="84"/>
         <source>Retention time:</source>
         <translation>Время хранения:</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="86"/>
+        <location filename="plugins/journal_settings.py" line="91"/>
         <source>Day</source>
         <translation>День</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="264"/>
+        <location filename="plugins/journal_settings.py" line="301"/>
         <source>Week</source>
         <translation>Неделя</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="266"/>
+        <location filename="plugins/journal_settings.py" line="303"/>
         <source>Month</source>
         <translation>Месяц</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="137"/>
+        <location filename="plugins/journal_settings.py" line="142"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="104"/>
+        <location filename="plugins/journal_settings.py" line="109"/>
         <source>SystemMaxUse (MB):</source>
         <translation>Максимальный объем журнала (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="204"/>
+        <location filename="plugins/journal_settings.py" line="241"/>
         <source>Failed to read log usage.</source>
         <translation>Не удалось прочитать журнал.</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="332"/>
+        <location filename="plugins/journal_settings.py" line="373"/>
         <source>Enter a numeric value</source>
         <translation>Введите числовое значение</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="370"/>
+        <location filename="plugins/journal_settings.py" line="409"/>
         <source>Done</source>
         <translation>Готово</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="377"/>
+        <location filename="plugins/journal_settings.py" line="419"/>
         <source>Failed</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="48"/>
+        <location filename="plugins/journal_settings.py" line="53"/>
         <source>Current log usage:</source>
         <translation>Текущий объем журнала:</translation>
     </message>
@@ -1181,12 +1181,12 @@ Please try again later</source>
         <translation type="obsolete">Введите значение от 2 до 999 в Максимальное кол-во файлов журнала</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="115"/>
+        <location filename="plugins/journal_settings.py" line="120"/>
         <source>Minimum free space (MB):</source>
         <translation>Минимальный объем свободного места (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="126"/>
+        <location filename="plugins/journal_settings.py" line="131"/>
         <source>Max log file size (MB):</source>
         <translation>Максимальный объем файла журнала (МБ):</translation>
     </message>
@@ -1223,7 +1223,7 @@ Please try again later</source>
     <message>
         <location filename="plugins/auditd_settings.py" line="174"/>
         <source>Audit network environment changes</source>
-        <translation>Аудит событий монтирования файловой системы</translation>
+        <translation>Аудит изменений сетевых настроек</translation>
     </message>
     <message>
         <location filename="plugins/auditd_settings.py" line="182"/>
@@ -1252,8 +1252,8 @@ Please try again later</source>
     </message>
     <message>
         <location filename="plugins/auditd_settings.py" line="214"/>
-        <source>Audit information export to media</source>
-        <translation>Аудит событий экспорта информации на носитель</translation>
+        <source>Audit file system mount events</source>
+        <translation>Аудит событий монтирования файловой системы</translation>
     </message>
     <message>
         <location filename="plugins/auditd_settings.py" line="222"/>
@@ -1509,12 +1509,12 @@ Please try again later</source>
         <translation>Системные журналы</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="386"/>
+        <location filename="plugins/journal_settings.py" line="429"/>
         <source>System logs settings</source>
         <translation>Настройки журналов</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="1590"/>
+        <location filename="plugins/auditd_settings.py" line="1592"/>
         <source>Auditd logs settings</source>
         <translation>Настройки журналов аудита</translation>
     </message>
@@ -1536,9 +1536,17 @@ Please try again later</source>
     </message>
 </context>
 <context>
+    <name>PluginReport</name>
+    <message>
+        <location filename="plugins/report.py" line="20"/>
+        <source>Report</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PluginSettings</name>
     <message>
-        <location filename="plugins/settings.py" line="349"/>
+        <location filename="plugins/settings.py" line="412"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
@@ -1617,32 +1625,32 @@ Please try again later</source>
 <context>
     <name>SettingsWidget</name>
     <message>
-        <location filename="plugins/settings.py" line="52"/>
+        <location filename="plugins/settings.py" line="56"/>
         <source>Daily</source>
         <translation>Ежедневно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="52"/>
+        <location filename="plugins/settings.py" line="56"/>
         <source>Weekly</source>
         <translation>Еженедельно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="52"/>
+        <location filename="plugins/settings.py" line="56"/>
         <source>Monthly</source>
         <translation>Ежемесячно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="77"/>
+        <location filename="plugins/settings.py" line="81"/>
         <source>Updates</source>
         <translation>Обновления</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="78"/>
+        <location filename="plugins/settings.py" line="82"/>
         <source>Advanced Settings</source>
         <translation>Расширенные настройки</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="90"/>
+        <location filename="plugins/settings.py" line="94"/>
         <source>⏰ Update Frequency</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1652,55 +1660,84 @@ Please try again later</source>
         <translation type="obsolete">⏰ Частота обновлений</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="159"/>
+        <location filename="plugins/settings.py" line="163"/>
         <source>System Control Center</source>
         <translation>Центр управления системой</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="155"/>
+        <location filename="plugins/settings.py" line="159"/>
         <source>General settings: power management, network, date, workspace behavior</source>
         <translation>Общие настройки: энергосбережение, сеть, дата, поведение рабочей среды</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="161"/>
+        <location filename="plugins/settings.py" line="165"/>
         <source>User account management, system logs, kernel updates</source>
-        <translation>Управление учётными записями, системные журналы, обновлнение ядра</translation>
+        <translation>Управление учётными записями, системными журналами и обновлением ядра</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="153"/>
+        <location filename="plugins/settings.py" line="157"/>
         <source>User Settings</source>
         <translation>Параметры пользователя</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="91"/>
+        <location filename="plugins/settings.py" line="95"/>
         <source>🔔 Notify About Updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="241"/>
+        <location filename="plugins/settings.py" line="255"/>
         <source>Applications</source>
         <translation>Приложения</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="243"/>
+        <location filename="plugins/settings.py" line="257"/>
         <source>Third party applications</source>
         <translation>Сторонние приложения</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="89"/>
+        <location filename="plugins/settings.py" line="93"/>
         <source>🔄 Enable Auto-update</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="plugins/settings.py" line="226"/>
+        <source>Linux security module settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="plugins/settings.py" line="340"/>
+        <source>1. To enable the AltHA module, you must use an un-def kernel build.
+
+2. In the /etc/sysconfig/grub2 file, add the altha=1 parameter to the GRUB_CMDLINE_LINUX_DEFAULT line.
+
+Example:
+GRUB_CMDLINE_LINUX_DEFAULT=&apos;quiet splash altha=1&apos;
+
+3. After making the change, run the following command:
+sudo update-grub
+
+4. Reboot the system and select the un-def kernel from the GRUB menu.</source>
+        <translation>1. Для включения модуля AltHA необходимо использовать ядро сборки un-def.
+
+2. В файле /etc/sysconfig/grub2 в строку GRUB_CMDLINE_LINUX_DEFAULT добавьте параметр altha=1.
+Пример:
+GRUB_CMDLINE_LINUX_DEFAULT=&apos;quiet splash altha=1&apos;
+
+3. После изменения выполните команду:
+sudo update-grub
+
+4. Перезагрузите систему и выберите в меню GRUB ядро un-def.</translation>
     </message>
 </context>
 <context>
     <name>app</name>
     <message>
-        <location filename="mainwindow.py" line="518"/>
+        <location filename="mainwindow.py" line="520"/>
         <source>Run at session startup</source>
         <translation>Запустить в начале сеанса</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="519"/>
+        <location filename="mainwindow.py" line="521"/>
         <source>List available modules and exit</source>
         <translation>Показать список доступных модулей</translation>
     </message>

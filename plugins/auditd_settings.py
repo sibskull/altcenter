@@ -211,7 +211,7 @@ class JournalsWidget(QWidget):
 
         mount_export_audit = QHBoxLayout()
 
-        self.mount_export_audit_checkbox = QCheckBox(self.tr("Audit information export to media"))
+        self.mount_export_audit_checkbox = QCheckBox(self.tr("Audit file system mount events"))
         mount_export_audit.addWidget(self.mount_export_audit_checkbox)
 
         mount_export_audit.addStretch(1)
