@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont, QColor, QPalette, QTextCursor
 from PyQt6.QtCore import Qt, QProcess, QTimer
 import alterator
+import base64
 
 list_path = "/etc/altcenter/list-components"
 
@@ -249,9 +250,17 @@ class ComponentsWindow(QWidget):
 
         # TODO: need use D-Bus Alterator call
         if install_packages:
+            package_text = base64.b64encode(
+                self.tr("Package").encode("utf-8")
+            ).decode("ascii")
+
+            not_installed_text = base64.b64encode(
+                self.tr("was not installed").encode("utf-8")
+            ).decode("ascii")
+
             cmd = (
-                "package_text=\"$1\"; "
-                "not_installed_text=\"$2\"; "
+                "package_text=\"$(printf '%s' \"$1\" | base64 -d)\"; "
+                "not_installed_text=\"$(printf '%s' \"$2\" | base64 -d)\"; "
                 "shift 2; "
                 "apt-get update || exit 1; "
                 "packages=''; "
@@ -282,8 +291,8 @@ class ComponentsWindow(QWidget):
                     "-c",
                     cmd,
                     "sh",
-                    self.tr("Package"),
-                    self.tr("was not installed")
+                    package_text,
+                    not_installed_text
                 ] + install_packages
             })
 
