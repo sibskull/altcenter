@@ -45,6 +45,9 @@ class SettingsWidget(QWidget):
         if hasattr(self, 'altha_btn') and self.altha_btn is not None:
             self.altha_btn.setVisible(self.is_expert_mode)
 
+        if hasattr(self, 'report_btn') and self.report_btn is not None:
+            self.report_btn.setVisible(self.is_expert_mode)
+
     def init_widgets(self):
         """Инициализация всех виджетов"""
         # Основные настройки
@@ -214,6 +217,7 @@ class SettingsWidget(QWidget):
         self.third_party_btn = None
         self.system_center_btn = None
         self.altha_btn = None
+        self.report_btn = None
 
         if my_utils.check_package_installed("appinstall"):
             apps['en'].append({
@@ -229,6 +233,14 @@ class SettingsWidget(QWidget):
             'name': 'AltHA',
             'command': '',
             'tooltip': self.tr('Linux security module settings'),
+            'expert_only': True
+        })
+
+        apps['en'].append({
+            'id': 'report',
+            'icon': 'document-save',
+            'name': self.tr('Create report'),
+            'command': '',
             'expert_only': True
         })
 
@@ -258,9 +270,13 @@ class SettingsWidget(QWidget):
                     self.third_party_btn = button
                 elif app.get('id') == 'altha':
                     self.altha_btn = button
+                elif app.get('id') == 'report':
+                    self.report_btn = button
 
             if app.get('id') == 'altha':
                 button.clicked.connect(self.onAltHaClicked)
+            elif app.get('id') == 'report':
+                pass
             elif app['command'] != '':
                 button.clicked.connect(lambda checked, cmd=app['command']: self.launch_app(cmd))
             else:
