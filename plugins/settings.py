@@ -4,9 +4,9 @@ import plugins
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QGroupBox,
                             QGridLayout, QScrollArea, QCheckBox,
                             QComboBox, QPushButton, QStackedWidget, QFrame,
-                            QMessageBox)
+                            QMessageBox, QFileDialog)
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QIcon
-from PyQt6.QtCore import Qt, QSize, QProcess
+from PyQt6.QtCore import Qt, QSize, QProcess, QLocale
 
 import json
 import os
@@ -276,7 +276,7 @@ class SettingsWidget(QWidget):
             if app.get('id') == 'altha':
                 button.clicked.connect(self.onAltHaClicked)
             elif app.get('id') == 'report':
-                pass
+                button.clicked.connect(self.createReport)
             elif app['command'] != '':
                 button.clicked.connect(lambda checked, cmd=app['command']: self.launch_app(cmd))
             else:
@@ -418,6 +418,75 @@ class SettingsWidget(QWidget):
             subprocess.Popen(command.split())
         except Exception as e:
             print(f"Error launching application: {e}")
+
+
+    # отчет
+    def createReport(self):
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            self.tr("Save report"),
+            "altcenter-report.json",
+            "JSON (*.json)"
+        )
+
+        if not path:
+            return
+
+        if not path.lower().endswith(".json"):
+            path += ".json"
+
+        report_functions = {
+            "policies": self.getPoliciesReport,
+        }
+
+        report = {}
+
+        try:
+            for name, function in report_functions.items():
+                report[name] = function()
+        except Exception as e:
+            QMessageBox.warning(self, self.tr("Report"), str(e))
+            return
+        
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(report, f, ensure_ascii=False, indent=4)
+        except Exception as e:
+            QMessageBox.warning(self, self.tr("Report"), str(e))
+            return
+
+        QMessageBox.information(self, self.tr("Report"), self.tr("Report saved"))
+
+    def getPoliciesReport(self):
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+        policies_path = os.path.join(base_dir, "res", "policies.json")
+
+        with open(policies_path, "r", encoding="utf-8") as f:
+            policies = json.load(f).get("policies", [])
+
+        lang = QLocale().name().split("_")[0].lower()
+        policies_report = []
+
+        for item in policies:
+            pid = item.get("id", "")
+            title = item.get("title", "")
+
+            if lang != "ru":
+                title = item.get("title_" + lang, title)
+
+            base = "50-altcenter-" + str(pid)
+            paths = [
+                "/etc/lightdm/lightdm.conf.d/" + base + ".conf",
+                "/etc/sddm.conf.d/" + base + ".conf",
+                "/etc/dconf/db/gdm.d/" + base,
+            ]
+
+            policies_report.append({
+                "name": title,
+                "enabled": any(os.path.exists(path) for path in paths)
+            })
+
+        return policies_report
 
 
 class PluginSettings(plugins.Base):
