@@ -22,8 +22,9 @@ de_settings = { "KDE": "systemsettings",
               }
 
 class SettingsWidget(QWidget):
-    def __init__(self):
+    def __init__(self, main_window = None):
         super().__init__()
+        self.main_window = main_window
         self.current_language = 'ru'
         self.is_expert_mode = False
         # Инициализируем виджеты
@@ -435,15 +436,13 @@ class SettingsWidget(QWidget):
         if not path.lower().endswith(".json"):
             path += ".json"
 
-        report_functions = {
-            "policies": self.getPoliciesReport,
-        }
-
-        report = {}
-
         try:
-            for name, function in report_functions.items():
-                report[name] = function()
+            report = {
+                "policies": self.getPoliciesReport(),
+                "journald": self.getPluginReport("journals_settings"),
+                "auditd": self.getPluginReport("auditd_settings"),
+                "fstec": self.getFstecReport(),
+            }
         except Exception as e:
             QMessageBox.warning(self, self.tr("Report"), str(e))
             return
@@ -456,6 +455,30 @@ class SettingsWidget(QWidget):
             return
 
         QMessageBox.information(self, self.tr("Report"), self.tr("Report saved"))
+
+    def getPluginReport(self, plugin_name):
+        for i, plugin in enumerate(self.main_window._plugs):
+            if plugin.name != plugin_name:
+                continue
+
+            if plugin.started == False:
+                try:
+                    self.main_window.stack.removeWidget(
+                        self.main_window.stack.widget(i)
+                    )
+                except:
+                    pass
+
+                plugin.run(i)
+
+            widget = self.main_window.stack.widget(i)
+
+            if hasattr(widget, "getReportData"):
+                return widget.getReportData()
+
+            return {}
+
+        return {}
 
     def getPoliciesReport(self):
         base_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -488,6 +511,39 @@ class SettingsWidget(QWidget):
 
         return policies_report
 
+    def getFstecReport(self):
+        fstec_report = {
+            "boot": [],
+            "sysctl": [],
+            "kernel": [],
+        }
+
+        try:
+            with open("/tmp/altcenter_fstec_check.json", "r", encoding="utf-8", errors="replace") as f:
+                data = json.load(f)
+        except:
+            return fstec_report
+
+        for group in ["boot", "sysctl", "kernel"]:
+            for row in data.get(group, []):
+                if not isinstance(row, (list, tuple)):
+                    continue
+
+                values = []
+
+                for i in range(5):
+                    value = row[i] if len(row) > i else ""
+                    values.append("" if value is None else str(value))
+
+                fstec_report[group].append({
+                    "option": values[0],
+                    "current_value": values[1],
+                    "recommended_value": values[2],
+                    "check_result": values[3],
+                    "alternative": values[4]
+                })
+
+        return fstec_report
 
 class PluginSettings(plugins.Base):
     def __init__(self, plist: QStandardItemModel=None, pane: QStackedWidget = None):
@@ -501,7 +557,7 @@ class PluginSettings(plugins.Base):
 
     def _do_start(self, idx: int):
         main_window = self.pane.window()
-        main_widget = SettingsWidget()
+        main_widget = SettingsWidget(main_window)
 
         try:
             if hasattr(main_window, '_expert_mode'):

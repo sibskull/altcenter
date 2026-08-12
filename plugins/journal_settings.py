@@ -3,6 +3,7 @@
 import plugins
 import os
 import json
+import subprocess
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont
 from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
@@ -419,6 +420,36 @@ class JournalsWidget(QWidget):
             self.lbl_systemmaxuse_status.setText(self.tr("Failed"))
 
         self.updateApplyButton()
+
+    def getReportData(self):
+        self.loadSavedLimits()
+
+        try:
+            proc = subprocess.run(
+                ["journalctl", "--disk-usage"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL
+            )
+            usage = proc.stdout.decode(errors="replace").strip()
+
+            marker = "take up "
+            i = usage.find(marker)
+
+            if i >= 0:
+                j = usage.find(" in", i + len(marker))
+
+                if j > i:
+                    usage = usage[i + len(marker):j].strip()
+        except:
+            usage = ""
+
+        return {
+            "SystemMaxUse": self.systemmaxuse_value.text().strip() or None,
+            "SystemKeepFree": self.systemkeepfree_value.text().strip() or None,
+            "SystemMaxFileSize": self.systemmaxfilesize_value.text().strip() or None,
+            "disk_usage": usage or None
+        }
+
 
 class PluginJournals(plugins.Base):
     requires_admin = True

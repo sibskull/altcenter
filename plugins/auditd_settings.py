@@ -1583,6 +1583,32 @@ class JournalsWidget(QWidget):
 
         self.updateApplyButton()
 
+    def getReportData(self):
+        state = self.initial_form_state
+        checkboxes = self.getRuleCheckboxes()
+
+        return {
+            "max_log_file": state[0] or None,
+            "num_logs": state[1] or None,
+            "space_left": state[2] or None,
+            "admin_space_left": state[3] or None,
+            "rules": [
+                {
+                    "name": checkbox.text(),
+                    "enabled": state[i + 4]
+                }
+                for i, checkbox in enumerate(checkboxes)
+            ],
+            "custom_rules": [
+                {
+                    "name": name,
+                    "rule": rule,
+                    "enabled": enabled
+                }
+                for name, rule, enabled in state[-1]
+            ]
+        }
+
 class PluginJournals(plugins.Base):
     requires_admin = True
     def __init__(self, plist: QStandardItemModel=None, pane: QStackedWidget = None):
