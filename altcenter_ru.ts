@@ -130,7 +130,7 @@
 <context>
     <name>Components</name>
     <message>
-        <location filename="plugins/components.py" line="447"/>
+        <location filename="plugins/components.py" line="456"/>
         <source>Components</source>
         <translation>Компоненты</translation>
     </message>
@@ -293,52 +293,52 @@
 <context>
     <name>ComponentsWindow</name>
     <message>
-        <location filename="plugins/components.py" line="72"/>
+        <location filename="plugins/components.py" line="73"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="108"/>
+        <location filename="plugins/components.py" line="109"/>
         <source>Show console</source>
         <translation>Показать консоль</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="108"/>
+        <location filename="plugins/components.py" line="109"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="357"/>
+        <location filename="plugins/components.py" line="366"/>
         <source>Operation completed successfully.</source>
         <translation>Операция успешно завершена.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="359"/>
+        <location filename="plugins/components.py" line="368"/>
         <source>The operation failed with an error.</source>
         <translation>Операция завершилась с ошибкой.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="429"/>
+        <location filename="plugins/components.py" line="438"/>
         <source>This component consists of:</source>
         <translation>Этот компонент состоит из:</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="434"/>
+        <location filename="plugins/components.py" line="443"/>
         <source>This component: </source>
         <translation>Данный компонент: </translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="67"/>
+        <location filename="plugins/components.py" line="68"/>
         <source>The complete process of installing or removing components will be shown here.</source>
         <translation>Здесь будет показан полный процесс установки или удаления компонентов.</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="278"/>
+        <location filename="plugins/components.py" line="253"/>
         <source>Package</source>
         <translation>Пакет</translation>
     </message>
     <message>
-        <location filename="plugins/components.py" line="278"/>
+        <location filename="plugins/components.py" line="257"/>
         <source>was not installed</source>
         <translation>не был установлен</translation>
     </message>
@@ -388,7 +388,7 @@
     <message>
         <location filename="plugins/fstec.py" line="182"/>
         <source>Saved FSTEC check result not found</source>
-        <translation type="unfinished">Сохранённый результат рекомендаций ФСТЭК не найден</translation>
+        <translation>Сохранённый результат рекомендаций ФСТЭК не найден</translation>
     </message>
     <message>
         <location filename="plugins/fstec.py" line="81"/>
@@ -1051,67 +1051,67 @@ Please try again later</source>
         <translation type="obsolete">Текущей размер журнала (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="65"/>
+        <location filename="plugins/journal_settings.py" line="66"/>
         <source>Vacuum to size (MB):</source>
         <translation>Уменьшить до объема (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="71"/>
+        <location filename="plugins/journal_settings.py" line="72"/>
         <source>Vacuum</source>
         <translation>Уменьшить</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="84"/>
+        <location filename="plugins/journal_settings.py" line="85"/>
         <source>Retention time:</source>
         <translation>Время хранения:</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="91"/>
+        <location filename="plugins/journal_settings.py" line="92"/>
         <source>Day</source>
         <translation>День</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="301"/>
+        <location filename="plugins/journal_settings.py" line="302"/>
         <source>Week</source>
         <translation>Неделя</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="303"/>
+        <location filename="plugins/journal_settings.py" line="304"/>
         <source>Month</source>
         <translation>Месяц</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="142"/>
+        <location filename="plugins/journal_settings.py" line="143"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="109"/>
+        <location filename="plugins/journal_settings.py" line="110"/>
         <source>SystemMaxUse (MB):</source>
         <translation>Максимальный объем журнала (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="241"/>
+        <location filename="plugins/journal_settings.py" line="242"/>
         <source>Failed to read log usage.</source>
         <translation>Не удалось прочитать журнал.</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="373"/>
+        <location filename="plugins/journal_settings.py" line="374"/>
         <source>Enter a numeric value</source>
         <translation>Введите числовое значение</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="409"/>
+        <location filename="plugins/journal_settings.py" line="410"/>
         <source>Done</source>
         <translation>Готово</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="419"/>
+        <location filename="plugins/journal_settings.py" line="420"/>
         <source>Failed</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="53"/>
+        <location filename="plugins/journal_settings.py" line="54"/>
         <source>Current log usage:</source>
         <translation>Текущий объем журнала:</translation>
     </message>
@@ -1181,12 +1181,12 @@ Please try again later</source>
         <translation type="obsolete">Введите значение от 2 до 999 в Максимальное кол-во файлов журнала</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="120"/>
+        <location filename="plugins/journal_settings.py" line="121"/>
         <source>Minimum free space (MB):</source>
         <translation>Минимальный объем свободного места (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="131"/>
+        <location filename="plugins/journal_settings.py" line="132"/>
         <source>Max log file size (MB):</source>
         <translation>Максимальный объем файла журнала (МБ):</translation>
     </message>
@@ -1509,12 +1509,12 @@ Please try again later</source>
         <translation>Системные журналы</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="429"/>
+        <location filename="plugins/journal_settings.py" line="460"/>
         <source>System logs settings</source>
         <translation>Настройки журналов</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="1592"/>
+        <location filename="plugins/auditd_settings.py" line="1618"/>
         <source>Auditd logs settings</source>
         <translation>Настройки журналов аудита</translation>
     </message>
@@ -1538,9 +1538,9 @@ Please try again later</source>
 <context>
     <name>PluginReport</name>
     <message>
-        <location filename="plugins/report.py" line="20"/>
+        <location filename="plugins/report.py" line="157"/>
         <source>Report</source>
-        <translation type="unfinished"></translation>
+        <translation>Отчет</translation>
     </message>
 </context>
 <context>
@@ -1620,6 +1620,29 @@ Please try again later</source>
         <location filename="plugins/policies.py" line="60"/>
         <source>All changes made while applying policies will be shown here.</source>
         <translation>Здесь будут показаны все изменения, выполняемые при применении политик.</translation>
+    </message>
+</context>
+<context>
+    <name>ReportWidget</name>
+    <message>
+        <location filename="plugins/report.py" line="19"/>
+        <source>Create report</source>
+        <translation>Создать отчет</translation>
+    </message>
+    <message>
+        <location filename="plugins/report.py" line="27"/>
+        <source>Save report</source>
+        <translation>Сохранить отчет</translation>
+    </message>
+    <message>
+        <location filename="plugins/report.py" line="58"/>
+        <source>Report</source>
+        <translation>Отчет</translation>
+    </message>
+    <message>
+        <location filename="plugins/report.py" line="58"/>
+        <source>Report saved</source>
+        <translation>Отчет сохранен</translation>
     </message>
 </context>
 <context>
