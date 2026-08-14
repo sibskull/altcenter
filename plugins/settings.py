@@ -22,9 +22,8 @@ de_settings = { "KDE": "systemsettings",
               }
 
 class SettingsWidget(QWidget):
-    def __init__(self, main_window = None):
+    def __init__(self):
         super().__init__()
-        self.main_window = main_window
         self.current_language = 'ru'
         self.is_expert_mode = False
         # Инициализируем виджеты
@@ -45,9 +44,6 @@ class SettingsWidget(QWidget):
 
         if hasattr(self, 'altha_btn') and self.altha_btn is not None:
             self.altha_btn.setVisible(self.is_expert_mode)
-
-        if hasattr(self, 'report_btn') and self.report_btn is not None:
-            self.report_btn.setVisible(self.is_expert_mode)
 
     def init_widgets(self):
         """Инициализация всех виджетов"""
@@ -218,7 +214,6 @@ class SettingsWidget(QWidget):
         self.third_party_btn = None
         self.system_center_btn = None
         self.altha_btn = None
-        self.report_btn = None
 
         if my_utils.check_package_installed("appinstall"):
             apps['en'].append({
@@ -234,14 +229,6 @@ class SettingsWidget(QWidget):
             'name': 'AltHA',
             'command': '',
             'tooltip': self.tr('Linux security module settings'),
-            'expert_only': True
-        })
-
-        apps['en'].append({
-            'id': 'report',
-            'icon': 'document-save',
-            'name': self.tr('Create report'),
-            'command': '',
             'expert_only': True
         })
 
@@ -271,13 +258,9 @@ class SettingsWidget(QWidget):
                     self.third_party_btn = button
                 elif app.get('id') == 'altha':
                     self.altha_btn = button
-                elif app.get('id') == 'report':
-                    self.report_btn = button
 
             if app.get('id') == 'altha':
                 button.clicked.connect(self.onAltHaClicked)
-            elif app.get('id') == 'report':
-                button.clicked.connect(self.createReport)
             elif app['command'] != '':
                 button.clicked.connect(lambda checked, cmd=app['command']: self.launch_app(cmd))
             else:
@@ -421,130 +404,6 @@ class SettingsWidget(QWidget):
             print(f"Error launching application: {e}")
 
 
-    # отчет
-    def createReport(self):
-        path, _ = QFileDialog.getSaveFileName(
-            self,
-            self.tr("Save report"),
-            "altcenter-report.json",
-            "JSON (*.json)"
-        )
-
-        if not path:
-            return
-
-        if not path.lower().endswith(".json"):
-            path += ".json"
-
-        try:
-            report = {
-                "policies": self.getPoliciesReport(),
-                "journald": self.getPluginReport("journals_settings"),
-                "auditd": self.getPluginReport("auditd_settings"),
-                "fstec": self.getFstecReport(),
-            }
-        except Exception as e:
-            QMessageBox.warning(self, self.tr("Report"), str(e))
-            return
-        
-        try:
-            with open(path, "w", encoding="utf-8") as f:
-                json.dump(report, f, ensure_ascii=False, indent=4)
-        except Exception as e:
-            QMessageBox.warning(self, self.tr("Report"), str(e))
-            return
-
-        QMessageBox.information(self, self.tr("Report"), self.tr("Report saved"))
-
-    def getPluginReport(self, plugin_name):
-        for i, plugin in enumerate(self.main_window._plugs):
-            if plugin.name != plugin_name:
-                continue
-
-            if plugin.started == False:
-                try:
-                    self.main_window.stack.removeWidget(
-                        self.main_window.stack.widget(i)
-                    )
-                except:
-                    pass
-
-                plugin.run(i)
-
-            widget = self.main_window.stack.widget(i)
-
-            if hasattr(widget, "getReportData"):
-                return widget.getReportData()
-
-            return {}
-
-        return {}
-
-    def getPoliciesReport(self):
-        base_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-        policies_path = os.path.join(base_dir, "res", "policies.json")
-
-        with open(policies_path, "r", encoding="utf-8") as f:
-            policies = json.load(f).get("policies", [])
-
-        lang = QLocale().name().split("_")[0].lower()
-        policies_report = []
-
-        for item in policies:
-            pid = item.get("id", "")
-            title = item.get("title", "")
-
-            if lang != "ru":
-                title = item.get("title_" + lang, title)
-
-            base = "50-altcenter-" + str(pid)
-            paths = [
-                "/etc/lightdm/lightdm.conf.d/" + base + ".conf",
-                "/etc/sddm.conf.d/" + base + ".conf",
-                "/etc/dconf/db/gdm.d/" + base,
-            ]
-
-            policies_report.append({
-                "name": title,
-                "enabled": any(os.path.exists(path) for path in paths)
-            })
-
-        return policies_report
-
-    def getFstecReport(self):
-        fstec_report = {
-            "boot": [],
-            "sysctl": [],
-            "kernel": [],
-        }
-
-        try:
-            with open("/tmp/altcenter_fstec_check.json", "r", encoding="utf-8", errors="replace") as f:
-                data = json.load(f)
-        except:
-            return fstec_report
-
-        for group in ["boot", "sysctl", "kernel"]:
-            for row in data.get(group, []):
-                if not isinstance(row, (list, tuple)):
-                    continue
-
-                values = []
-
-                for i in range(5):
-                    value = row[i] if len(row) > i else ""
-                    values.append("" if value is None else str(value))
-
-                fstec_report[group].append({
-                    "option": values[0],
-                    "current_value": values[1],
-                    "recommended_value": values[2],
-                    "check_result": values[3],
-                    "alternative": values[4]
-                })
-
-        return fstec_report
-
 class PluginSettings(plugins.Base):
     def __init__(self, plist: QStandardItemModel=None, pane: QStackedWidget = None):
         super().__init__("settings", 40, plist, pane)
@@ -557,7 +416,7 @@ class PluginSettings(plugins.Base):
 
     def _do_start(self, idx: int):
         main_window = self.pane.window()
-        main_widget = SettingsWidget(main_window)
+        main_widget = SettingsWidget()
 
         try:
             if hasattr(main_window, '_expert_mode'):
