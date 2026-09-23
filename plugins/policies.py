@@ -568,6 +568,25 @@ class PoliciesWindow(QWidget):
         else:
             self.syncStatesFromFiles()
 
+    def getReportData(self):
+        result = []
+
+        for item in self._items:
+            pid = item.get("id")
+            title = self.loc(item, "title")
+
+            if self.isImmutablePolicy(pid):
+                enabled = True
+            else:
+                enabled = self.policyEnabledFromFiles(pid)
+
+            result.append({
+                "name": title,
+                "enabled": enabled
+            })
+
+        return result
+
 class PluginPolicies(plugins.Base):
     requires_admin = True
     def __init__(self, plist: QStandardItemModel = None, pane: QStackedWidget = None):
