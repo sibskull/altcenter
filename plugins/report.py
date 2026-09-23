@@ -82,35 +82,26 @@ class ReportWidget(QWidget):
         return {}
 
     def getPoliciesReport(self):
-        base_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-        policies_path = os.path.join(base_dir, "res", "policies.json")
+        for i, plugin in enumerate(self.main_window._plugs):
+            if plugin.name != "policies":
+                continue
 
-        with open(policies_path, "r", encoding="utf-8") as f:
-            policies = json.load(f).get("policies", [])
+            if plugin.started == False:
+                try:
+                    self.main_window.stack.removeWidget(
+                        self.main_window.stack.widget(i)
+                    )
+                except:
+                    pass
 
-        lang = QLocale().name().split("_")[0].lower()
-        policies_report = []
+                plugin.run(i)
 
-        for item in policies:
-            pid = item.get("id", "")
-            title = item.get("title", "")
+            widget = self.main_window.stack.widget(i)
 
-            if lang != "ru":
-                title = item.get("title_" + lang, title)
+            if hasattr(widget, "getReportData"):
+                return widget.getReportData()
 
-            base = "50-altcenter-" + str(pid)
-            paths = [
-                "/etc/lightdm/lightdm.conf.d/" + base + ".conf",
-                "/etc/sddm.conf.d/" + base + ".conf",
-                "/etc/dconf/db/gdm.d/" + base,
-            ]
-
-            policies_report.append({
-                "name": title,
-                "enabled": any(os.path.exists(path) for path in paths)
-            })
-
-        return policies_report
+        return []
 
     def getFstecReport(self):
         fstec_report = {
