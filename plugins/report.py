@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import plugins
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QStackedWidget, QFileDialog, QMessageBox
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QStackedWidget, QFileDialog, QMessageBox, QCheckBox
 from PyQt6.QtGui import QStandardItem, QStandardItemModel
 from PyQt6.QtCore import QLocale
 
@@ -15,6 +15,12 @@ class ReportWidget(QWidget):
         self.main_window = main_window
 
         layout = QVBoxLayout()
+
+        self.fstec_checkbox = QCheckBox(
+            self.tr("Include FSTEC recommendations in report")
+        )
+        self.fstec_checkbox.setChecked(False)
+        layout.addWidget(self.fstec_checkbox)
 
         self.report_btn = QPushButton(self.tr("Create report"))
         self.report_btn.clicked.connect(self.createReport)
@@ -42,8 +48,10 @@ class ReportWidget(QWidget):
                 "policies": self.getPoliciesReport(),
                 "journald": self.getPluginReport("journals_settings"),
                 "auditd": self.getPluginReport("auditd_settings"),
-                "fstec": self.getFstecReport(),
             }
+
+            if self.fstec_checkbox.isChecked():
+                report["fstec"] = self.getFstecReport()
         except Exception as e:
             QMessageBox.warning(self, self.tr("Report"), str(e))
             return

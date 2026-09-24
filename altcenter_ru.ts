@@ -1530,7 +1530,7 @@ Please try again later</source>
 <context>
     <name>PluginPolicies</name>
     <message>
-        <location filename="plugins/policies.py" line="576"/>
+        <location filename="plugins/policies.py" line="595"/>
         <source>Policy</source>
         <translation>Политики</translation>
     </message>
@@ -1538,7 +1538,7 @@ Please try again later</source>
 <context>
     <name>PluginReport</name>
     <message>
-        <location filename="plugins/report.py" line="157"/>
+        <location filename="plugins/report.py" line="156"/>
         <source>Report</source>
         <translation>Отчет</translation>
     </message>
@@ -1625,24 +1625,29 @@ Please try again later</source>
 <context>
     <name>ReportWidget</name>
     <message>
-        <location filename="plugins/report.py" line="19"/>
+        <location filename="plugins/report.py" line="25"/>
         <source>Create report</source>
         <translation>Создать отчет</translation>
     </message>
     <message>
-        <location filename="plugins/report.py" line="27"/>
+        <location filename="plugins/report.py" line="33"/>
         <source>Save report</source>
         <translation>Сохранить отчет</translation>
     </message>
     <message>
-        <location filename="plugins/report.py" line="58"/>
+        <location filename="plugins/report.py" line="66"/>
         <source>Report</source>
         <translation>Отчет</translation>
     </message>
     <message>
-        <location filename="plugins/report.py" line="58"/>
+        <location filename="plugins/report.py" line="66"/>
         <source>Report saved</source>
         <translation>Отчет сохранен</translation>
+    </message>
+    <message>
+        <location filename="plugins/report.py" line="19"/>
+        <source>Include FSTEC recommendations in report</source>
+        <translation>Включить рекомендации ФСТЭК в отчёт</translation>
     </message>
 </context>
 <context>
