@@ -21,13 +21,14 @@ import os
 import traceback
 from abc import ABCMeta, abstractmethod
 from importlib import util
-from PyQt6.QtCore import QObject
+from PyQt6.QtCore import QObject, QCoreApplication
 from PyQt6.QtWidgets import QStackedWidget
-from PyQt6.QtGui import QStandardItemModel
+from PyQt6.QtGui import QStandardItemModel, QStandardItem
 
 
 plugins_skip_list = []
 plugins_skip_file = "/etc/altcenter/skip-plugins"
+MENU_POSITION_ROLE = 1000
 
 class MetaQObjectABC(ABCMeta, type(QObject)):
     ...
@@ -36,6 +37,7 @@ class Base(QObject, metaclass=MetaQObjectABC):
     """Base skel for plugin"""
     plugins = []
     requires_admin = False
+    menu_group = None
 
     def __init__(self, name: str, position: int, plist: QStandardItemModel=None, pane: QStackedWidget = None):
         super().__init__()
@@ -76,6 +78,10 @@ class Base(QObject, metaclass=MetaQObjectABC):
     def requires_admin_access(self) -> bool:
         return self._requires_admin
 
+    @property
+    def group(self):
+        return getattr(self.__class__, "menu_group", None)
+
     @started.setter
     def started(self, value: bool):
         self._started = value
@@ -97,6 +103,46 @@ class Base(QObject, metaclass=MetaQObjectABC):
         self._do_start(idx)
         self.started = True
 
+    def group_title(self):
+        if self.group == "journals":
+            return QCoreApplication.translate("Base", "Journals")
+
+        return self.group
+
+    def _insert_menu_item(self, item, position):
+        item.setData(position, MENU_POSITION_ROLE)
+
+        for row in range(self.plist.rowCount()):
+            row_item = self.plist.item(row)
+
+            if row_item is None:
+                continue
+
+            row_position = row_item.data(MENU_POSITION_ROLE)
+
+            if row_position is None:
+                continue
+
+            if position < int(row_position):
+                self.plist.insertRow(row, [item])
+                return
+
+        self.plist.appendRow([item])
+
+    def add_to_menu(self, item):
+        if self.group and self.plist is not None:
+            if not hasattr(self.plist, "menu_groups"):
+                self.plist.menu_groups = {}
+
+            if self.group not in self.plist.menu_groups:
+                group_item = QStandardItem(self.group_title())
+                self.plist.menu_groups[self.group] = group_item
+                self._insert_menu_item(group_item, self.position)
+
+            self.plist.menu_groups[self.group].appendRow([item])
+            return
+
+        self._insert_menu_item(item, self.position)
 
 # Load one module
 def load_module(path):

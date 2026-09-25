@@ -856,13 +856,15 @@ class JournalsWidget(QWidget):
 
 
 class PluginJournals(plugins.Base):
+    menu_group = "journals"
+
     def __init__(self, plist: QStandardItemModel=None, pane: QStackedWidget = None):
         super().__init__("journals", 100, plist, pane)
 
         if self.plist != None and self.pane != None:
             self.node = QStandardItem(self.tr("System logs"))
             self.node.setData(self.name)
-            self.plist.appendRow([self.node])
+            self.add_to_menu(self.node)
             self.pane.addWidget(QWidget())
 
     def _do_start(self, idx: int):

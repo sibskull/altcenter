@@ -345,6 +345,8 @@ class MainWindow(QWidget, Ui_MainWindow):
         except Exception:
             pass
 
+        self.list_module_model.menu_groups = {}
+
         self._plugs = []
         plugs = self._plugs
 
@@ -371,6 +373,9 @@ class MainWindow(QWidget, Ui_MainWindow):
             inst = p(self.list_module_model, self.stack)
             self._plugs.append(inst)
 
+            if getattr(inst, "node", None) is not None:
+                inst.node.setData(k, Qt.ItemDataRole.UserRole)
+
             if cur_name is not None:
                 try:
                     if inst.name == cur_name:
@@ -388,8 +393,9 @@ class MainWindow(QWidget, Ui_MainWindow):
             if selected_index >= len(self._plugs):
                 selected_index = 0
 
-            index = self.list_module_model.index(selected_index, 0)
-            self.moduleList.setCurrentIndex(index)
+            node = getattr(self._plugs[selected_index], "node", None)
+            if node != None:
+                self.moduleList.setCurrentIndex(node.index())
 
         del blocker_list
         del blocker_sm
@@ -448,18 +454,32 @@ class MainWindow(QWidget, Ui_MainWindow):
         """Slot for change selection"""
         global plugs
 
-        idx = index.row()
-        if idx < 0:
+        if not index.isValid():
             return
-        if idx >= len(plugs):
+
+        item = self.list_module_model.itemFromIndex(index)
+
+        if item is None:
+            return
+
+        plugin_index = item.data(Qt.ItemDataRole.UserRole)
+
+        if plugin_index is None:
+            return
+
+        idx = int(plugin_index)
+
+        if idx < 0 or idx >= len(plugs):
             return
 
         plugin = plugs[idx]
+
         if plugin.started == False:
             try:
                 self.stack.removeWidget(self.stack.widget(idx))
             except Exception:
                 pass
+
             plugin.run(idx)
 
         try:
@@ -550,6 +570,7 @@ window.runOnSessionStart.stateChanged.connect(window.onSessionStartChange)
 # Set module list model
 window.list_module_model = QStandardItemModel()
 window.moduleList.setModel(window.list_module_model)
+window.moduleList.setHeaderHidden(True)
 window.moduleList.selectionModel().currentChanged.connect(window.onSelectionChange)
 
 
@@ -576,9 +597,11 @@ for i, inst in enumerate(plugs):
         pass
 
 if plugs:
-    index = window.list_module_model.index(selected_index, 0)
-    window.moduleList.setCurrentIndex(index)
-    window.onSelectionChange(index)
+    node = getattr(plugs[selected_index], "node", None)
+    if node != None:
+        index = node.index()
+        window.moduleList.setCurrentIndex(index)
+        window.onSelectionChange(index)
 
 
 window.splitter.setStretchFactor(0,0)
