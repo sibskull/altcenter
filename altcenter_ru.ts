@@ -128,6 +128,14 @@
     </message>
 </context>
 <context>
+    <name>Base</name>
+    <message>
+        <location filename="plugins/__init__.py" line="108"/>
+        <source>Journals</source>
+        <translation>Журналы</translation>
+    </message>
+</context>
+<context>
     <name>Components</name>
     <message>
         <location filename="plugins/components.py" line="456"/>
@@ -1504,17 +1512,17 @@ Please try again later</source>
 <context>
     <name>PluginJournals</name>
     <message>
-        <location filename="plugins/journal.py" line="863"/>
+        <location filename="plugins/journal.py" line="865"/>
         <source>System logs</source>
         <translation>Системные журналы</translation>
     </message>
     <message>
-        <location filename="plugins/journal_settings.py" line="460"/>
+        <location filename="plugins/journal_settings.py" line="462"/>
         <source>System logs settings</source>
         <translation>Настройки журналов</translation>
     </message>
     <message>
-        <location filename="plugins/auditd_settings.py" line="1618"/>
+        <location filename="plugins/auditd_settings.py" line="1620"/>
         <source>Auditd logs settings</source>
         <translation>Настройки журналов аудита</translation>
     </message>
@@ -1749,7 +1757,7 @@ sudo update-grub
 
 2. В файле /etc/sysconfig/grub2 в строку GRUB_CMDLINE_LINUX_DEFAULT добавьте параметр altha=1.
 Пример:
-GRUB_CMDLINE_LINUX_DEFAULT=&apos;quiet splash altha=1&apos;
+GRUB_CMDLINE_LINUX_DEFAULT='quiet splash altha=1'
 
 3. После изменения выполните команду:
 sudo update-grub
@@ -1760,12 +1768,12 @@ sudo update-grub
 <context>
     <name>app</name>
     <message>
-        <location filename="mainwindow.py" line="520"/>
+        <location filename="mainwindow.py" line="540"/>
         <source>Run at session startup</source>
         <translation>Запустить в начале сеанса</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="521"/>
+        <location filename="mainwindow.py" line="541"/>
         <source>List available modules and exit</source>
         <translation>Показать список доступных модулей</translation>
     </message>

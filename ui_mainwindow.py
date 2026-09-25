@@ -47,7 +47,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.gridLayout_2.addItem(spacerItem1, 0, 2, 1, 1)
-        self.moduleList = QtWidgets.QListView(parent=self.layoutWidget_2)
+        self.moduleList = QtWidgets.QTreeView(parent=self.layoutWidget_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
