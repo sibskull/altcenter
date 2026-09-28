@@ -1552,6 +1552,14 @@ Please try again later</source>
     </message>
 </context>
 <context>
+    <name>PluginSSHSettings</name>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="20"/>
+        <source>SSH settings</source>
+        <translation type="unfinished">Настройка SSH</translation>
+    </message>
+</context>
+<context>
     <name>PluginSettings</name>
     <message>
         <location filename="plugins/settings.py" line="412"/>
@@ -1757,7 +1765,7 @@ sudo update-grub
 
 2. В файле /etc/sysconfig/grub2 в строку GRUB_CMDLINE_LINUX_DEFAULT добавьте параметр altha=1.
 Пример:
-GRUB_CMDLINE_LINUX_DEFAULT='quiet splash altha=1'
+GRUB_CMDLINE_LINUX_DEFAULT=&apos;quiet splash altha=1&apos;
 
 3. После изменения выполните команду:
 sudo update-grub
