@@ -1554,7 +1554,7 @@ Please try again later</source>
 <context>
     <name>PluginSSHSettings</name>
     <message>
-        <location filename="plugins/ssh_settings.py" line="20"/>
+        <location filename="plugins/ssh_settings.py" line="142"/>
         <source>SSH settings</source>
         <translation type="unfinished">Настройка SSH</translation>
     </message>
@@ -1667,6 +1667,29 @@ Please try again later</source>
     </message>
 </context>
 <context>
+    <name>SSHSettingsWidget</name>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="29"/>
+        <source>Deny remote SSH login as root</source>
+        <translation>Запретить удалённый вход по SSH под пользователем root</translation>
+    </message>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="38"/>
+        <source>Apply</source>
+        <translation>Применить</translation>
+    </message>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="126"/>
+        <source>Done</source>
+        <translation>Готово</translation>
+    </message>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="133"/>
+        <source>Failed</source>
+        <translation>Ошибка</translation>
+    </message>
+</context>
+<context>
     <name>SettingsWidget</name>
     <message>
         <location filename="plugins/settings.py" line="56"/>
@@ -1776,12 +1799,12 @@ sudo update-grub
 <context>
     <name>app</name>
     <message>
-        <location filename="mainwindow.py" line="540"/>
+        <location filename="mainwindow.py" line="547"/>
         <source>Run at session startup</source>
         <translation>Запустить в начале сеанса</translation>
     </message>
     <message>
-        <location filename="mainwindow.py" line="541"/>
+        <location filename="mainwindow.py" line="548"/>
         <source>List available modules and exit</source>
         <translation>Показать список доступных модулей</translation>
     </message>
