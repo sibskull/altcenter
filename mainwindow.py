@@ -281,12 +281,19 @@ class MainWindow(QWidget, Ui_MainWindow):
         cmd = (
             "cat /etc/audit/auditd.conf > /tmp/altcenter_auditd.conf && "
             "chmod 644 /tmp/altcenter_auditd.conf && "
+
             "cat /etc/audit/rules.d/*.rules > /tmp/altcenter_audit.rules 2>/dev/null || : && "
             "chmod 644 /tmp/altcenter_audit.rules 2>/dev/null || : && "
+
             "cat /etc/login.defs > /tmp/altcenter_login.defs 2>/dev/null || : && "
             "chmod 644 /tmp/altcenter_login.defs 2>/dev/null || : && "
+
+            "cat /etc/openssh/sshd_config > /tmp/altcenter_sshd_config 2>/dev/null || : && "
+            "chmod 644 /tmp/altcenter_sshd_config 2>/dev/null || : && "
+
             "(sysctl -a 2>/dev/null | grep '^kernel\\.altha\\.' > /tmp/altcenter_altha_sysctl || :) && "
             "chmod 644 /tmp/altcenter_altha_sysctl && "
+
             "/usr/bin/python3 " + shlex.quote(fstec_script)
         )
 
