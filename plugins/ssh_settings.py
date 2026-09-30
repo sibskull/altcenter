@@ -13,6 +13,7 @@ class SSHSettingsWidget(QWidget):
         self.proc_apply = None
 
         self.root_login_check = None
+        self.port_edit = None
         self.btn_apply = None
         self.lbl_status = None
 
@@ -32,6 +33,19 @@ class SSHSettingsWidget(QWidget):
         root_login.addStretch(1)
 
         layout.addLayout(root_login)
+
+        port_layout = QHBoxLayout()
+
+        port_label = QLabel(self.tr("SSH port"))
+        port_layout.addWidget(port_label)
+
+        self.port_edit = QLineEdit()
+        self.port_edit.setMaximumWidth(100)
+        port_layout.addWidget(self.port_edit)
+
+        port_layout.addStretch(1)
+
+        layout.addLayout(port_layout)
 
         apply_layout = QHBoxLayout()
 
@@ -87,6 +101,13 @@ class SSHSettingsWidget(QWidget):
         value = self.readSshdParameter("PermitRootLogin")
         self.root_login_check.setChecked(value == "no")
 
+        port = self.readSshdParameter("Port")
+
+        if port:
+            self.port_edit.setText(port)
+        else:
+            self.port_edit.setText("22")
+
     def on_apply_clicked(self):
         if self.proc_apply != None and self.proc_apply.state() != QProcess.ProcessState.NotRunning:
             return
@@ -96,6 +117,11 @@ class SSHSettingsWidget(QWidget):
         if self.root_login_check.isChecked():
             value = "no"
 
+        port = self.port_edit.text().strip()
+
+        if not port:
+            port = "22"
+
         self.lbl_status.setText("")
         self.btn_apply.setEnabled(False)
 
@@ -104,6 +130,8 @@ class SSHSettingsWidget(QWidget):
             "cp -a \"$conf\" \"$conf.altcenter.bak\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*PermitRootLogin([[:space:]]+|$)/Id' \"$conf\"; "
             f"echo 'PermitRootLogin {value}' >> \"$conf\"; "
+            "sed -i -E '/^[[:space:]]*#?[[:space:]]*Port([[:space:]]+|$)/Id' \"$conf\"; "
+            f"echo 'Port {port}' >> \"$conf\"; "
             "cp \"$conf\" /tmp/altcenter_sshd_config; "
             "chmod 644 /tmp/altcenter_sshd_config; "
             "systemctl reload sshd || systemctl reload ssh || systemctl restart sshd || systemctl restart ssh"
