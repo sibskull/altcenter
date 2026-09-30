@@ -91,7 +91,7 @@ class SSHSettingsWidget(QWidget):
         if self.proc_apply != None and self.proc_apply.state() != QProcess.ProcessState.NotRunning:
             return
 
-        value = "yes"
+        value = "without-password"
 
         if self.root_login_check.isChecked():
             value = "no"
