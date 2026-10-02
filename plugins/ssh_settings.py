@@ -14,6 +14,8 @@ class SSHSettingsWidget(QWidget):
 
         self.root_login_check = None
         self.port_edit = None
+        self.client_alive_interval_edit = None
+        self.client_alive_count_max_edit = None
         self.btn_apply = None
         self.lbl_status = None
 
@@ -46,6 +48,32 @@ class SSHSettingsWidget(QWidget):
         port_layout.addStretch(1)
 
         layout.addLayout(port_layout)
+
+        client_alive_interval_layout = QHBoxLayout()
+
+        client_alive_interval_label = QLabel(self.tr("SSH inactivity timeout, sec."))  
+        client_alive_interval_layout.addWidget(client_alive_interval_label)
+
+        self.client_alive_interval_edit = QLineEdit()
+        self.client_alive_interval_edit.setMaximumWidth(100)
+        client_alive_interval_layout.addWidget(self.client_alive_interval_edit)
+
+        client_alive_interval_layout.addStretch(1)
+
+        layout.addLayout(client_alive_interval_layout)
+
+        client_alive_count_max_layout = QHBoxLayout()
+
+        client_alive_count_max_label = QLabel(self.tr("SSH alive check count"))
+        client_alive_count_max_layout.addWidget(client_alive_count_max_label)
+
+        self.client_alive_count_max_edit = QLineEdit()
+        self.client_alive_count_max_edit.setMaximumWidth(100)
+        client_alive_count_max_layout.addWidget(self.client_alive_count_max_edit)
+
+        client_alive_count_max_layout.addStretch(1)
+
+        layout.addLayout(client_alive_count_max_layout)
 
         apply_layout = QHBoxLayout()
 
@@ -108,6 +136,20 @@ class SSHSettingsWidget(QWidget):
         else:
             self.port_edit.setText("22")
 
+        client_alive_interval = self.readSshdParameter("ClientAliveInterval")
+
+        if client_alive_interval:
+            self.client_alive_interval_edit.setText(client_alive_interval)
+        else:
+            self.client_alive_interval_edit.setText("0")
+
+        client_alive_count_max = self.readSshdParameter("ClientAliveCountMax")
+
+        if client_alive_count_max:
+            self.client_alive_count_max_edit.setText(client_alive_count_max)
+        else:
+            self.client_alive_count_max_edit.setText("3")
+
     def on_apply_clicked(self):
         if self.proc_apply != None and self.proc_apply.state() != QProcess.ProcessState.NotRunning:
             return
@@ -122,6 +164,28 @@ class SSHSettingsWidget(QWidget):
         if not port:
             port = "22"
 
+        if not port.isdigit() or int(port) < 1 or int(port) > 65535:
+            self.lbl_status.setText(self.tr("Invalid SSH port"))
+            return
+
+        client_alive_interval = self.client_alive_interval_edit.text().strip()
+
+        if not client_alive_interval:
+            client_alive_interval = "0"
+
+        if not client_alive_interval.isdigit():
+            self.lbl_status.setText(self.tr("Invalid SSH session timeout"))
+            return
+
+        client_alive_count_max = self.client_alive_count_max_edit.text().strip()
+
+        if not client_alive_count_max:
+            client_alive_count_max = "3"
+
+        if not client_alive_count_max.isdigit():
+            self.lbl_status.setText(self.tr("Invalid SSH alive check count"))
+            return
+
         self.lbl_status.setText("")
         self.btn_apply.setEnabled(False)
 
@@ -132,6 +196,10 @@ class SSHSettingsWidget(QWidget):
             f"echo 'PermitRootLogin {value}' >> \"$conf\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*Port([[:space:]]+|$)/Id' \"$conf\"; "
             f"echo 'Port {port}' >> \"$conf\"; "
+            "sed -i -E '/^[[:space:]]*#?[[:space:]]*ClientAliveInterval([[:space:]]+|$)/Id' \"$conf\"; "
+            f"echo 'ClientAliveInterval {client_alive_interval}' >> \"$conf\"; "
+            "sed -i -E '/^[[:space:]]*#?[[:space:]]*ClientAliveCountMax([[:space:]]+|$)/Id' \"$conf\"; "
+            f"echo 'ClientAliveCountMax {client_alive_count_max}' >> \"$conf\"; "
             "cp \"$conf\" /tmp/altcenter_sshd_config; "
             "chmod 644 /tmp/altcenter_sshd_config; "
             "systemctl reload sshd || systemctl reload ssh || systemctl restart sshd || systemctl restart ssh"

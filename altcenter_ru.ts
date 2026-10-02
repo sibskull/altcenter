@@ -1554,9 +1554,9 @@ Please try again later</source>
 <context>
     <name>PluginSSHSettings</name>
     <message>
-        <location filename="plugins/ssh_settings.py" line="142"/>
+        <location filename="plugins/ssh_settings.py" line="239"/>
         <source>SSH settings</source>
-        <translation type="unfinished">Настройка SSH</translation>
+        <translation>Настройка SSH</translation>
     </message>
 </context>
 <context>
@@ -1669,24 +1669,54 @@ Please try again later</source>
 <context>
     <name>SSHSettingsWidget</name>
     <message>
-        <location filename="plugins/ssh_settings.py" line="29"/>
+        <location filename="plugins/ssh_settings.py" line="32"/>
         <source>Deny remote SSH login as root</source>
         <translation>Запретить удалённый вход по SSH под пользователем root</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="38"/>
+        <location filename="plugins/ssh_settings.py" line="80"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="126"/>
+        <location filename="plugins/ssh_settings.py" line="223"/>
         <source>Done</source>
         <translation>Готово</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="133"/>
+        <location filename="plugins/ssh_settings.py" line="230"/>
         <source>Failed</source>
         <translation>Ошибка</translation>
+    </message>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="41"/>
+        <source>SSH port</source>
+        <translation>Порт SSH</translation>
+    </message>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="54"/>
+        <source>SSH inactivity timeout, sec.</source>
+        <translation>Таймаут неактивности SSH, сек.</translation>
+    </message>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="67"/>
+        <source>SSH alive check count</source>
+        <translation>Количество проверок активности SSH</translation>
+    </message>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="168"/>
+        <source>Invalid SSH port</source>
+        <translation>Неверный порт SSH</translation>
+    </message>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="177"/>
+        <source>Invalid SSH session timeout</source>
+        <translation>Неверный таймаут SSH-сессии</translation>
+    </message>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="186"/>
+        <source>Invalid SSH alive check count</source>
+        <translation>Неверное количество проверок активности SSH</translation>
     </message>
 </context>
 <context>
