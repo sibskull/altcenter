@@ -13,6 +13,7 @@ class SSHSettingsWidget(QWidget):
         self.proc_apply = None
 
         self.root_login_check = None
+        self.empty_passwords_check = None
         self.port_edit = None
         self.client_alive_interval_edit = None
         self.client_alive_count_max_edit = None
@@ -35,6 +36,15 @@ class SSHSettingsWidget(QWidget):
         root_login.addStretch(1)
 
         layout.addLayout(root_login)
+
+        empty_passwords = QHBoxLayout()
+
+        self.empty_passwords_check = QCheckBox(self.tr("Deny SSH login with empty passwords"))
+        empty_passwords.addWidget(self.empty_passwords_check)
+
+        empty_passwords.addStretch(1)
+
+        layout.addLayout(empty_passwords)
 
         port_layout = QHBoxLayout()
 
@@ -129,6 +139,9 @@ class SSHSettingsWidget(QWidget):
         value = self.readSshdParameter("PermitRootLogin")
         self.root_login_check.setChecked(value == "no")
 
+        empty_passwords = self.readSshdParameter("PermitEmptyPasswords")
+        self.empty_passwords_check.setChecked(empty_passwords != "yes")
+
         port = self.readSshdParameter("Port")
 
         if port:
@@ -158,6 +171,11 @@ class SSHSettingsWidget(QWidget):
 
         if self.root_login_check.isChecked():
             value = "no"
+
+        empty_passwords = "yes"
+
+        if self.empty_passwords_check.isChecked():
+            empty_passwords = "no"
 
         port = self.port_edit.text().strip()
 
@@ -194,6 +212,8 @@ class SSHSettingsWidget(QWidget):
             "cp -a \"$conf\" \"$conf.altcenter.bak\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*PermitRootLogin([[:space:]]+|$)/Id' \"$conf\"; "
             f"echo 'PermitRootLogin {value}' >> \"$conf\"; "
+            "sed -i -E '/^[[:space:]]*#?[[:space:]]*PermitEmptyPasswords([[:space:]]+|$)/Id' \"$conf\"; "
+            f"echo 'PermitEmptyPasswords {empty_passwords}' >> \"$conf\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*Port([[:space:]]+|$)/Id' \"$conf\"; "
             f"echo 'Port {port}' >> \"$conf\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*ClientAliveInterval([[:space:]]+|$)/Id' \"$conf\"; "
