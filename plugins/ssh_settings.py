@@ -16,6 +16,8 @@ class SSHSettingsWidget(QWidget):
         self.empty_passwords_check = None
         self.hostbased_authentication_check = None
         self.ignore_rhosts_check = None
+        self.allow_users_edit = None
+        self.allow_groups_edit = None
         self.port_edit = None
         self.client_alive_interval_edit = None
         self.client_alive_count_max_edit = None
@@ -65,6 +67,42 @@ class SSHSettingsWidget(QWidget):
         ignore_rhosts.addStretch(1)
 
         layout.addLayout(ignore_rhosts)
+
+        space = QLabel("")
+        space.setWordWrap(True)
+
+        layout.addWidget(space)
+
+        access = QLabel(self.tr("Users and groups are separated by spaces, for example: user1 user2"))
+        access.setWordWrap(True)
+
+        layout.addWidget(access)
+
+        allow_users_layout = QHBoxLayout()
+
+        allow_users_label = QLabel(self.tr("Allowed SSH users"))
+        allow_users_layout.addWidget(allow_users_label)
+
+        self.allow_users_edit = QLineEdit()
+        self.allow_users_edit.setMaximumWidth(300)
+        allow_users_layout.addWidget(self.allow_users_edit)
+
+        allow_users_layout.addStretch(1)
+
+        layout.addLayout(allow_users_layout)
+
+        allow_groups_layout = QHBoxLayout()
+
+        allow_groups_label = QLabel(self.tr("Allowed SSH groups"))
+        allow_groups_layout.addWidget(allow_groups_label)
+
+        self.allow_groups_edit = QLineEdit()
+        self.allow_groups_edit.setMaximumWidth(300)
+        allow_groups_layout.addWidget(self.allow_groups_edit)
+
+        allow_groups_layout.addStretch(1)
+
+        layout.addLayout(allow_groups_layout)
 
         port_layout = QHBoxLayout()
 
@@ -155,6 +193,47 @@ class SSHSettingsWidget(QWidget):
 
         return None
 
+    def readSshdParameterValue(self, name):
+        path = "/tmp/altcenter_sshd_config"
+
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as f:
+                lines = f.read().splitlines()
+        except:
+            return None
+
+        for raw in lines:
+            line = raw.strip()
+
+            if not line or line.startswith("#"):
+                continue
+
+            parts = line.split(None, 1)
+
+            if len(parts) != 2:
+                continue
+
+            if parts[0].lower() != name.lower():
+                continue
+
+            value = parts[1].split("#", 1)[0].strip()
+
+            if not value:
+                return None
+
+            return value
+
+        return None
+
+    def isValidSshListValue(self, value):
+        allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.@*/?: "
+
+        for char in value:
+            if char not in allowed:
+                return False
+
+        return True
+
     def loadSavedSettings(self):
         value = self.readSshdParameter("PermitRootLogin")
         self.root_login_check.setChecked(value == "no")
@@ -167,6 +246,20 @@ class SSHSettingsWidget(QWidget):
 
         ignore_rhosts = self.readSshdParameter("IgnoreRhosts")
         self.ignore_rhosts_check.setChecked(ignore_rhosts != "no")
+
+        allow_users = self.readSshdParameterValue("AllowUsers")
+
+        if allow_users:
+            self.allow_users_edit.setText(allow_users)
+        else:
+            self.allow_users_edit.setText("")
+
+        allow_groups = self.readSshdParameterValue("AllowGroups")
+
+        if allow_groups:
+            self.allow_groups_edit.setText(allow_groups)
+        else:
+            self.allow_groups_edit.setText("")
 
         port = self.readSshdParameter("Port")
 
@@ -213,6 +306,18 @@ class SSHSettingsWidget(QWidget):
         if self.ignore_rhosts_check.isChecked():
             ignore_rhosts = "yes"
 
+        allow_users = self.allow_users_edit.text().strip()
+
+        if allow_users and not self.isValidSshListValue(allow_users):
+            self.lbl_status.setText(self.tr("Invalid SSH users list. Use spaces only"))
+            return
+
+        allow_groups = self.allow_groups_edit.text().strip()
+
+        if allow_groups and not self.isValidSshListValue(allow_groups):
+            self.lbl_status.setText(self.tr("Invalid SSH groups list. Use spaces only"))
+            return
+
         port = self.port_edit.text().strip()
 
         if not port:
@@ -254,6 +359,20 @@ class SSHSettingsWidget(QWidget):
             f"echo 'HostbasedAuthentication {hostbased_authentication}' >> \"$conf\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*IgnoreRhosts([[:space:]]+|$)/Id' \"$conf\"; "
             f"echo 'IgnoreRhosts {ignore_rhosts}' >> \"$conf\"; "
+            "sed -i -E '/^[[:space:]]*#?[[:space:]]*AllowUsers([[:space:]]+|$)/Id' \"$conf\"; "
+        )
+
+        if allow_users:
+            cmd += f"echo 'AllowUsers {allow_users}' >> \"$conf\"; "
+
+        cmd += (
+            "sed -i -E '/^[[:space:]]*#?[[:space:]]*AllowGroups([[:space:]]+|$)/Id' \"$conf\"; "
+        )
+
+        if allow_groups:
+            cmd += f"echo 'AllowGroups {allow_groups}' >> \"$conf\"; "
+
+        cmd += (
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*Port([[:space:]]+|$)/Id' \"$conf\"; "
             f"echo 'Port {port}' >> \"$conf\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*ClientAliveInterval([[:space:]]+|$)/Id' \"$conf\"; "
