@@ -14,6 +14,8 @@ class SSHSettingsWidget(QWidget):
 
         self.root_login_check = None
         self.empty_passwords_check = None
+        self.hostbased_authentication_check = None
+        self.ignore_rhosts_check = None
         self.port_edit = None
         self.client_alive_interval_edit = None
         self.client_alive_count_max_edit = None
@@ -46,6 +48,24 @@ class SSHSettingsWidget(QWidget):
 
         layout.addLayout(empty_passwords)
 
+        hostbased_authentication = QHBoxLayout()
+
+        self.hostbased_authentication_check = QCheckBox(self.tr("Disable SSH host-based authentication"))
+        hostbased_authentication.addWidget(self.hostbased_authentication_check)
+
+        hostbased_authentication.addStretch(1)
+
+        layout.addLayout(hostbased_authentication)
+
+        ignore_rhosts = QHBoxLayout()
+
+        self.ignore_rhosts_check = QCheckBox(self.tr("Ignore .rhosts and .shosts files"))
+        ignore_rhosts.addWidget(self.ignore_rhosts_check)
+
+        ignore_rhosts.addStretch(1)
+
+        layout.addLayout(ignore_rhosts)
+
         port_layout = QHBoxLayout()
 
         port_label = QLabel(self.tr("SSH port"))
@@ -61,7 +81,7 @@ class SSHSettingsWidget(QWidget):
 
         client_alive_interval_layout = QHBoxLayout()
 
-        client_alive_interval_label = QLabel(self.tr("SSH inactivity timeout, sec."))  
+        client_alive_interval_label = QLabel(self.tr("SSH inactivity timeout, sec."))
         client_alive_interval_layout.addWidget(client_alive_interval_label)
 
         self.client_alive_interval_edit = QLineEdit()
@@ -142,6 +162,12 @@ class SSHSettingsWidget(QWidget):
         empty_passwords = self.readSshdParameter("PermitEmptyPasswords")
         self.empty_passwords_check.setChecked(empty_passwords != "yes")
 
+        hostbased_authentication = self.readSshdParameter("HostbasedAuthentication")
+        self.hostbased_authentication_check.setChecked(hostbased_authentication != "yes")
+
+        ignore_rhosts = self.readSshdParameter("IgnoreRhosts")
+        self.ignore_rhosts_check.setChecked(ignore_rhosts != "no")
+
         port = self.readSshdParameter("Port")
 
         if port:
@@ -176,6 +202,16 @@ class SSHSettingsWidget(QWidget):
 
         if self.empty_passwords_check.isChecked():
             empty_passwords = "no"
+
+        hostbased_authentication = "yes"
+
+        if self.hostbased_authentication_check.isChecked():
+            hostbased_authentication = "no"
+
+        ignore_rhosts = "no"
+
+        if self.ignore_rhosts_check.isChecked():
+            ignore_rhosts = "yes"
 
         port = self.port_edit.text().strip()
 
@@ -214,6 +250,10 @@ class SSHSettingsWidget(QWidget):
             f"echo 'PermitRootLogin {value}' >> \"$conf\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*PermitEmptyPasswords([[:space:]]+|$)/Id' \"$conf\"; "
             f"echo 'PermitEmptyPasswords {empty_passwords}' >> \"$conf\"; "
+            "sed -i -E '/^[[:space:]]*#?[[:space:]]*HostbasedAuthentication([[:space:]]+|$)/Id' \"$conf\"; "
+            f"echo 'HostbasedAuthentication {hostbased_authentication}' >> \"$conf\"; "
+            "sed -i -E '/^[[:space:]]*#?[[:space:]]*IgnoreRhosts([[:space:]]+|$)/Id' \"$conf\"; "
+            f"echo 'IgnoreRhosts {ignore_rhosts}' >> \"$conf\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*Port([[:space:]]+|$)/Id' \"$conf\"; "
             f"echo 'Port {port}' >> \"$conf\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*ClientAliveInterval([[:space:]]+|$)/Id' \"$conf\"; "
