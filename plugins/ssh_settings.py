@@ -379,9 +379,10 @@ class SSHSettingsWidget(QWidget):
             f"echo 'ClientAliveInterval {client_alive_interval}' >> \"$conf\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*ClientAliveCountMax([[:space:]]+|$)/Id' \"$conf\"; "
             f"echo 'ClientAliveCountMax {client_alive_count_max}' >> \"$conf\"; "
-            "cp \"$conf\" /tmp/altcenter_sshd_config; "
-            "chmod 644 /tmp/altcenter_sshd_config; "
-            "systemctl reload sshd || systemctl reload ssh || systemctl restart sshd || systemctl restart ssh"
+            "sshd -t -f \"$conf\" && "
+            "cp \"$conf\" /tmp/altcenter_sshd_config && "
+            "chmod 644 /tmp/altcenter_sshd_config && "
+            "(systemctl reload sshd || systemctl reload ssh || systemctl restart sshd || systemctl restart ssh)"
         )
 
         self.proc_apply = QProcess(self)
