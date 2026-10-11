@@ -11,6 +11,7 @@ class SSHSettingsWidget(QWidget):
         self.main_window = main_window
 
         self.proc_apply = None
+        self.saved_settings = None
 
         self.root_login_check = None
         self.empty_passwords_check = None
@@ -161,6 +162,16 @@ class SSHSettingsWidget(QWidget):
 
         self.setLayout(layout)
 
+        self.root_login_check.stateChanged.connect(self.updateApplyButton)
+        self.empty_passwords_check.stateChanged.connect(self.updateApplyButton)
+        self.hostbased_authentication_check.stateChanged.connect(self.updateApplyButton)
+        self.ignore_rhosts_check.stateChanged.connect(self.updateApplyButton)
+        self.allow_users_edit.textChanged.connect(self.updateApplyButton)
+        self.allow_groups_edit.textChanged.connect(self.updateApplyButton)
+        self.port_edit.textChanged.connect(self.updateApplyButton)
+        self.client_alive_interval_edit.textChanged.connect(self.updateApplyButton)
+        self.client_alive_count_max_edit.textChanged.connect(self.updateApplyButton)
+
     def readSshdParameter(self, name):
         path = "/tmp/altcenter_sshd_config"
 
@@ -234,6 +245,33 @@ class SSHSettingsWidget(QWidget):
 
         return True
 
+    def getCurrentSettings(self):
+        return (
+            self.root_login_check.isChecked(),
+            self.empty_passwords_check.isChecked(),
+            self.hostbased_authentication_check.isChecked(),
+            self.ignore_rhosts_check.isChecked(),
+            self.allow_users_edit.text().strip(),
+            self.allow_groups_edit.text().strip(),
+            self.port_edit.text().strip(),
+            self.client_alive_interval_edit.text().strip(),
+            self.client_alive_count_max_edit.text().strip()
+        )
+
+    def updateApplyButton(self, *args):
+        if self.btn_apply == None:
+            return
+
+        if self.proc_apply != None and self.proc_apply.state() != QProcess.ProcessState.NotRunning:
+            self.btn_apply.setEnabled(False)
+            return
+
+        if self.saved_settings == None:
+            self.btn_apply.setEnabled(False)
+            return
+
+        self.btn_apply.setEnabled(self.getCurrentSettings() != self.saved_settings)
+
     def loadSavedSettings(self):
         value = self.readSshdParameter("PermitRootLogin")
         self.root_login_check.setChecked(value == "no")
@@ -282,8 +320,14 @@ class SSHSettingsWidget(QWidget):
         else:
             self.client_alive_count_max_edit.setText("3")
 
+        self.saved_settings = self.getCurrentSettings()
+        self.updateApplyButton()
+
     def on_apply_clicked(self):
         if self.proc_apply != None and self.proc_apply.state() != QProcess.ProcessState.NotRunning:
+            return
+
+        if self.saved_settings != None and self.getCurrentSettings() == self.saved_settings:
             return
 
         value = "without-password"
@@ -397,8 +441,6 @@ class SSHSettingsWidget(QWidget):
     def on_apply_finished(self, exit_code, exit_status):
         err = self.proc_apply.readAllStandardError().data().decode(errors="replace").strip()
 
-        self.btn_apply.setEnabled(True)
-
         if exit_code == 0:
             self.lbl_status.setText(self.tr("Done"))
             self.loadSavedSettings()
@@ -408,6 +450,8 @@ class SSHSettingsWidget(QWidget):
             self.lbl_status.setText(err)
         else:
             self.lbl_status.setText(self.tr("Failed"))
+
+        self.updateApplyButton()
 
 
 class PluginSSHSettings(plugins.Base):
