@@ -17,6 +17,7 @@ class SSHSettingsWidget(QWidget):
         self.empty_passwords_check = None
         self.hostbased_authentication_check = None
         self.ignore_rhosts_check = None
+        self.protocol_check = None
         self.allow_users_edit = None
         self.allow_groups_edit = None
         self.port_edit = None
@@ -68,6 +69,15 @@ class SSHSettingsWidget(QWidget):
         ignore_rhosts.addStretch(1)
 
         layout.addLayout(ignore_rhosts)
+
+        protocol = QHBoxLayout()
+
+        self.protocol_check = QCheckBox(self.tr("Use SSH protocol version 2 only"))
+        protocol.addWidget(self.protocol_check)
+
+        protocol.addStretch(1)
+
+        layout.addLayout(protocol)
 
         space = QLabel("")
         space.setWordWrap(True)
@@ -166,6 +176,7 @@ class SSHSettingsWidget(QWidget):
         self.empty_passwords_check.stateChanged.connect(self.updateApplyButton)
         self.hostbased_authentication_check.stateChanged.connect(self.updateApplyButton)
         self.ignore_rhosts_check.stateChanged.connect(self.updateApplyButton)
+        self.protocol_check.stateChanged.connect(self.updateApplyButton)
         self.allow_users_edit.textChanged.connect(self.updateApplyButton)
         self.allow_groups_edit.textChanged.connect(self.updateApplyButton)
         self.port_edit.textChanged.connect(self.updateApplyButton)
@@ -251,6 +262,7 @@ class SSHSettingsWidget(QWidget):
             self.empty_passwords_check.isChecked(),
             self.hostbased_authentication_check.isChecked(),
             self.ignore_rhosts_check.isChecked(),
+            self.protocol_check.isChecked(),
             self.allow_users_edit.text().strip(),
             self.allow_groups_edit.text().strip(),
             self.port_edit.text().strip(),
@@ -284,6 +296,9 @@ class SSHSettingsWidget(QWidget):
 
         ignore_rhosts = self.readSshdParameter("IgnoreRhosts")
         self.ignore_rhosts_check.setChecked(ignore_rhosts != "no")
+
+        protocol = self.readSshdParameter("Protocol")
+        self.protocol_check.setChecked(protocol == "2")
 
         allow_users = self.readSshdParameterValue("AllowUsers")
 
@@ -403,6 +418,13 @@ class SSHSettingsWidget(QWidget):
             f"echo 'HostbasedAuthentication {hostbased_authentication}' >> \"$conf\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*IgnoreRhosts([[:space:]]+|$)/Id' \"$conf\"; "
             f"echo 'IgnoreRhosts {ignore_rhosts}' >> \"$conf\"; "
+            "sed -i -E '/^[[:space:]]*#?[[:space:]]*Protocol([[:space:]]+|$)/Id' \"$conf\"; "
+        )
+
+        if self.protocol_check.isChecked():
+            cmd += "echo 'Protocol 2' >> \"$conf\"; "
+
+        cmd += (
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*AllowUsers([[:space:]]+|$)/Id' \"$conf\"; "
         )
 
@@ -423,7 +445,9 @@ class SSHSettingsWidget(QWidget):
             f"echo 'ClientAliveInterval {client_alive_interval}' >> \"$conf\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*ClientAliveCountMax([[:space:]]+|$)/Id' \"$conf\"; "
             f"echo 'ClientAliveCountMax {client_alive_count_max}' >> \"$conf\"; "
-            "sshd -t -f \"$conf\" && "
+            "chown root:root \"$conf\"; "
+            "chmod 644 \"$conf\"; "
+            "if ! sshd -t -f \"$conf\"; then cp -a \"$conf.altcenter.bak\" \"$conf\"; exit 1; fi; "
             "cp \"$conf\" /tmp/altcenter_sshd_config && "
             "chmod 644 /tmp/altcenter_sshd_config && "
             "(systemctl reload sshd || systemctl reload ssh || systemctl restart sshd || systemctl restart ssh)"
