@@ -1911,7 +1911,7 @@ Please try again later</source>
 <context>
     <name>PluginSSHSettings</name>
     <message>
-        <location filename="plugins/ssh_settings.py" line="487"/>
+        <location filename="plugins/ssh_settings.py" line="509"/>
         <source>SSH settings</source>
         <translation>Настройка SSH</translation>
     </message>
@@ -2026,82 +2026,82 @@ Please try again later</source>
 <context>
     <name>SSHSettingsWidget</name>
     <message>
-        <location filename="plugins/ssh_settings.py" line="39"/>
+        <location filename="plugins/ssh_settings.py" line="40"/>
         <source>Deny remote SSH login as root</source>
         <translation>Запретить удалённый вход по SSH под пользователем root</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="159"/>
+        <location filename="plugins/ssh_settings.py" line="169"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="469"/>
+        <location filename="plugins/ssh_settings.py" line="491"/>
         <source>Done</source>
         <translation>Готово</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="476"/>
+        <location filename="plugins/ssh_settings.py" line="498"/>
         <source>Failed</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="120"/>
+        <location filename="plugins/ssh_settings.py" line="130"/>
         <source>SSH port</source>
         <translation>Порт SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="133"/>
+        <location filename="plugins/ssh_settings.py" line="143"/>
         <source>SSH inactivity timeout, sec.</source>
         <translation>Таймаут неактивности SSH, сек.</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="146"/>
+        <location filename="plugins/ssh_settings.py" line="156"/>
         <source>SSH alive check count</source>
         <translation>Количество проверок активности SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="386"/>
+        <location filename="plugins/ssh_settings.py" line="406"/>
         <source>Invalid SSH port</source>
         <translation>Неверный порт SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="395"/>
+        <location filename="plugins/ssh_settings.py" line="415"/>
         <source>Invalid SSH session timeout</source>
         <translation>Неверный таймаут SSH-сессии</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="404"/>
+        <location filename="plugins/ssh_settings.py" line="424"/>
         <source>Invalid SSH alive check count</source>
         <translation>Неверное количество проверок активности SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="48"/>
+        <location filename="plugins/ssh_settings.py" line="58"/>
         <source>Deny SSH login with empty passwords</source>
         <translation>Запретить вход по SSH с пустым паролем</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="57"/>
+        <location filename="plugins/ssh_settings.py" line="67"/>
         <source>Disable SSH host-based authentication</source>
         <translation>Отключить аутентификацию SSH по доверенным хостам</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="66"/>
+        <location filename="plugins/ssh_settings.py" line="76"/>
         <source>Ignore .rhosts and .shosts files</source>
         <translation>Игнорировать файлы .rhosts и .shosts</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="87"/>
+        <location filename="plugins/ssh_settings.py" line="97"/>
         <source>Users and groups are separated by spaces, for example: user1 user2</source>
         <translation>Пользователи и группы указываются через пробел, например: user1 user2</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="94"/>
+        <location filename="plugins/ssh_settings.py" line="104"/>
         <source>Allowed SSH users</source>
         <translation>Пользователи, которым разрешён вход по SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="107"/>
+        <location filename="plugins/ssh_settings.py" line="117"/>
         <source>Allowed SSH groups</source>
         <translation>Группы, которым разрешён вход по SSH</translation>
     </message>
@@ -2116,19 +2116,24 @@ Please try again later</source>
         <translation type="obsolete">Некорректный список групп SSH. Используйте пробелы</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="75"/>
+        <location filename="plugins/ssh_settings.py" line="85"/>
         <source>Use SSH protocol version 2 only</source>
         <translation>Использовать только протокол SSH версии 2</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="371"/>
+        <location filename="plugins/ssh_settings.py" line="391"/>
         <source>Invalid SSH users list. Use spaces only</source>
         <translation>Некорректный список пользователей SSH. Используйте пробелы</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="377"/>
+        <location filename="plugins/ssh_settings.py" line="397"/>
         <source>Invalid SSH groups list. Use spaces only</source>
         <translation>Некорректный список групп SSH. Используйте пробелы</translation>
+    </message>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="49"/>
+        <source>Allow SSH login using a key</source>
+        <translation>Разрешить вход по SSH-ключу</translation>
     </message>
 </context>
 <context>
@@ -2230,7 +2235,7 @@ sudo update-grub
 
 2. В файле /etc/sysconfig/grub2 в строку GRUB_CMDLINE_LINUX_DEFAULT добавьте параметр altha=1.
 Пример:
-GRUB_CMDLINE_LINUX_DEFAULT='quiet splash altha=1'
+GRUB_CMDLINE_LINUX_DEFAULT=&apos;quiet splash altha=1&apos;
 
 3. После изменения выполните команду:
 sudo update-grub
