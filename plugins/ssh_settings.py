@@ -14,6 +14,7 @@ class SSHSettingsWidget(QWidget):
         self.saved_settings = None
 
         self.root_login_check = None
+        self.pubkey_authentication_check = None
         self.empty_passwords_check = None
         self.hostbased_authentication_check = None
         self.ignore_rhosts_check = None
@@ -42,6 +43,15 @@ class SSHSettingsWidget(QWidget):
         root_login.addStretch(1)
 
         layout.addLayout(root_login)
+
+        pubkey_authentication = QHBoxLayout()
+
+        self.pubkey_authentication_check = QCheckBox(self.tr("Allow SSH login using a key"))
+        pubkey_authentication.addWidget(self.pubkey_authentication_check)
+
+        pubkey_authentication.addStretch(1)
+
+        layout.addLayout(pubkey_authentication)
 
         empty_passwords = QHBoxLayout()
 
@@ -173,6 +183,7 @@ class SSHSettingsWidget(QWidget):
         self.setLayout(layout)
 
         self.root_login_check.stateChanged.connect(self.updateApplyButton)
+        self.pubkey_authentication_check.stateChanged.connect(self.updateApplyButton)
         self.empty_passwords_check.stateChanged.connect(self.updateApplyButton)
         self.hostbased_authentication_check.stateChanged.connect(self.updateApplyButton)
         self.ignore_rhosts_check.stateChanged.connect(self.updateApplyButton)
@@ -259,6 +270,7 @@ class SSHSettingsWidget(QWidget):
     def getCurrentSettings(self):
         return (
             self.root_login_check.isChecked(),
+            self.pubkey_authentication_check.isChecked(),
             self.empty_passwords_check.isChecked(),
             self.hostbased_authentication_check.isChecked(),
             self.ignore_rhosts_check.isChecked(),
@@ -287,6 +299,9 @@ class SSHSettingsWidget(QWidget):
     def loadSavedSettings(self):
         value = self.readSshdParameter("PermitRootLogin")
         self.root_login_check.setChecked(value == "no")
+
+        pubkey_authentication = self.readSshdParameter("PubkeyAuthentication")
+        self.pubkey_authentication_check.setChecked(pubkey_authentication != "no")
 
         empty_passwords = self.readSshdParameter("PermitEmptyPasswords")
         self.empty_passwords_check.setChecked(empty_passwords != "yes")
@@ -350,6 +365,11 @@ class SSHSettingsWidget(QWidget):
         if self.root_login_check.isChecked():
             value = "no"
 
+        pubkey_authentication = "yes"
+
+        if not self.pubkey_authentication_check.isChecked():
+            pubkey_authentication = "no"
+
         empty_passwords = "yes"
 
         if self.empty_passwords_check.isChecked():
@@ -412,6 +432,8 @@ class SSHSettingsWidget(QWidget):
             "cp -a \"$conf\" \"$conf.altcenter.bak\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*PermitRootLogin([[:space:]]+|$)/Id' \"$conf\"; "
             f"echo 'PermitRootLogin {value}' >> \"$conf\"; "
+            "sed -i -E '/^[[:space:]]*#?[[:space:]]*PubkeyAuthentication([[:space:]]+|$)/Id' \"$conf\"; "
+            f"echo 'PubkeyAuthentication {pubkey_authentication}' >> \"$conf\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*PermitEmptyPasswords([[:space:]]+|$)/Id' \"$conf\"; "
             f"echo 'PermitEmptyPasswords {empty_passwords}' >> \"$conf\"; "
             "sed -i -E '/^[[:space:]]*#?[[:space:]]*HostbasedAuthentication([[:space:]]+|$)/Id' \"$conf\"; "
