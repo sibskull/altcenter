@@ -16,6 +16,7 @@ from PyQt6.QtWidgets import (
 )
 
 import plugins
+from my_utils import get_local_users
 
 
 class ChangePassword(QWidget):
@@ -88,50 +89,10 @@ class ChangePassword(QWidget):
                 out.append(str(u))
         return sorted(set(out))
 
-    def _uid_min(self) -> int:
-        try:
-            with open("/etc/login.defs", "r", encoding="utf-8", errors="ignore") as f:
-                for line in f:
-                    s = line.strip()
-                    if not s or s.startswith("#"):
-                        continue
-                    if s.upper().startswith("UID_MIN"):
-                        parts = s.split()
-                        if len(parts) >= 2 and parts[1].isdigit():
-                            return int(parts[1])
-        except Exception:
-            pass
-        return 1000
-
-    def _list_users_all(self) -> List[Tuple[str, int]]:
-        users: List[Tuple[str, int]] = []
-        try:
-            with open("/etc/passwd", "r", encoding="utf-8", errors="ignore") as f:
-                for line in f:
-                    s = line.strip()
-                    if not s or s.startswith("#"):
-                        continue
-                    parts = s.split(":")
-                    if len(parts) < 7:
-                        continue
-                    name = parts[0]
-                    try:
-                        uid = int(parts[2])
-                    except Exception:
-                        continue
-                    users.append((name, uid))
-        except Exception:
-            pass
-        return users
-
     def _reload_users(self):
         self.list_users.clear()
 
-        uid_min = self._uid_min()
-
-        for name, uid in sorted(self._list_users_all(), key=lambda t: (t[1], t[0])):
-            if uid < uid_min:
-                continue
+        for name, uid in get_local_users():
             it = QListWidgetItem(f"{name} (uid {uid})")
             it.setData(Qt.ItemDataRole.UserRole, name)
             self.list_users.addItem(it)

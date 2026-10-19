@@ -1,8 +1,11 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QToolButton, QCheckBox, QFileDialog
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QToolButton, QCheckBox, QFileDialog, QScrollArea, QFrame
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont, QTextCursor, QTextCharFormat, QColor, QPalette
 from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale, QPoint
 
 import plugins
+from my_utils import get_local_users
+
+
 
 class SSHSettingsWidget(QWidget):
     def __init__(self, main_window=None):
@@ -31,18 +34,42 @@ class SSHSettingsWidget(QWidget):
         self.loadSavedSettings()
 
     def initUI(self):
-        layout = QVBoxLayout()
+        root_layout = QVBoxLayout(self)
+        root_layout.setContentsMargins(0, 0, 0, 0)
 
+        self.scroll = QScrollArea()
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        root_layout.addWidget(self.scroll)
+
+        content = QWidget()
+        layout = QVBoxLayout(content)
         layout.setContentsMargins(10, 10, 10, 10)
 
-        root_login = QHBoxLayout()
+        key_user_layout = QHBoxLayout()
+        key_user_layout.addWidget(QLabel(self.tr("SSH user")))
+        self.key_user_combo = QComboBox()
+        self.key_user_combo.setMaximumWidth(300)
+        self.key_user_combo.addItem(self.tr("Select a user"), "")
+        for name, uid in get_local_users(min_uid=1000, max_uid=60000):
+            self.key_user_combo.addItem(f"{name} (uid {uid})", name)
+        key_user_layout.addWidget(self.key_user_combo)
+        key_user_layout.addStretch(1)
+        layout.addLayout(key_user_layout)
 
-        self.root_login_check = QCheckBox(self.tr("Deny remote SSH login as root"))
-        root_login.addWidget(self.root_login_check)
+        layout.addWidget(QLabel(self.tr("Public SSH key")))
+        self.key_edit = QTextEdit()
+        self.key_edit.setPlaceholderText(self.tr("Paste your public SSH key here"))
+        self.key_edit.setMaximumHeight(85)
+        layout.addWidget(self.key_edit)
 
-        root_login.addStretch(1)
-
-        layout.addLayout(root_login)
+        key_action_layout = QHBoxLayout()
+        self.btn_add_key = QPushButton(self.tr("Add public key"))
+        self.btn_add_key.setEnabled(False)
+        key_action_layout.addWidget(self.btn_add_key)
+        key_action_layout.addStretch(1)
+        layout.addLayout(key_action_layout)
 
         pubkey_authentication = QHBoxLayout()
 
@@ -52,6 +79,15 @@ class SSHSettingsWidget(QWidget):
         pubkey_authentication.addStretch(1)
 
         layout.addLayout(pubkey_authentication)
+
+        root_login = QHBoxLayout()
+
+        self.root_login_check = QCheckBox(self.tr("Deny remote SSH login as root"))
+        root_login.addWidget(self.root_login_check)
+
+        root_login.addStretch(1)
+
+        layout.addLayout(root_login)
 
         empty_passwords = QHBoxLayout()
 
@@ -180,7 +216,7 @@ class SSHSettingsWidget(QWidget):
 
         layout.addStretch(1)
 
-        self.setLayout(layout)
+        self.scroll.setWidget(content)
 
         self.root_login_check.stateChanged.connect(self.updateApplyButton)
         self.pubkey_authentication_check.stateChanged.connect(self.updateApplyButton)
