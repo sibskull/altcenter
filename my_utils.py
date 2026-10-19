@@ -275,6 +275,48 @@ def check_polkit_enabled() -> bool:
         and check_service_active('polkit'))
 
 
+def get_uid_min():
+    try:
+        with open("/etc/login.defs", "r", encoding="utf-8", errors="ignore") as f:
+            for line in f:
+                s = line.strip()
+                if not s or s.startswith("#"):
+                    continue
+                if s.upper().startswith("UID_MIN"):
+                    parts = s.split()
+                    if len(parts) >= 2 and parts[1].isdigit():
+                        return int(parts[1])
+    except Exception:
+        pass
+    return 1000
+
+
+def get_local_users(min_uid=None, max_uid=None):
+    users = []
+    if min_uid is None:
+        min_uid = get_uid_min()
+    try:
+        with open("/etc/passwd", "r", encoding="utf-8", errors="ignore") as f:
+            for line in f:
+                s = line.strip()
+                if not s or s.startswith("#"):
+                    continue
+                parts = s.split(":")
+                if len(parts) < 7:
+                    continue
+                name = parts[0]
+                try:
+                    uid = int(parts[2])
+                except Exception:
+                    continue
+                if uid < min_uid or (max_uid is not None and uid >= max_uid):
+                    continue
+                users.append((name, uid))
+    except Exception:
+        pass
+    return sorted(users, key=lambda t: (t[1], t[0]))
+
+
 if __name__ == "__main__":
     pass
 
