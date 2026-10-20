@@ -1,3 +1,81 @@
+import base64
+import os
+import pwd
+import stat
+import sys
+
+
+def install_ssh_key(username, key):
+    key = key.strip()
+    parts = key.split()
+    types = ("ssh-ed25519", "ssh-rsa", "ecdsa-sha2-nistp256", "ecdsa-sha2-nistp384", "ecdsa-sha2-nistp521", "sk-ssh-ed25519@openssh.com", "sk-ecdsa-sha2-nistp256@openssh.com")
+    if len(parts) < 2 or parts[0] not in types or len(key) > 16384 or any(ord(char) < 32 for char in key):
+        sys.exit("Invalid public SSH key")
+    try:
+        decoded = base64.b64decode(parts[1], validate=True)
+        length = int.from_bytes(decoded[:4], "big")
+        if length < 1 or length > 100 or decoded[4:4 + length].decode("ascii") != parts[0]:
+            raise ValueError()
+    except (ValueError, UnicodeError):
+        sys.exit("Invalid public SSH key")
+    account = pwd.getpwnam(username)
+    if account.pw_uid < 1000 or account.pw_uid >= 60000 or not os.path.isabs(account.pw_dir) or account.pw_dir == "/":
+        sys.exit("Invalid SSH user")
+    home_fd = os.open(account.pw_dir, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        home_info = os.fstat(home_fd)
+        if home_info.st_uid not in (0, account.pw_uid) or home_info.st_mode & 0o022:
+            sys.exit("Unsafe home directory")
+        try:
+            ssh_fd = os.open(".ssh", os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=home_fd)
+        except FileNotFoundError:
+            os.mkdir(".ssh", 0o700, dir_fd=home_fd)
+            ssh_fd = os.open(".ssh", os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=home_fd)
+            os.fchown(ssh_fd, account.pw_uid, account.pw_gid)
+        try:
+            if os.fstat(ssh_fd).st_uid != account.pw_uid:
+                sys.exit("Unsafe .ssh directory owner")
+            os.fchmod(ssh_fd, 0o700)
+            try:
+                key_fd = os.open("authorized_keys", os.O_RDWR | os.O_APPEND | os.O_NOFOLLOW, dir_fd=ssh_fd)
+            except FileNotFoundError:
+                key_fd = os.open("authorized_keys", os.O_RDWR | os.O_APPEND | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=ssh_fd)
+                os.fchown(key_fd, account.pw_uid, account.pw_gid)
+            try:
+                info = os.fstat(key_fd)
+                if not stat.S_ISREG(info.st_mode) or info.st_uid != account.pw_uid or info.st_nlink != 1:
+                    sys.exit("Unsafe authorized_keys file")
+                os.fchmod(key_fd, 0o600)
+                existing = os.read(key_fd, 4194305)
+                if len(existing) > 4194304:
+                    sys.exit("authorized_keys file is too large")
+                name = parts[0].encode("ascii")
+                data = parts[1].encode("ascii")
+                for line in existing.splitlines():
+                    tokens = line.split()
+                    if any(tokens[index:index + 2] == [name, data] for index in range(len(tokens) - 1)):
+                        print("exists")
+                        sys.exit(0)
+                addition = (b"" if not existing or existing.endswith(b"\n") else b"\n") + key.encode("utf-8") + b"\n"
+                while addition:
+                    addition = addition[os.write(key_fd, addition):]
+                os.fsync(key_fd)
+                print("added")
+            finally:
+                os.close(key_fd)
+        finally:
+            os.close(ssh_fd)
+    finally:
+        os.close(home_fd)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 4 or sys.argv[1] != "--install-ssh-key" or os.geteuid() != 0:
+        sys.exit(2)
+    install_ssh_key(sys.argv[2], sys.argv[3])
+    sys.exit(0)
+
+
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QToolButton, QCheckBox, QFileDialog, QScrollArea, QFrame
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont, QTextCursor, QTextCharFormat, QColor, QPalette
 from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale, QPoint
@@ -14,6 +92,7 @@ class SSHSettingsWidget(QWidget):
         self.main_window = main_window
 
         self.proc_apply = None
+        self.proc_key = None
         self.saved_settings = None
 
         self.root_login_check = None
@@ -68,8 +147,15 @@ class SSHSettingsWidget(QWidget):
         self.btn_add_key = QPushButton(self.tr("Add public key"))
         self.btn_add_key.setEnabled(False)
         key_action_layout.addWidget(self.btn_add_key)
+        self.lbl_key_status = QLabel("")
+        self.lbl_key_status.setWordWrap(True)
+        key_action_layout.addWidget(self.lbl_key_status)
         key_action_layout.addStretch(1)
         layout.addLayout(key_action_layout)
+
+        self.btn_add_key.clicked.connect(self.on_add_key_clicked)
+        self.key_user_combo.currentIndexChanged.connect(self.updateAddKeyButton)
+        self.key_edit.textChanged.connect(self.updateAddKeyButton)
 
         pubkey_authentication = QHBoxLayout()
 
@@ -229,6 +315,73 @@ class SSHSettingsWidget(QWidget):
         self.port_edit.textChanged.connect(self.updateApplyButton)
         self.client_alive_interval_edit.textChanged.connect(self.updateApplyButton)
         self.client_alive_count_max_edit.textChanged.connect(self.updateApplyButton)
+
+    def updateAddKeyButton(self, *args):
+        running = self.proc_key is not None and self.proc_key.state() != QProcess.ProcessState.NotRunning
+        self.btn_add_key.setEnabled(bool(self.key_user_combo.currentData() and self.key_edit.toPlainText().strip()) and not running)
+
+    def on_add_key_clicked(self):
+        if self.proc_key is not None and self.proc_key.state() != QProcess.ProcessState.NotRunning:
+            return
+
+        username = self.key_user_combo.currentData()
+        key = self.key_edit.toPlainText().strip()
+        parts = key.split()
+        types = ("ssh-ed25519", "ssh-rsa", "ecdsa-sha2-nistp256", "ecdsa-sha2-nistp384", "ecdsa-sha2-nistp521", "sk-ssh-ed25519@openssh.com", "sk-ecdsa-sha2-nistp256@openssh.com")
+        if not username or len(parts) < 2 or parts[0] not in types or len(key) > 16384 or any(ord(char) < 32 for char in key):
+            self.lbl_key_status.setText(self.tr("Invalid SSH public key or user."))
+            return
+        try:
+            decoded = base64.b64decode(parts[1], validate=True)
+            length = int.from_bytes(decoded[:4], "big")
+            if length < 1 or length > 100 or decoded[4:4 + length].decode("ascii") != parts[0]:
+                raise ValueError()
+        except (ValueError, UnicodeError):
+            self.lbl_key_status.setText(self.tr("Invalid SSH public key or user."))
+            return
+
+        self.lbl_key_status.setText(self.tr("Adding SSH key..."))
+        self.btn_add_key.setEnabled(False)
+        self.key_user_combo.setEnabled(False)
+        self.key_edit.setEnabled(False)
+        self.proc_key = QProcess(self)
+        self.proc_key.setProcessEnvironment(QProcessEnvironment.systemEnvironment())
+        self.proc_key.finished.connect(self.on_add_key_finished)
+        self.proc_key.errorOccurred.connect(self.on_add_key_error)
+        self.proc_key.start("pkexec", ["/usr/bin/python3", os.path.realpath(__file__), "--install-ssh-key", username, key])
+
+    def on_add_key_error(self, error):
+        if self.proc_key is not None and self.proc_key.state() == QProcess.ProcessState.NotRunning:
+            self.lbl_key_status.setText(self.tr("Failed to start the privileged process."))
+            self.key_user_combo.setEnabled(True)
+            self.key_edit.setEnabled(True)
+            self.updateAddKeyButton()
+
+    def on_add_key_finished(self, exit_code, exit_status):
+        output = self.proc_key.readAllStandardOutput().data().decode("utf-8", errors="replace").strip()
+        error = self.proc_key.readAllStandardError().data().decode("utf-8", errors="replace").strip()
+        self.key_user_combo.setEnabled(True)
+        self.key_edit.setEnabled(True)
+
+        if exit_code == 0 and exit_status == QProcess.ExitStatus.NormalExit:
+            if output == "exists":
+                self.lbl_key_status.setText(self.tr("This public key is already installed."))
+            else:
+                self.lbl_key_status.setText(self.tr("Public SSH key added."))
+                self.key_edit.clear()
+        else:
+            errors = {
+                "Invalid public SSH key": self.tr("Invalid public SSH key"),
+                "Invalid SSH user": self.tr("Invalid SSH user"),
+                "Unsafe home directory": self.tr("Unsafe home directory"),
+                "Unsafe .ssh directory owner": self.tr("Unsafe .ssh directory owner"),
+                "Unsafe authorized_keys file": self.tr("Unsafe authorized_keys file"),
+                "authorized_keys file is too large": self.tr("authorized_keys file is too large")
+            }
+            self.lbl_key_status.setText(errors.get(error, error or self.tr("Failed to add the public SSH key.")))
+        self.proc_key.deleteLater()
+        self.proc_key = None
+        self.updateAddKeyButton()
 
     def readSshdParameter(self, name):
         path = "/tmp/altcenter_sshd_config"
