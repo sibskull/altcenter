@@ -26,6 +26,7 @@ class SettingsWidget(QWidget):
         super().__init__()
         self.current_language = 'ru'
         self.is_expert_mode = False
+        self.altha_process = QProcess(self)
         # Инициализируем виджеты
         self.init_widgets()
         self.initUI()
@@ -331,10 +332,11 @@ class SettingsWidget(QWidget):
                 "secsetup"
             ])
 
-            QProcess.startDetached(
-                "/usr/bin/pkexec",
-                ["/usr/bin/env"] + args
-            )
+            if self.altha_process.state() == QProcess.ProcessState.NotRunning:
+                self.altha_process.start(
+                    "/usr/bin/pkexec",
+                    ["/usr/bin/env"] + args
+                )
             return
 
         QMessageBox.information(
