@@ -3,6 +3,7 @@ import os
 import pwd
 import stat
 import sys
+import shlex
 
 
 def install_ssh_key(username, key):
@@ -400,6 +401,9 @@ class SSHSettingsWidget(QWidget):
 
             parts = line.split(None, 1)
 
+            if parts[0].lower() == "match":
+                break
+
             if len(parts) != 2:
                 continue
 
@@ -431,6 +435,9 @@ class SSHSettingsWidget(QWidget):
                 continue
 
             parts = line.split(None, 1)
+
+            if parts[0].lower() == "match":
+                break
 
             if len(parts) != 2:
                 continue
@@ -616,49 +623,55 @@ class SSHSettingsWidget(QWidget):
         self.lbl_status.setText("")
         self.btn_apply.setEnabled(False)
 
-        cmd = (
-            "conf=$(test -f /etc/openssh/sshd_config && echo /etc/openssh/sshd_config || echo /etc/ssh/sshd_config); "
-            "cp -a \"$conf\" \"$conf.altcenter.bak\"; "
-            "sed -i -E '/^[[:space:]]*#?[[:space:]]*PermitRootLogin([[:space:]]+|$)/Id' \"$conf\"; "
-            f"echo 'PermitRootLogin {value}' >> \"$conf\"; "
-            "sed -i -E '/^[[:space:]]*#?[[:space:]]*PubkeyAuthentication([[:space:]]+|$)/Id' \"$conf\"; "
-            f"echo 'PubkeyAuthentication {pubkey_authentication}' >> \"$conf\"; "
-            "sed -i -E '/^[[:space:]]*#?[[:space:]]*PermitEmptyPasswords([[:space:]]+|$)/Id' \"$conf\"; "
-            f"echo 'PermitEmptyPasswords {empty_passwords}' >> \"$conf\"; "
-            "sed -i -E '/^[[:space:]]*#?[[:space:]]*HostbasedAuthentication([[:space:]]+|$)/Id' \"$conf\"; "
-            f"echo 'HostbasedAuthentication {hostbased_authentication}' >> \"$conf\"; "
-            "sed -i -E '/^[[:space:]]*#?[[:space:]]*IgnoreRhosts([[:space:]]+|$)/Id' \"$conf\"; "
-            f"echo 'IgnoreRhosts {ignore_rhosts}' >> \"$conf\"; "
-            "sed -i -E '/^[[:space:]]*#?[[:space:]]*Protocol([[:space:]]+|$)/Id' \"$conf\"; "
-        )
+        updates = [
+            f"PermitRootLogin {value}",
+            f"PubkeyAuthentication {pubkey_authentication}",
+            f"PermitEmptyPasswords {empty_passwords}",
+            f"HostbasedAuthentication {hostbased_authentication}",
+            f"IgnoreRhosts {ignore_rhosts}"
+        ]
 
         if self.protocol_check.isChecked():
-            cmd += "echo 'Protocol 2' >> \"$conf\"; "
-
-        cmd += (
-            "sed -i -E '/^[[:space:]]*#?[[:space:]]*AllowUsers([[:space:]]+|$)/Id' \"$conf\"; "
-        )
+            updates.append("Protocol 2")
 
         if allow_users:
-            cmd += f"echo 'AllowUsers {allow_users}' >> \"$conf\"; "
-
-        cmd += (
-            "sed -i -E '/^[[:space:]]*#?[[:space:]]*AllowGroups([[:space:]]+|$)/Id' \"$conf\"; "
-        )
+            updates.append(f"AllowUsers {allow_users}")
 
         if allow_groups:
-            cmd += f"echo 'AllowGroups {allow_groups}' >> \"$conf\"; "
+            updates.append(f"AllowGroups {allow_groups}")
 
-        cmd += (
-            "sed -i -E '/^[[:space:]]*#?[[:space:]]*Port([[:space:]]+|$)/Id' \"$conf\"; "
-            f"echo 'Port {port}' >> \"$conf\"; "
-            "sed -i -E '/^[[:space:]]*#?[[:space:]]*ClientAliveInterval([[:space:]]+|$)/Id' \"$conf\"; "
-            f"echo 'ClientAliveInterval {client_alive_interval}' >> \"$conf\"; "
-            "sed -i -E '/^[[:space:]]*#?[[:space:]]*ClientAliveCountMax([[:space:]]+|$)/Id' \"$conf\"; "
-            f"echo 'ClientAliveCountMax {client_alive_count_max}' >> \"$conf\"; "
-            "chown root:root \"$conf\"; "
-            "chmod 644 \"$conf\"; "
-            "if ! sshd -t -f \"$conf\"; then cp -a \"$conf.altcenter.bak\" \"$conf\"; exit 1; fi; "
+        updates.extend([
+            f"Port {port}",
+            f"ClientAliveInterval {client_alive_interval}",
+            f"ClientAliveCountMax {client_alive_count_max}"
+        ])
+
+        cmd = (
+            "set -e; "
+            "conf=$(test -f /etc/openssh/sshd_config && echo /etc/openssh/sshd_config || echo /etc/ssh/sshd_config); "
+            "tmp=$(mktemp \"${conf}.altcenter.XXXXXX\"); "
+            "trap 'rm -f \"$tmp\"' EXIT; "
+            "awk -v updates=" + shlex.quote("\n".join(updates)) + " '"
+            "{ "
+            "line = $0; sub(/^[[:space:]]*/, \"\", line); "
+            "split(line, parts, /[[:space:]]+/); "
+            "keyword = tolower(parts[1]); "
+            "if (!inserted && line != \"\" && substr(line, 1, 1) != \"#\") { print updates; inserted = 1; } "
+            "if (keyword == \"match\") in_match = 1; "
+            "if (!in_match && (keyword == \"permitrootlogin\" || keyword == \"pubkeyauthentication\" || "
+            "keyword == \"permitemptypasswords\" || keyword == \"hostbasedauthentication\" || "
+            "keyword == \"ignorerhosts\" || keyword == \"protocol\" || "
+            "keyword == \"allowusers\" || keyword == \"allowgroups\" || "
+            "keyword == \"port\" || keyword == \"clientaliveinterval\" || "
+            "keyword == \"clientalivecountmax\")) next; "
+            "print; "
+            "} "
+            "END { if (!inserted) print updates; }"
+            "' \"$conf\" > \"$tmp\"; "
+            "chown root:root \"$tmp\"; "
+            "chmod 644 \"$tmp\"; "
+            "sshd -t -f \"$tmp\"; "
+            "mv -f \"$tmp\" \"$conf\"; "
             "cp \"$conf\" /tmp/altcenter_sshd_config && "
             "chmod 644 /tmp/altcenter_sshd_config && "
             "(systemctl reload sshd || systemctl reload ssh || systemctl restart sshd || systemctl restart ssh)"
