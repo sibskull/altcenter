@@ -77,7 +77,7 @@ if __name__ == "__main__":
     sys.exit(0)
 
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QToolButton, QCheckBox, QFileDialog, QScrollArea, QFrame
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QToolButton, QCheckBox, QFileDialog, QScrollArea, QFrame, QSizePolicy
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont, QTextCursor, QTextCharFormat, QColor, QPalette
 from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale, QPoint
 
@@ -295,7 +295,10 @@ class SSHSettingsWidget(QWidget):
 
         self.lbl_status = QLabel("")
         self.lbl_status.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        apply_layout.addWidget(self.lbl_status)
+        self.lbl_status.setWordWrap(True)
+        self.lbl_status.setMinimumWidth(0)
+        self.lbl_status.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        apply_layout.addWidget(self.lbl_status, 1)
 
         apply_layout.addStretch(1)
 
