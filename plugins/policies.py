@@ -4,6 +4,7 @@ import plugins
 import os
 import json
 import subprocess
+import shlex
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont, QPalette
 from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale
@@ -150,6 +151,8 @@ class PoliciesWindow(QWidget):
         return None
 
     def isPolicyAvailable(self, pid):
+        if pid == "no-username-autocomplete" and self.active_dm == "gdm":
+            return False
         package = self.policyRequiredPackage(pid)
         if not package:
             return True
@@ -171,6 +174,8 @@ class PoliciesWindow(QWidget):
         return self._package_states[package]
 
     def unavailablePolicyText(self, pid):
+        if pid == "no-username-autocomplete" and self.active_dm == "gdm":
+            return self.tr("This policy is not supported by GDM.")
         package = self.policyRequiredPackage(pid)
         if not package:
             return ""
@@ -226,24 +231,51 @@ class PoliciesWindow(QWidget):
         self.onItemClicked(current)
 
     def expectedFiles(self, pid):
-        base = "50-altcenter-" + str(pid)
-        return [
-            "/etc/lightdm/lightdm.conf.d/" + base + ".conf",
-            "/etc/sddm.conf.d/" + base + ".conf",
-            "/etc/dconf/db/gdm.d/" + base,
-        ]
+        return ["/var/lib/altcenter/policies/states.json"]
+
+    def readPolicyStates(self, strict=False):
+        try:
+            with open(self.expectedFiles("")[0], "r", encoding="utf-8") as f:
+                states = json.load(f)
+            if not isinstance(states, dict):
+                raise ValueError("Invalid policy state file")
+            return states
+        except FileNotFoundError:
+            return {}
+        except (OSError, ValueError):
+            if strict:
+                raise
+            return {}
 
     def policyEnabledFromFiles(self, pid):
-        return any(os.path.exists(p) for p in self.expectedFiles(pid))
+        states = self.readPolicyStates()
+        saved_dm = states.get("__display_manager")
+        if saved_dm and self.active_dm != "any" and saved_dm != self.active_dm:
+            if self.policyUsesDisplayManager(pid):
+                return False
+        return bool(states.get(pid, False))
 
-    def syncStatesFromFiles(self):
+    def policyUsesDisplayManager(self, pid):
+        item = self.getItem(pid)
+        if not item:
+            return False
+        configurations = []
+        for dm in ("gdm", "lightdm", "sddm"):
+            commands = []
+            for mode in ("apply", "revert"):
+                commands.append(tuple(tuple(step.get("run", [])) for step in item.get(mode, []) if step.get("dm", "any") in ("any", dm)))
+            configurations.append(tuple(commands))
+        return len(set(configurations)) > 1
+
+    def syncStatesFromFiles(self, preserve_pending=False):
         for item in self._items:
             pid = item.get("id")
             if self.isImmutablePolicy(pid):
                 exists = True
             else:
                 exists = self.policyEnabledFromFiles(pid)
-            self._desired_states[pid] = exists
+            if not preserve_pending or pid not in self._desired_states:
+                self._desired_states[pid] = exists
             self._last_states[pid] = exists
         self._baseline_ready = True
         self.updateVisibleChecksFromStates()
@@ -481,19 +513,38 @@ class PoliciesWindow(QWidget):
         p.setProgram("pkexec")
         p.setArguments(args)
         p.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
+        completed = [False]
+
         def _finished(code, status, msgs=messages, proc=p):
-            if code == 0:
-                if msgs:
-                    for t, s in msgs:
-                        self.appendLog(t + " - " + s)
-                self.syncStatesFromFiles()
-            else:
-                self.appendLog(self.tr("Policies are not activated; authenticate to apply policies"))
+            if completed[0]:
+                return
+            completed[0] = True
+            output = bytes(proc.readAll()).decode("utf-8", errors="replace").strip()
+            succeeded = code == 0 and status == QProcess.ExitStatus.NormalExit
+            states = self.readPolicyStates()
+            if msgs:
+                for pid, title, mode, desired in msgs:
+                    if succeeded or bool(states.get(pid, False)) == desired:
+                        self.appendLog(title + " - " + mode)
+            if not succeeded:
+                if output:
+                    self.appendLog(output)
+                else:
+                    self.appendLog(self.tr("Policies are not activated; authenticate to apply policies"))
+                self.appendLog(self.tr("Policy changes may be partially applied. Check the system configuration."))
+            self.syncStatesFromFiles(preserve_pending=not succeeded)
             self.setApplyInProgress(False)
             self.appendLog("")
             if proc in self.procs:
                 self.procs.remove(proc)
+            proc.deleteLater()
+
+        def _error(error):
+            if error == QProcess.ProcessError.FailedToStart:
+                _finished(-1, QProcess.ExitStatus.CrashExit)
+
         p.finished.connect(_finished)
+        p.errorOccurred.connect(_error)
         self.procs.append(p)
         p.start()
 
@@ -501,6 +552,94 @@ class PoliciesWindow(QWidget):
         program = args[0]
         arguments = args[1:] if len(args) > 1 else []
         QProcess.startDetached(program, arguments)
+
+    def cleanupLegacyPolicyMarkers(self):
+        return (
+            "set -e\n"
+            "gdm_changed=0\n"
+            "for dir in /etc/dconf/db/gdm.d /etc/lightdm/lightdm.conf.d /etc/sddm.conf.d; do\n"
+            "    [ -d \"$dir\" ] || continue\n"
+            "    for file in \"$dir\"/50-altcenter-*; do\n"
+            "        [ -f \"$file\" ] && [ ! -L \"$file\" ] || continue\n"
+            "        if [ \"$file\" = /etc/lightdm/lightdm.conf.d/50-altcenter-grub-hide-boot-menu.conf ] && [ ! -s \"$file\" ]; then\n"
+            "            rm -f \"$file\"\n"
+            "            continue\n"
+            "        fi\n"
+            "        if [ \"$file\" = /etc/lightdm/lightdm.conf.d/50-altcenter-no-username-autocomplete.conf ] && [ \"$(cat \"$file\")\" = \"enter-username=false\" ]; then\n"
+            "            rm -f \"$file\"\n"
+            "            continue\n"
+            "        fi\n"
+            "        name=${file##*/}\n"
+            "        name=${name%.conf}\n"
+            "        id=${name#50-altcenter-}\n"
+            "        case \"$id\" in ''|*[!a-z0-9-]*) continue ;; esac\n"
+            "        if awk -v id=\"$id\" '\n"
+            "            BEGIN { valid=1; markers=0; uids=0 }\n"
+            "            /^[[:space:]]*$/ { next }\n"
+            "            $0 == \"policy:\" id { markers++; next }\n"
+            "            id == \"deny-system-accounts\" && /^UID_MIN=[0-9]+$/ { uids++; next }\n"
+            "            { valid=0 }\n"
+            "            END { exit !(valid && markers == 1 && uids <= 1) }\n"
+            "        ' \"$file\"; then\n"
+            "            rm -f \"$file\"\n"
+            "            if [ \"$dir\" = /etc/dconf/db/gdm.d ]; then gdm_changed=1; fi\n"
+            "        elif awk -v id=\"$id\" '\n"
+            "            NR == 1 { marker=($0 == \"policy:\" id); next }\n"
+            "            NR == 2 {\n"
+            "                if (id == \"deny-system-accounts\" && $0 ~ /^UID_MIN=[0-9]+$/) uid=1\n"
+            "                else if (length($0) >= 3 && substr($0, 1, 1) == \"[\" && substr($0, length($0), 1) == \"]\") group=1\n"
+            "                next\n"
+            "            }\n"
+            "            NR == 3 && uid && length($0) >= 3 && substr($0, 1, 1) == \"[\" && substr($0, length($0), 1) == \"]\" { group=1 }\n"
+            "            END { exit !(marker && group) }\n"
+            "        ' \"$file\"; then\n"
+            "            if [ \"$id\" = deny-system-accounts ] && sed -n '2p' \"$file\" | grep -Eq '^UID_MIN=[0-9]+$'; then\n"
+            "                sed -i '1,2d' \"$file\"\n"
+            "            else\n"
+            "                sed -i '1d' \"$file\"\n"
+            "            fi\n"
+            "            if [ \"$dir\" = /etc/dconf/db/gdm.d ]; then gdm_changed=1; fi\n"
+            "        fi\n"
+            "    done\n"
+            "done\n"
+            "if [ \"$gdm_changed\" -eq 1 ]; then\n"
+            "    if command -v dconf >/dev/null 2>&1; then\n"
+            "        dconf update\n"
+            "    elif [ " + shlex.quote(self.active_dm) + " = gdm ]; then\n"
+            "        echo 'dconf command not found' >&2\n"
+            "        exit 1\n"
+            "    fi\n"
+            "fi"
+        )
+
+    def buildPolicyScript(self, pid, commands, dconf_required, state_data):
+        state_path = self.expectedFiles("")[0]
+        state_dir = os.path.dirname(state_path)
+        script = [
+            "set -e",
+            "umask 022",
+            "state_tmp=''",
+            "trap 'if [ -n \"$state_tmp\" ]; then rm -f \"$state_tmp\"; fi' EXIT",
+            "mkdir -p -m 755 " + shlex.quote(state_dir)
+        ]
+        for command in commands:
+            script.append("sh -ec " + shlex.quote(command))
+        if dconf_required:
+            if self.active_dm == "gdm":
+                script.append("command -v dconf >/dev/null 2>&1 || { echo 'dconf command not found' >&2; exit 1; }")
+                script.append("dconf update")
+            else:
+                script.append("if command -v dconf >/dev/null 2>&1; then dconf update; fi")
+        script.extend((
+            "chown root:root " + shlex.quote(state_dir),
+            "chmod 755 " + shlex.quote(state_dir),
+            "state_tmp=$(mktemp " + shlex.quote(state_dir + "/.states.XXXXXXXX") + ")",
+            "printf '%s\\n' " + shlex.quote(state_data) + " > \"$state_tmp\"",
+            "chmod 644 \"$state_tmp\"",
+            "mv -f \"$state_tmp\" " + shlex.quote(state_path),
+            "state_tmp=''"
+        ))
+        return "; ".join(script)
 
     def applySelected(self):
         if self._apply_in_progress:
@@ -512,61 +651,71 @@ class PoliciesWindow(QWidget):
             self.btn_toggle_console.click()
 
         dm = self.active_dm
-        root_pieces = []
-        titles_root = []
-
+        changes = []
         for item in self._items:
             pid = item.get("id")
-
-            if not self.isPolicyVisible(pid):
+            if not self.isPolicyVisible(pid) or not self.isPolicyAvailable(pid):
                 continue
-
-            if not self.isPolicyAvailable(pid):
-                continue
-
             if self.isImmutablePolicy(pid):
                 self._desired_states[pid] = True
                 self._last_states[pid] = True
                 continue
-
-            cur_checked = self._desired_states.get(pid, False)
-            prev_checked = self._last_states.get(pid, False)
-            should_process = (cur_checked != prev_checked)
-            if not should_process:
+            desired = self._desired_states.get(pid, False)
+            if desired == self._last_states.get(pid, False):
                 continue
-
-            title = self.loc(item, "title") or self.tr("Policy")
-            mode = "apply" if cur_checked else "revert"
-            status = self.tr("activated") if mode == "apply" else self.tr("deactivated")
-            added = False
-
+            mode = "apply" if desired else "revert"
+            status = self.tr("activated") if desired else self.tr("deactivated")
+            commands = []
+            dconf_required = False
             for step in item.get(mode, []):
                 if step.get("type") != "cmd":
                     continue
                 step_dm = step.get("dm", "any")
-                if step_dm != "any" and step_dm != dm:
+                if step_dm not in ("any", dm):
                     continue
                 args = step.get("run", [])
                 if not args:
                     continue
                 if len(args) >= 3 and args[0] == "/bin/sh" and args[1] == "-c":
-                    root_pieces.append(args[2])
+                    command = args[2]
                 else:
-                    root_pieces.append(" ".join(args))
-                added = True
+                    command = " ".join(shlex.quote(part) for part in args)
+                commands.append(command)
+                if "/etc/dconf/db/" in command:
+                    dconf_required = True
+            if commands:
+                changes.append((pid, self.loc(item, "title") or self.tr("Policy"), status, desired, commands, dconf_required))
 
-            if added:
-                titles_root.append((title, status))
-
-        if root_pieces:
-            self.apply_counter += 1
-            summary = str(self.apply_counter) + " " + self.tr("apply")
-            self.appendLog(summary)
-            script = "set -e; " + " && ".join(root_pieces)
-            self.setApplyInProgress(True)
-            self.runRoot(["/bin/sh", "-c", script], titles_root)
-        else:
+        if not changes:
             self.syncStatesFromFiles()
+            return
+        try:
+            states = self.readPolicyStates(strict=True)
+        except (OSError, ValueError) as e:
+            self.appendLog(str(e))
+            self.refreshApplyButton()
+            return
+        saved_dm = states.get("__display_manager")
+        if saved_dm and dm != "any" and saved_dm != dm:
+            for item in self._items:
+                pid = item.get("id")
+                if self.policyUsesDisplayManager(pid):
+                    states[pid] = False
+        if dm != "any":
+            states["__display_manager"] = dm
+        scripts = []
+        messages = []
+        for pid, title, status, desired, commands, dconf_required in changes:
+            states[pid] = desired
+            state_data = json.dumps(states, ensure_ascii=False, sort_keys=True)
+            script = self.buildPolicyScript(pid, commands, dconf_required, state_data)
+            scripts.append("sh -ec " + shlex.quote(script))
+            messages.append((pid, title, status, desired))
+        self.apply_counter += 1
+        self.appendLog(str(self.apply_counter) + " " + self.tr("apply"))
+        self.setApplyInProgress(True)
+        cleanup = "sh -ec " + shlex.quote(self.cleanupLegacyPolicyMarkers())
+        self.runRoot(["/bin/sh", "-c", "set -e; " + " && ".join([cleanup] + scripts)], messages)
 
     def getReportData(self):
         result = []
