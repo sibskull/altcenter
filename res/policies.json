@@ -253,27 +253,6 @@
       ]
     },
     {
-      "id": "deny-root-ssh-login",
-      "title": "Запрет удалённого входа по SSH от имени root",
-      "title_en": "Disallow remote SSH access as root",
-      "section": "Настройка авторизации",
-      "subsection": "Настройка параметров политики удаленного доступа",
-      "scope": "system",
-      "dm": "any",
-      "description": "Запрещает удаленный вход по SSH с правами root через параметр PermitRootLogin no.",
-      "description_en": "Disallows remote SSH login as root by setting PermitRootLogin no.",
-      "apply": [
-        {"type":"cmd","dm":"any","run":["/bin/sh","-c",":"]},
-        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; [ -f /etc/openssh/sshd_config ] || exit 1; grep -qE '^[[:space:]]*PermitRootLogin[[:space:]]+' /etc/openssh/sshd_config && sed -ri 's|^[[:space:]]*#?[[:space:]]*PermitRootLogin[[:space:]]+.*|PermitRootLogin no|' /etc/openssh/sshd_config || printf '\\nPermitRootLogin no\\n' >> /etc/openssh/sshd_config"]},
-        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; systemctl reload sshd.service 2>/dev/null || systemctl restart sshd.service 2>/dev/null || service sshd reload 2>/dev/null || service sshd restart 2>/dev/null || true"]}
-      ],
-      "revert": [
-        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; sed -ri '/^[[:space:]]*#?[[:space:]]*PermitRootLogin[[:space:]]+/d' /etc/openssh/sshd_config 2>/dev/null || true"]},
-        {"type":"cmd","dm":"any","run":["/bin/sh","-c",":"]},
-        {"type":"cmd","dm":"any","run":["/bin/sh","-c","set -e; systemctl reload sshd.service 2>/dev/null || systemctl restart sshd.service 2>/dev/null || service sshd reload 2>/dev/null || service sshd restart 2>/dev/null || true"]}
-      ]
-    },
-    {
       "id": "deny-removable-mount",
       "title": "Запрет монтирования съёмных носителей",
       "title_en": "Disallow mounting removable media",
