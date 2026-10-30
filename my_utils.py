@@ -60,10 +60,10 @@ def get_de_info_from_inxi():
             de_version = match.group(2)
             return de_name, de_version
         else:
-            return "Not detected", None
+            return "Not detected", ""
 
     except Exception as e:
-        return "Not detected", None
+        return "Not detected", ""
 
 
 def get_cpu_info_from_proc(file_name = '/proc/cpuinfo'):
