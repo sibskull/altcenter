@@ -1905,7 +1905,7 @@ Please try again later</source>
     <message>
         <location filename="plugins/report.py" line="156"/>
         <source>Report</source>
-        <translation>Отчет</translation>
+        <translation>Отчёт</translation>
     </message>
 </context>
 <context>
@@ -2000,22 +2000,22 @@ Please try again later</source>
     <message>
         <location filename="plugins/report.py" line="25"/>
         <source>Create report</source>
-        <translation>Создать отчет</translation>
+        <translation>Создать отчёт</translation>
     </message>
     <message>
         <location filename="plugins/report.py" line="33"/>
         <source>Save report</source>
-        <translation>Сохранить отчет</translation>
+        <translation>Сохранить отчёт</translation>
     </message>
     <message>
         <location filename="plugins/report.py" line="66"/>
         <source>Report</source>
-        <translation>Отчет</translation>
+        <translation>Отчёт</translation>
     </message>
     <message>
         <location filename="plugins/report.py" line="66"/>
         <source>Report saved</source>
-        <translation>Отчет сохранен</translation>
+        <translation>Отчёт сохранен</translation>
     </message>
     <message>
         <location filename="plugins/report.py" line="19"/>
