@@ -309,7 +309,7 @@ def get_local_users(min_uid=None, max_uid=None):
                     uid = int(parts[2])
                 except Exception:
                     continue
-                if uid < min_uid or (max_uid is not None and uid >= max_uid):
+                if name == "nobody" or uid == 65534 or uid < min_uid or (max_uid is not None and uid >= max_uid):
                     continue
                 users.append((name, uid))
     except Exception:

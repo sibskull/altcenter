@@ -211,7 +211,7 @@ class PasswordWidget(QWidget):
                 for line in stream:
                     fields = line.strip().split(":")
                     if len(fields) >= 3 and fields[2].isdigit():
-                        if int(fields[2]) >= gid_min:
+                        if fields[0] != "nobody" and int(fields[2]) != 65534 and int(fields[2]) >= gid_min:
                             groups.append((fields[0], int(fields[2])))
 
             for name, gid in sorted(groups, key=lambda group: (group[1], group[0])):
@@ -416,7 +416,7 @@ class PasswordWidget(QWidget):
         return bool(re.match(r"^password\s+required\s+pam_tcb\.so\s+use_authtok(?:\s|$)", line))
 
     def _valid_group_name(self, name):
-        return bool(re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]*", name))
+        return name != "nobody" and bool(re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]*", name))
 
     def _passwdqc_profile(self, text):
         lines = [line for line in text.splitlines() if re.match(r"^\s*min\s*=", line)]

@@ -144,6 +144,11 @@ class ChangePassword(QWidget):
         if not users:
             return
 
+        allowed_users = {name for name, uid in get_local_users()}
+        if any(user not in allowed_users for user in users):
+            QMessageBox.critical(self, self.tr("Error"), self.tr("Failed to set password."))
+            return
+
         pwd = self.ed_new.text()
 
         if not pwd:
