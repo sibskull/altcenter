@@ -188,22 +188,22 @@
         <translation>Скрыть</translation>
     </message>
     <message>
-        <location filename="plugins/change_password.py" line="171"/>
+        <location filename="plugins/change_password.py" line="176"/>
         <source>Error</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="plugins/change_password.py" line="166"/>
+        <location filename="plugins/change_password.py" line="171"/>
         <source>Failed to set password.</source>
         <translation>Не удалось установить пароль.</translation>
     </message>
     <message>
-        <location filename="plugins/change_password.py" line="169"/>
+        <location filename="plugins/change_password.py" line="174"/>
         <source>Done</source>
         <translation>Готово</translation>
     </message>
     <message>
-        <location filename="plugins/change_password.py" line="169"/>
+        <location filename="plugins/change_password.py" line="174"/>
         <source>The password has been changed</source>
         <translation>Пароль успешно изменён</translation>
     </message>
@@ -211,7 +211,7 @@
 <context>
     <name>ChangePasswordPlugin</name>
     <message>
-        <location filename="plugins/change_password.py" line="179"/>
+        <location filename="plugins/change_password.py" line="184"/>
         <source>Change password</source>
         <translation>Смена пароля</translation>
     </message>
@@ -1895,7 +1895,7 @@ Please try again later</source>
 <context>
     <name>PluginPolicies</name>
     <message>
-        <location filename="plugins/policies.py" line="595"/>
+        <location filename="plugins/policies.py" line="743"/>
         <source>Policy</source>
         <translation>Политики</translation>
     </message>
@@ -1911,7 +1911,7 @@ Please try again later</source>
 <context>
     <name>PluginSSHSettings</name>
     <message>
-        <location filename="plugins/ssh_settings.py" line="698"/>
+        <location filename="plugins/ssh_settings.py" line="714"/>
         <source>SSH settings</source>
         <translation>Настройка SSH</translation>
     </message>
@@ -1919,7 +1919,7 @@ Please try again later</source>
 <context>
     <name>PluginSettings</name>
     <message>
-        <location filename="plugins/settings.py" line="412"/>
+        <location filename="plugins/settings.py" line="414"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
@@ -1935,47 +1935,47 @@ Please try again later</source>
 <context>
     <name>PoliciesWindow</name>
     <message>
-        <location filename="plugins/policies.py" line="28"/>
+        <location filename="plugins/policies.py" line="29"/>
         <source>Search</source>
         <translation>Поиск</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="428"/>
+        <location filename="plugins/policies.py" line="459"/>
         <source>Show console</source>
         <translation>Показать консоль</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="51"/>
+        <location filename="plugins/policies.py" line="52"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="426"/>
+        <location filename="plugins/policies.py" line="457"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="491"/>
+        <location filename="plugins/policies.py" line="532"/>
         <source>Policies are not activated; authenticate to apply policies</source>
         <translation>Политики не активированы, авторизуйтесь чтобы применить политики</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="538"/>
+        <location filename="plugins/policies.py" line="686"/>
         <source>Policy</source>
         <translation>Политики</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="540"/>
+        <location filename="plugins/policies.py" line="666"/>
         <source>activated</source>
         <translation>активировано</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="540"/>
+        <location filename="plugins/policies.py" line="666"/>
         <source>deactivated</source>
         <translation>деактивировано</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="563"/>
+        <location filename="plugins/policies.py" line="714"/>
         <source>apply</source>
         <translation>применение</translation>
     </message>
@@ -1985,14 +1985,19 @@ Please try again later</source>
         <translation type="obsolete">изменений нет</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="206"/>
+        <location filename="plugins/policies.py" line="210"/>
         <source>Implemented by default and cannot be changed</source>
         <translation>Реализовано по умолчанию и не подлежит изменению</translation>
     </message>
     <message>
-        <location filename="plugins/policies.py" line="60"/>
+        <location filename="plugins/policies.py" line="61"/>
         <source>All changes made while applying policies will be shown here.</source>
         <translation>Здесь будут показаны все изменения, выполняемые при применении политик.</translation>
+    </message>
+    <message>
+        <location filename="plugins/policies.py" line="533"/>
+        <source>Policy changes may be partially applied. Check the system configuration.</source>
+        <translation>Изменения политики могут быть применены частично. Проверьте конфигурацию системы.</translation>
     </message>
 </context>
 <context>
@@ -2026,82 +2031,82 @@ Please try again later</source>
 <context>
     <name>SSHSettingsWidget</name>
     <message>
-        <location filename="plugins/ssh_settings.py" line="171"/>
+        <location filename="plugins/ssh_settings.py" line="172"/>
         <source>Deny remote SSH login as root</source>
         <translation>Запретить удалённый вход по SSH под пользователем root</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="291"/>
+        <location filename="plugins/ssh_settings.py" line="292"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="680"/>
+        <location filename="plugins/ssh_settings.py" line="696"/>
         <source>Done</source>
         <translation>Готово</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="687"/>
+        <location filename="plugins/ssh_settings.py" line="703"/>
         <source>Failed</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="252"/>
+        <location filename="plugins/ssh_settings.py" line="253"/>
         <source>SSH port</source>
         <translation>Порт SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="265"/>
+        <location filename="plugins/ssh_settings.py" line="266"/>
         <source>SSH inactivity timeout, sec.</source>
         <translation>Таймаут неактивности SSH, сек.</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="278"/>
+        <location filename="plugins/ssh_settings.py" line="279"/>
         <source>SSH alive check count</source>
         <translation>Количество проверок активности SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="595"/>
+        <location filename="plugins/ssh_settings.py" line="605"/>
         <source>Invalid SSH port</source>
         <translation>Неверный порт SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="604"/>
+        <location filename="plugins/ssh_settings.py" line="614"/>
         <source>Invalid SSH session timeout</source>
         <translation>Неверный таймаут SSH-сессии</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="613"/>
+        <location filename="plugins/ssh_settings.py" line="623"/>
         <source>Invalid SSH alive check count</source>
         <translation>Неверное количество проверок активности SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="180"/>
+        <location filename="plugins/ssh_settings.py" line="181"/>
         <source>Deny SSH login with empty passwords</source>
         <translation>Запретить вход по SSH с пустым паролем</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="189"/>
+        <location filename="plugins/ssh_settings.py" line="190"/>
         <source>Disable SSH host-based authentication</source>
         <translation>Отключить аутентификацию SSH по доверенным хостам</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="198"/>
+        <location filename="plugins/ssh_settings.py" line="199"/>
         <source>Ignore .rhosts and .shosts files</source>
         <translation>Игнорировать файлы .rhosts и .shosts</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="219"/>
+        <location filename="plugins/ssh_settings.py" line="220"/>
         <source>Users and groups are separated by spaces, for example: user1 user2</source>
         <translation>Пользователи и группы указываются через пробел, например: user1 user2</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="226"/>
+        <location filename="plugins/ssh_settings.py" line="227"/>
         <source>Allowed SSH users</source>
         <translation>Пользователи, которым разрешён вход по SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="239"/>
+        <location filename="plugins/ssh_settings.py" line="240"/>
         <source>Allowed SSH groups</source>
         <translation>Группы, которым разрешён вход по SSH</translation>
     </message>
@@ -2116,135 +2121,140 @@ Please try again later</source>
         <translation type="obsolete">Некорректный список групп SSH. Используйте пробелы</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="207"/>
+        <location filename="plugins/ssh_settings.py" line="208"/>
         <source>Use SSH protocol version 2 only</source>
         <translation>Использовать только протокол SSH версии 2</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="580"/>
+        <location filename="plugins/ssh_settings.py" line="590"/>
         <source>Invalid SSH users list. Use spaces only</source>
         <translation>Некорректный список пользователей SSH. Используйте пробелы</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="586"/>
+        <location filename="plugins/ssh_settings.py" line="596"/>
         <source>Invalid SSH groups list. Use spaces only</source>
         <translation>Некорректный список групп SSH. Используйте пробелы</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="162"/>
+        <location filename="plugins/ssh_settings.py" line="163"/>
         <source>Allow SSH login using a key</source>
         <translation>Разрешить вход по SSH-ключу</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="133"/>
+        <location filename="plugins/ssh_settings.py" line="134"/>
         <source>Select a user</source>
         <translation>Выберите пользователя</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="140"/>
+        <location filename="plugins/ssh_settings.py" line="141"/>
         <source>Public SSH key</source>
         <translation>Публичный SSH-ключ</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="142"/>
+        <location filename="plugins/ssh_settings.py" line="143"/>
         <source>Paste your public SSH key here</source>
         <translation>Вставьте публичный SSH-ключ</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="147"/>
+        <location filename="plugins/ssh_settings.py" line="148"/>
         <source>Add public key</source>
         <translation>Добавить публичный ключ</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="340"/>
+        <location filename="plugins/ssh_settings.py" line="344"/>
         <source>Invalid SSH public key or user.</source>
         <translation>Некорректный публичный SSH-ключ или пользователь.</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="343"/>
+        <location filename="plugins/ssh_settings.py" line="347"/>
         <source>Adding SSH key...</source>
         <translation>Добавление SSH-ключа...</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="355"/>
+        <location filename="plugins/ssh_settings.py" line="359"/>
         <source>Failed to start the privileged process.</source>
         <translation>Не удалось запустить процесс с повышенными привилегиями.</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="368"/>
+        <location filename="plugins/ssh_settings.py" line="372"/>
         <source>This public key is already installed.</source>
         <translation>Этот публичный ключ уже установлен.</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="370"/>
+        <location filename="plugins/ssh_settings.py" line="374"/>
         <source>Public SSH key added.</source>
         <translation>Публичный SSH-ключ добавлен.</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="374"/>
+        <location filename="plugins/ssh_settings.py" line="378"/>
         <source>Invalid public SSH key</source>
         <translation>Некорректный публичный SSH-ключ</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="375"/>
+        <location filename="plugins/ssh_settings.py" line="379"/>
         <source>Invalid SSH user</source>
         <translation>Некорректный пользователь SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="376"/>
+        <location filename="plugins/ssh_settings.py" line="380"/>
         <source>Unsafe home directory</source>
         <translation>Небезопасные права доступа или владелец домашнего каталога</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="377"/>
+        <location filename="plugins/ssh_settings.py" line="381"/>
         <source>Unsafe .ssh directory owner</source>
         <translation>Некорректный владелец каталога .ssh</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="378"/>
+        <location filename="plugins/ssh_settings.py" line="382"/>
         <source>Unsafe authorized_keys file</source>
         <translation>Небезопасный файл authorized_keys</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="379"/>
+        <location filename="plugins/ssh_settings.py" line="383"/>
         <source>authorized_keys file is too large</source>
         <translation>Файл authorized_keys слишком большой</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="381"/>
+        <location filename="plugins/ssh_settings.py" line="385"/>
         <source>Failed to add the public SSH key.</source>
         <translation>Не удалось добавить публичный SSH-ключ.</translation>
+    </message>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="131"/>
+        <source>SSH user</source>
+        <translation>Пользователь SSH</translation>
     </message>
 </context>
 <context>
     <name>SettingsWidget</name>
     <message>
-        <location filename="plugins/settings.py" line="56"/>
+        <location filename="plugins/settings.py" line="57"/>
         <source>Daily</source>
         <translation>Ежедневно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="56"/>
+        <location filename="plugins/settings.py" line="57"/>
         <source>Weekly</source>
         <translation>Еженедельно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="56"/>
+        <location filename="plugins/settings.py" line="57"/>
         <source>Monthly</source>
         <translation>Ежемесячно</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="81"/>
+        <location filename="plugins/settings.py" line="82"/>
         <source>Updates</source>
         <translation>Обновления</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="82"/>
+        <location filename="plugins/settings.py" line="83"/>
         <source>Advanced Settings</source>
         <translation>Расширенные настройки</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="94"/>
+        <location filename="plugins/settings.py" line="95"/>
         <source>⏰ Update Frequency</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2254,52 +2264,52 @@ Please try again later</source>
         <translation type="obsolete">⏰ Частота обновлений</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="163"/>
+        <location filename="plugins/settings.py" line="164"/>
         <source>System Control Center</source>
         <translation>Центр управления системой</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="159"/>
+        <location filename="plugins/settings.py" line="160"/>
         <source>General settings: power management, network, date, workspace behavior</source>
         <translation>Общие настройки: энергосбережение, сеть, дата, поведение рабочей среды</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="165"/>
+        <location filename="plugins/settings.py" line="166"/>
         <source>User account management, system logs, kernel updates</source>
         <translation>Управление учётными записями, системными журналами и обновлением ядра</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="157"/>
+        <location filename="plugins/settings.py" line="158"/>
         <source>User Settings</source>
         <translation>Параметры пользователя</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="95"/>
+        <location filename="plugins/settings.py" line="96"/>
         <source>🔔 Notify About Updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="255"/>
+        <location filename="plugins/settings.py" line="256"/>
         <source>Applications</source>
         <translation>Приложения</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="257"/>
+        <location filename="plugins/settings.py" line="258"/>
         <source>Third party applications</source>
         <translation>Сторонние приложения</translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="93"/>
+        <location filename="plugins/settings.py" line="94"/>
         <source>🔄 Enable Auto-update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="226"/>
+        <location filename="plugins/settings.py" line="227"/>
         <source>Linux security module settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="plugins/settings.py" line="340"/>
+        <location filename="plugins/settings.py" line="342"/>
         <source>1. To enable the AltHA module, you must use an un-def kernel build.
 
 2. In the /etc/sysconfig/grub2 file, add the altha=1 parameter to the GRUB_CMDLINE_LINUX_DEFAULT line.

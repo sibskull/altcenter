@@ -130,6 +130,9 @@ class PoliciesWindow(QWidget):
 
 # Условия политик
     def isPolicyVisible(self, pid):
+        if pid == "no-username-autocomplete" and self.active_dm == "gdm":
+            return False
+
         if pid == "sudo-always-ask-password":
             return os.path.exists("/usr/bin/sudo") or os.path.exists("/bin/sudo")
 
@@ -151,8 +154,6 @@ class PoliciesWindow(QWidget):
         return None
 
     def isPolicyAvailable(self, pid):
-        if pid == "no-username-autocomplete" and self.active_dm == "gdm":
-            return False
         package = self.policyRequiredPackage(pid)
         if not package:
             return True
@@ -174,8 +175,6 @@ class PoliciesWindow(QWidget):
         return self._package_states[package]
 
     def unavailablePolicyText(self, pid):
-        if pid == "no-username-autocomplete" and self.active_dm == "gdm":
-            return self.tr("This policy is not supported by GDM.")
         package = self.policyRequiredPackage(pid)
         if not package:
             return ""
