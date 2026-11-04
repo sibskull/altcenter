@@ -181,8 +181,24 @@ class PasswordWidget(QWidget):
 
     def _read_file(self, path):
         try:
-            if path.is_symlink() or not path.is_file():
+            if path == PAM_SYSTEM_AUTH and path.is_symlink():
+                if os.readlink(path) != "system-auth-local":
+                    return None
+                if path.lstat().st_uid != 0 or not self._protected_file(PAM_DIR / "system-auth-local"):
+                    return None
+            elif path.is_symlink() or not path.is_file():
                 return None
+
+            snapshot = None
+            if path == PAM_PASSWD:
+                snapshot = Path("/tmp/altcenter_pam_passwd")
+            elif path == PAM_SYSTEM_AUTH:
+                snapshot = Path("/tmp/altcenter_pam_system_auth")
+
+            if snapshot is not None and (snapshot.exists() or snapshot.is_symlink()):
+                if not self._protected_file(snapshot):
+                    return None
+                return snapshot.read_text(encoding="utf-8")
             return path.read_text(encoding="utf-8")
         except (OSError, UnicodeError):
             return None
@@ -534,6 +550,8 @@ class PasswordWidget(QWidget):
                                self._module_exists("pam_passwdqc.so"))
             if not self._can_write:
                 self._read_error = self.tr("The passwdqc configuration has an unsupported format.")
+            self._can_write = False
+            self._read_error = self.tr("pam_passwdqc detected. Editing is not supported yet.")
         else:
             self._read_error = self.tr("The active PAM password configuration was not recognized. No system files will be changed.")
 
