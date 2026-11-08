@@ -74,6 +74,7 @@ class PasswordWidget(QWidget):
 
         self.lbl_module = QLabel("")
         self.lbl_module.setWordWrap(True)
+        self.lbl_module.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         v.addWidget(self.lbl_module)
 
         self.list_groups = QListWidget()
@@ -859,7 +860,7 @@ class PasswordWidget(QWidget):
         if self._module_kind == "pwquality":
             self.lbl_module.setText(self.tr("Active module: pam_pwquality (ALT Protection profile)"))
         elif self._module_kind == "passwdqc":
-            self.lbl_module.setText(self.tr("Active module: pam_passwdqc (N0-N4 thresholds)"))
+            self.lbl_module.setText(self.tr("Active module: pam_passwdqc"))
         else:
             self.lbl_module.setText(self.tr("Active module: unknown"))
 
@@ -1385,7 +1386,19 @@ class PasswordWidget(QWidget):
         stderr = self.proc_apply.readAllStandardError().data().decode("utf-8", errors="replace").strip()
         stdout = self.proc_apply.readAllStandardOutput().data().decode("utf-8", errors="replace").strip()
         stderr = self._translate_apply_message(stderr)
-        stdout = self._translate_apply_message(stdout)
+        backup_lines = stdout.splitlines()
+        if self._module_kind == "passwdqc" and len(backup_lines) > 1:
+            backups = [re.fullmatch(r"Backup: (.+) \(up to 5 dated copies per file in (.+)\)", line)
+                       for line in backup_lines]
+            if all(backups):
+                stdout = self.tr("Backup: {backup} (up to 5 dated copies per file in {directory})").format(
+                    backup="; ".join(match.group(1) for match in backups),
+                    directory="; ".join(match.group(2) for match in backups)
+                )
+            else:
+                stdout = self._translate_apply_message(stdout)
+        else:
+            stdout = self._translate_apply_message(stdout)
 
         self.btn_reset.setEnabled(self._can_write)
         self.list_groups.setEnabled(True)
