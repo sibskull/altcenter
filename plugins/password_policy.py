@@ -164,11 +164,11 @@ class PasswordWidget(QWidget):
         qc_form.setHorizontalSpacing(16)
         self.passwdqc_inputs = {}
         for key, title in (
-            ("min0", "N0: One character class"),
-            ("min1", "N1: Two character classes"),
-            ("min2", "N2: Passphrase"),
-            ("min3", "N3: Three character classes"),
-            ("min4", "N4: Four character classes")
+            ("min0", self.tr("N0: One character class")),
+            ("min1", self.tr("N1: Two character classes")),
+            ("min2", self.tr("N2: Passphrase")),
+            ("min3", self.tr("N3: Three character classes")),
+            ("min4", self.tr("N4: Four character classes"))
         ):
             widget = QSpinBox()
             widget.setRange(0, 72)
@@ -178,7 +178,7 @@ class PasswordWidget(QWidget):
             widget.setMinimumWidth(125)
             widget.valueChanged.connect(self._on_passwdqc_changed)
             self.passwdqc_inputs[key] = widget
-            qc_form.addRow(self.tr(title), widget)
+            qc_form.addRow(title, widget)
 
         self.passwdqc_inputs["max"] = QSpinBox()
         self.passwdqc_inputs["max"].setRange(8, 1024)
@@ -895,7 +895,7 @@ class PasswordWidget(QWidget):
     def _validate(self, state):
         if self._module_kind == "passwdqc":
             if not self._valid_passwdqc_min(state.get("passwdqc_min", ())):
-                return False, self.tr("N0-N4 values must be between 6 and 72 and must not increase.")
+                return False, self.tr("N0-N4 thresholds must be between 6 and 72 characters and must not increase from N0 to N4.")
             if not 8 <= state.get("passwdqc_max", 0) <= 1024:
                 return False, self.tr("Maximum password length must be between 8 and 1024.")
             if state.get("passwdqc_enforce") not in ("none", "users", "everyone"):
