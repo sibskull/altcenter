@@ -188,6 +188,36 @@ class PasswordWidget(QWidget):
         self.passwdqc_inputs["max"].valueChanged.connect(self._on_passwdqc_changed)
         qc_form.addRow(self.tr("Maximum password length"), self.passwdqc_inputs["max"])
 
+        for key, title, default, description in (
+            ("passphrase", self.tr("Minimum words in passphrase"), 3,
+             self.tr("Number of words required for a passphrase. Set 0 to disable user-chosen passphrases.")),
+            ("match", self.tr("Personal information match threshold"), 4,
+             self.tr("Minimum number of consecutive characters used to detect passwords based on personal account information, such as username, full name and home directory."))
+        ):
+            widget = QSpinBox()
+            widget.setRange(0, 1024)
+            widget.setSpecialValueText(self.tr("Disabled"))
+            widget.setValue(default)
+            widget.setKeyboardTracking(False)
+            widget.setAccelerated(True)
+            widget.setMinimumWidth(125)
+            widget.setToolTip(description)
+            widget.valueChanged.connect(self._on_passwdqc_changed)
+            self.passwdqc_inputs[key] = widget
+            qc_form.addRow(title, widget)
+
+        self.passwdqc_inputs["retry"] = QSpinBox()
+        self.passwdqc_inputs["retry"].setRange(1, 10)
+        self.passwdqc_inputs["retry"].setValue(3)
+        self.passwdqc_inputs["retry"].setKeyboardTracking(False)
+        self.passwdqc_inputs["retry"].setAccelerated(True)
+        self.passwdqc_inputs["retry"].setMinimumWidth(125)
+        self.passwdqc_inputs["retry"].setToolTip(
+            self.tr("Number of password entry attempts. Requires an enforcement mode other than warnings only.")
+        )
+        self.passwdqc_inputs["retry"].valueChanged.connect(self._on_passwdqc_changed)
+        qc_form.addRow(self.tr("Password input attempts"), self.passwdqc_inputs["retry"])
+
         self.passwdqc_inputs["enforce"] = QComboBox()
         self.passwdqc_inputs["enforce"].addItem(self.tr("Warnings only"), "none")
         self.passwdqc_inputs["enforce"].addItem(self.tr("Regular users only"), "users")
@@ -498,18 +528,28 @@ class PasswordWidget(QWidget):
         if not isinstance(values, (tuple, list)) or len(values) != 5:
             return False
         previous = None
+        has_enabled = False
         for value in values:
             if value is None:
-                continue
-            if not isinstance(value, int) or not 6 <= value <= 72:
+                current = 2147483647
+            else:
+                if not isinstance(value, int) or not 4 <= value <= 72:
+                    return False
+                current = value
+                has_enabled = True
+            if previous is not None and current > previous:
                 return False
-            if previous is not None and value > previous:
-                return False
-            previous = value
-        return previous is not None
+            previous = current
+        return has_enabled
 
     def _passwdqc_profile(self, text):
-        options = {"min": None, "max": 72}
+        options = {
+            "min": None,
+            "max": 72,
+            "passphrase": 3,
+            "match": 4,
+            "retry": 3
+        }
         seen = set()
         for raw in text.splitlines():
             line = raw.split("#", 1)[0].strip()
@@ -518,12 +558,14 @@ class PasswordWidget(QWidget):
             name, value = line.split("=", 1)
             name = name.strip().lower()
             value = value.strip()
-            if name not in ("min", "max"):
+            if name not in ("min", "max", "passphrase", "match", "retry"):
                 continue
-            if name in seen or not value:
+            if name in seen:
                 return None
             seen.add(name)
             if name == "min":
+                if not value:
+                    return None
                 parts = value.split(",")
                 if len(parts) != 5:
                     return None
@@ -537,15 +579,21 @@ class PasswordWidget(QWidget):
                     else:
                         return None
                 values = tuple(values)
-                if not self._valid_passwdqc_min(values):
+                if any(value is not None and not 4 <= value <= 72 for value in values):
                     return None
                 options["min"] = values
             else:
                 if not re.fullmatch(r"\d+", value):
                     return None
-                options["max"] = int(value)
+                options[name] = int(value)
+                if name == "max" and not 8 <= options[name] <= 1024:
+                    return None
+                if name == "retry" and not 1 <= options[name] <= 10:
+                    return None
+                if name in ("passphrase", "match") and not 0 <= options[name] <= 1024:
+                    return None
 
-        if options["min"] is None or not 8 <= options["max"] <= 1024:
+        if options["min"] is None:
             return None
 
         values = options["min"]
@@ -553,6 +601,9 @@ class PasswordWidget(QWidget):
             "minlen": next((value for value in reversed(values) if value is not None), 8),
             "passwdqc_min": values,
             "passwdqc_max": options["max"],
+            "passwdqc_passphrase": options["passphrase"],
+            "passwdqc_match": options["match"],
+            "passwdqc_retry": options["retry"],
             "passwdqc_enforce": "everyone",
             "difok": 0,
             "req_l": 0,
@@ -673,7 +724,7 @@ class PasswordWidget(QWidget):
                 self._can_write = False
                 self._read_error = self.tr("Active PAM files could not be safely verified.")
             else:
-                self._dependency_hashes = dependencies
+                self._dependency_hashes = dict(dependencies)
 
         if state is None:
             state = self._default_state()
@@ -763,6 +814,9 @@ class PasswordWidget(QWidget):
         for index, value in enumerate(values):
             self.passwdqc_inputs[f"min{index}"].setValue(0 if value is None else value)
         self.passwdqc_inputs["max"].setValue(state.get("passwdqc_max", 72))
+        self.passwdqc_inputs["passphrase"].setValue(state.get("passwdqc_passphrase", 3))
+        self.passwdqc_inputs["match"].setValue(state.get("passwdqc_match", 4))
+        self.passwdqc_inputs["retry"].setValue(state.get("passwdqc_retry", 3))
         enforce = self.passwdqc_inputs["enforce"]
         enforce.setCurrentIndex(enforce.findData(state.get("passwdqc_enforce", "everyone")))
         self._loading = old
@@ -781,6 +835,9 @@ class PasswordWidget(QWidget):
         state["passwdqc_min"] = values
         state["minlen"] = next((value for value in reversed(values) if value is not None), 8)
         state["passwdqc_max"] = self.passwdqc_inputs["max"].value()
+        state["passwdqc_passphrase"] = self.passwdqc_inputs["passphrase"].value()
+        state["passwdqc_match"] = self.passwdqc_inputs["match"].value()
+        state["passwdqc_retry"] = self.passwdqc_inputs["retry"].value()
         state["passwdqc_enforce"] = self.passwdqc_inputs["enforce"].currentData()
         self._drafts["*ALL*"] = state
         self._update_apply_button()
@@ -884,7 +941,10 @@ class PasswordWidget(QWidget):
         if self._module_kind == "passwdqc":
             changed = keys == ["*ALL*"] and any(
                 self._drafts["*ALL*"][key] != self._states["*ALL*"][key]
-                for key in ("passwdqc_min", "passwdqc_max", "passwdqc_enforce")
+                for key in (
+                    "passwdqc_min", "passwdqc_max", "passwdqc_passphrase",
+                    "passwdqc_match", "passwdqc_retry", "passwdqc_enforce"
+                )
             )
             self.btn_apply.setEnabled(changed)
             return
@@ -898,6 +958,14 @@ class PasswordWidget(QWidget):
                 return False, self.tr("N0-N4 thresholds must be between 6 and 72 characters and must not increase from N0 to N4.")
             if not 8 <= state.get("passwdqc_max", 0) <= 1024:
                 return False, self.tr("Maximum password length must be between 8 and 1024.")
+            if any(value is not None and value > state["passwdqc_max"] for value in state["passwdqc_min"]):
+                return False, self.tr("Maximum password length cannot be less than the N0-N4 thresholds.")
+            if not 0 <= state.get("passwdqc_passphrase", -1) <= 1024:
+                return False, self.tr("Passphrase word count must be between 0 and 1024.")
+            if not 0 <= state.get("passwdqc_match", -1) <= 1024:
+                return False, self.tr("Personal information match threshold must be between 0 and 1024 characters.")
+            if not 1 <= state.get("passwdqc_retry", 0) <= 10:
+                return False, self.tr("Password input attempts must be between 1 and 10.")
             if state.get("passwdqc_enforce") not in ("none", "users", "everyone"):
                 return False, self.tr("Invalid password enforcement mode.")
             return True, ""
@@ -1027,20 +1095,38 @@ class PasswordWidget(QWidget):
 
     def _render_passwdqc(self, text, state):
         values = state.get("passwdqc_min", ())
-        if not self._valid_passwdqc_min(values) or not 8 <= state.get("passwdqc_max", 0) <= 1024:
+        retry = state.get("passwdqc_retry", 0)
+        passphrase = state.get("passwdqc_passphrase", -1)
+        match_length = state.get("passwdqc_match", -1)
+        if (not self._valid_passwdqc_min(values) or
+                not 8 <= state.get("passwdqc_max", 0) <= 1024 or
+                any(value is not None and value > state["passwdqc_max"] for value in values) or
+                not 0 <= passphrase <= 1024 or
+                not 0 <= match_length <= 1024 or
+                not 1 <= retry <= 10):
             return None
         parameters = {
             "min": ",".join("disabled" if value is None else str(value) for value in values),
-            "max": str(state["passwdqc_max"])
+            "max": str(state["passwdqc_max"]),
+            "passphrase": str(passphrase),
+            "match": str(match_length),
+            "retry": str(retry)
         }
         baseline = self._passwdqc_profile(text)
         if baseline is None:
             return None
-        changed = set()
-        if values != baseline["passwdqc_min"]:
-            changed.add("min")
-        if state["passwdqc_max"] != baseline["passwdqc_max"]:
-            changed.add("max")
+        changed = {
+            name for name, value in (
+                ("min", values),
+                ("max", state["passwdqc_max"]),
+                ("passphrase", passphrase),
+                ("match", match_length),
+                ("retry", retry)
+            )
+            if value != baseline[
+                "passwdqc_min" if name == "min" else f"passwdqc_{name}"
+            ]
+        }
         if not changed:
             return text
         seen = set()
@@ -1050,25 +1136,25 @@ class PasswordWidget(QWidget):
             body = line[:-len(newline)] if newline else line
             parts = body.split("#", 1)
             main = parts[0]
-            match = re.match(r"^([ \t]*)([A-Za-z_]+)([ \t]*=[ \t]*)(.*)$", main)
-            if not match or match.group(2).lower() not in changed:
+            found = re.match(r"^([ \t]*)([A-Za-z_]+)([ \t]*=[ \t]*)(.*)$", main)
+            if not found or found.group(2).lower() not in changed:
                 result.append(line)
                 continue
-            name = match.group(2).lower()
+            name = found.group(2).lower()
             if name in seen:
                 return None
             seen.add(name)
-            value = match.group(4)
+            value = found.group(4)
             trailing = value[len(value.rstrip(" \t")):]
             result.append(
-                match.group(1) + match.group(2) + match.group(3) +
+                found.group(1) + found.group(2) + found.group(3) +
                 parameters[name] + trailing + ("#" + parts[1] if len(parts) == 2 else "") + newline
             )
         missing = changed - seen
         if missing:
             if result and not result[-1].endswith(("\n", "\r")):
                 result.append("\n")
-            for name in ("min", "max"):
+            for name in ("min", "max", "passphrase", "match", "retry"):
                 if name in missing:
                     result.append(f"{name}={parameters[name]}\n")
         return "".join(result)
@@ -1131,9 +1217,10 @@ class PasswordWidget(QWidget):
 
         checks = ""
         for dependency, fingerprint in self._dependency_hashes.items():
+            quoted_dependency = shlex.quote(str(dependency))
             checks += (
-                f"test -f '{dependency}' && test ! -L '{dependency}'\n"
-                f"test \"$(sha256sum '{dependency}' | cut -d ' ' -f 1)\" = '{fingerprint}' || "
+                f"test -f {quoted_dependency} && test ! -L {quoted_dependency}\n"
+                f"test \"$(sha256sum {quoted_dependency} | cut -d ' ' -f 1)\" = '{fingerprint}' || "
                 "{ echo 'Active PAM chain changed externally' >&2; exit 26; }\n"
             )
 
@@ -1230,7 +1317,10 @@ class PasswordWidget(QWidget):
             parsed = self._passwdqc_profile(updated) if updated is not None else None
             if parsed is None or (
                 parsed["passwdqc_min"] != baseline["passwdqc_min"] or
-                parsed["passwdqc_max"] != baseline["passwdqc_max"]
+                parsed["passwdqc_max"] != baseline["passwdqc_max"] or
+                parsed["passwdqc_passphrase"] != baseline["passwdqc_passphrase"] or
+                parsed["passwdqc_match"] != baseline["passwdqc_match"] or
+                parsed["passwdqc_retry"] != baseline["passwdqc_retry"]
             ):
                 updated = None
             original_pam = self._read_file(PAM_LOCAL_ONLY)
@@ -1419,6 +1509,9 @@ class PasswordWidget(QWidget):
             defaults["minlen"] = 13
             defaults["passwdqc_min"] = (13, 13, 13, 13, 13)
             defaults["passwdqc_max"] = 72
+            defaults["passwdqc_passphrase"] = 3
+            defaults["passwdqc_match"] = 4
+            defaults["passwdqc_retry"] = 3
             defaults["passwdqc_enforce"] = "everyone"
             self._apply_passwdqc_to_form(defaults)
         else:
