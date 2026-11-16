@@ -6,7 +6,7 @@
 
 ### Документация
 
-- Документация по продуктам - [https://docs.altlinux.org](https://docs.altlinux.org)
+- Документация по продуктам - [https://alt-docs.altlinux.team/](https://alt-docs.altlinux.team/)
 
 ### Поддержка
 

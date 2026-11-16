@@ -1125,37 +1125,37 @@ Please try again later</source>
         <translation type="obsolete">Сеть</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="118"/>
+        <location filename="plugins/journal.py" line="120"/>
         <source>Filters:</source>
         <translation>Фильтры:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="621"/>
+        <location filename="plugins/journal.py" line="624"/>
         <source>Select filters</source>
         <translation>Выбранные фильтры</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="164"/>
+        <location filename="plugins/journal.py" line="166"/>
         <source>Back</source>
         <translation>Назад</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="167"/>
+        <location filename="plugins/journal.py" line="169"/>
         <source>Forward</source>
         <translation>Вперед</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="174"/>
+        <location filename="plugins/journal.py" line="176"/>
         <source>Lines:</source>
         <translation>Строки:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="126"/>
+        <location filename="plugins/journal.py" line="128"/>
         <source>Text:</source>
         <translation>Текст:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="129"/>
+        <location filename="plugins/journal.py" line="131"/>
         <source>Type to filter...</source>
         <translation>Введите для фильтрации...</translation>
     </message>
@@ -1240,47 +1240,47 @@ Please try again later</source>
         <translation>Максимальный объем файла журнала (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="154"/>
+        <location filename="plugins/journal.py" line="156"/>
         <source>Whole journal</source>
         <translation>Весь журнал</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="155"/>
+        <location filename="plugins/journal.py" line="157"/>
         <source>This page</source>
         <translation>Эта страница</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="158"/>
+        <location filename="plugins/journal.py" line="160"/>
         <source>Save</source>
         <translation>Сохранить</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="493"/>
+        <location filename="plugins/journal.py" line="495"/>
         <source>Save log</source>
         <translation>Сохранить журнал</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="109"/>
+        <location filename="plugins/journal.py" line="111"/>
         <source>Journal:</source>
         <translation>Журнал:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="271"/>
+        <location filename="plugins/journal.py" line="273"/>
         <source>Audit logs are not available or inaccessible.</source>
         <translation>Журналы аудита недоступны.</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="272"/>
+        <location filename="plugins/journal.py" line="274"/>
         <source>1) Install audit package:</source>
         <translation>1) Установите пакет аудита:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="273"/>
+        <location filename="plugins/journal.py" line="275"/>
         <source>2) Enable and start auditd service:</source>
         <translation>2) Включите и запустите службу аудита:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="274"/>
+        <location filename="plugins/journal.py" line="276"/>
         <source>3) Logs location: /var/log/audit/audit.log</source>
         <translation>3) Расположение журналов: /var/log/audit/audit.log</translation>
     </message>
@@ -1488,6 +1488,11 @@ Please try again later</source>
         <location filename="plugins/auditd_settings.py" line="1473"/>
         <source>Rule &quot;%s&quot;: %s</source>
         <translation>Правило &quot;%s&quot;: %s</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="98"/>
+        <source>GNOME Shell</source>
+        <translation>Оболочка GNOME</translation>
     </message>
 </context>
 <context>
@@ -2024,7 +2029,7 @@ Please try again later</source>
 <context>
     <name>PluginJournals</name>
     <message>
-        <location filename="plugins/journal.py" line="865"/>
+        <location filename="plugins/journal.py" line="868"/>
         <source>System logs</source>
         <translation>Системные журналы</translation>
     </message>

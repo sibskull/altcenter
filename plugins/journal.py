@@ -94,6 +94,8 @@ class JournalsWidget(QWidget):
             ("systemd-logind.service", "systemd-logind.service"),
             ("polkit.service", "polkit.service"),
             ("lightdm.service", "lightdm.service"),
+            ("gdm.service", "gdm.service"),
+            ("gnome-shell", self.tr("GNOME Shell")),
             ("wpa_supplicant.service", "wpa_supplicant.service"),
             ("udisks2.service", "udisks2.service"),
             ("packagekit.service", "packagekit.service"),
@@ -599,7 +601,8 @@ class JournalsWidget(QWidget):
         for k in keys:
             if k.endswith(".service"):
                 match_list.append(f"_SYSTEMD_UNIT={k}")
-
+            elif k == "gnome-shell":
+                match_list.append("_COMM=gnome-shell")
         uniq = []
         s = set()
         for m in match_list:

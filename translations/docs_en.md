@@ -8,7 +8,7 @@
 
 ### Documentation
 
-- Product Documentation (RU) - [https://docs.altlinux.org](https://docs.altlinux.org)
+- Product Documentation (RU) - [https://alt-docs.altlinux.team/](https://alt-docs.altlinux.team/)
 
 ### Support
 
