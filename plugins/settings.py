@@ -343,14 +343,17 @@ class SettingsWidget(QWidget):
             self,
             "AltHA",
             self.tr(
-                "1. To enable the AltHA module, you must use an un-def kernel build.\n\n"
-                "2. In the /etc/sysconfig/grub2 file, add the altha=1 parameter "
-                "to the GRUB_CMDLINE_LINUX_DEFAULT line.\n\n"
-                "Example:\n"
-                "GRUB_CMDLINE_LINUX_DEFAULT='quiet splash altha=1'\n\n"
-                "3. After making the change, run the following command:\n"
-                "sudo update-grub\n\n"
-                "4. Reboot the system and select the un-def kernel from the GRUB menu."
+                "To enable the AltHa module, pass the altha=1 parameter to the kernel.\n\n"
+                "To do this, add the altha=1 option to the GRUB_CMDLINE_LINUX_DEFAULT line "
+                "in /etc/sysconfig/grub2.\n"
+                "For example:\n"
+                "# vim /etc/sysconfig/grub2\n"
+                "...\n"
+                "GRUB_CMDLINE_LINUX_DEFAULT=' resume=/dev/disk/by-uuid/04cb5bdb-99ad-47da-95e4-1f5a4fd7cdef "
+                "panic=30 quiet splash psi=1 altha=1'\n\n"
+                "Update the bootloader by running the command:\n"
+                "# update-grub\n\n"
+                "Reboot the system."
             )
         )
 

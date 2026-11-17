@@ -1105,7 +1105,7 @@ Please try again later</source>
 <context>
     <name>JournalsWidget</name>
     <message>
-        <location filename="plugins/journal.py" line="91"/>
+        <location filename="plugins/journal.py" line="135"/>
         <source>Kernel</source>
         <translation>Ядро</translation>
     </message>
@@ -1125,37 +1125,37 @@ Please try again later</source>
         <translation type="obsolete">Сеть</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="120"/>
+        <location filename="plugins/journal.py" line="164"/>
         <source>Filters:</source>
         <translation>Фильтры:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="624"/>
+        <location filename="plugins/journal.py" line="679"/>
         <source>Select filters</source>
         <translation>Выбранные фильтры</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="166"/>
+        <location filename="plugins/journal.py" line="214"/>
         <source>Back</source>
         <translation>Назад</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="169"/>
+        <location filename="plugins/journal.py" line="217"/>
         <source>Forward</source>
         <translation>Вперед</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="176"/>
+        <location filename="plugins/journal.py" line="224"/>
         <source>Lines:</source>
         <translation>Строки:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="128"/>
+        <location filename="plugins/journal.py" line="172"/>
         <source>Text:</source>
         <translation>Текст:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="131"/>
+        <location filename="plugins/journal.py" line="175"/>
         <source>Type to filter...</source>
         <translation>Введите для фильтрации...</translation>
     </message>
@@ -1240,47 +1240,47 @@ Please try again later</source>
         <translation>Максимальный объем файла журнала (МБ):</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="156"/>
+        <location filename="plugins/journal.py" line="204"/>
         <source>Whole journal</source>
         <translation>Весь журнал</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="157"/>
+        <location filename="plugins/journal.py" line="205"/>
         <source>This page</source>
         <translation>Эта страница</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="160"/>
+        <location filename="plugins/journal.py" line="208"/>
         <source>Save</source>
         <translation>Сохранить</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="495"/>
+        <location filename="plugins/journal.py" line="550"/>
         <source>Save log</source>
         <translation>Сохранить журнал</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="111"/>
+        <location filename="plugins/journal.py" line="155"/>
         <source>Journal:</source>
         <translation>Журнал:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="273"/>
+        <location filename="plugins/journal.py" line="321"/>
         <source>Audit logs are not available or inaccessible.</source>
         <translation>Журналы аудита недоступны.</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="274"/>
+        <location filename="plugins/journal.py" line="322"/>
         <source>1) Install audit package:</source>
         <translation>1) Установите пакет аудита:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="275"/>
+        <location filename="plugins/journal.py" line="323"/>
         <source>2) Enable and start auditd service:</source>
         <translation>2) Включите и запустите службу аудита:</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="276"/>
+        <location filename="plugins/journal.py" line="324"/>
         <source>3) Logs location: /var/log/audit/audit.log</source>
         <translation>3) Расположение журналов: /var/log/audit/audit.log</translation>
     </message>
@@ -1490,9 +1490,14 @@ Please try again later</source>
         <translation>Правило &quot;%s&quot;: %s</translation>
     </message>
     <message>
-        <location filename="plugins/journal.py" line="98"/>
+        <location filename="plugins/journal.py" line="142"/>
         <source>GNOME Shell</source>
         <translation>Оболочка GNOME</translation>
+    </message>
+    <message>
+        <location filename="plugins/journal.py" line="182"/>
+        <source>Searching...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2029,7 +2034,7 @@ Please try again later</source>
 <context>
     <name>PluginJournals</name>
     <message>
-        <location filename="plugins/journal.py" line="868"/>
+        <location filename="plugins/journal.py" line="939"/>
         <source>System logs</source>
         <translation>Системные журналы</translation>
     </message>
@@ -2079,7 +2084,7 @@ Please try again later</source>
 <context>
     <name>PluginSettings</name>
     <message>
-        <location filename="plugins/settings.py" line="414"/>
+        <location filename="plugins/settings.py" line="417"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
@@ -2470,27 +2475,30 @@ Please try again later</source>
     </message>
     <message>
         <location filename="plugins/settings.py" line="342"/>
-        <source>1. To enable the AltHA module, you must use an un-def kernel build.
+        <source>To enable the AltHa module, pass the altha=1 parameter to the kernel.
 
-2. In the /etc/sysconfig/grub2 file, add the altha=1 parameter to the GRUB_CMDLINE_LINUX_DEFAULT line.
+To do this, add the altha=1 option to the GRUB_CMDLINE_LINUX_DEFAULT line in /etc/sysconfig/grub2.
+For example:
+# vim /etc/sysconfig/grub2
+...
+GRUB_CMDLINE_LINUX_DEFAULT=&apos; resume=/dev/disk/by-uuid/04cb5bdb-99ad-47da-95e4-1f5a4fd7cdef panic=30 quiet splash psi=1 altha=1&apos;
 
-Example:
-GRUB_CMDLINE_LINUX_DEFAULT=&apos;quiet splash altha=1&apos;
+Update the bootloader by running the command:
+# update-grub
 
-3. After making the change, run the following command:
-sudo update-grub
+Reboot the system.</source>
+        <translation>Для включения модуля AltHa необходимо передать ядру параметр altha=1.
 
-4. Reboot the system and select the un-def kernel from the GRUB menu.</source>
-        <translation>1. Для включения модуля AltHA необходимо использовать ядро сборки un-def.
+Для этого добавьте параметр altha=1 в строку GRUB_CMDLINE_LINUX_DEFAULT в файле /etc/sysconfig/grub2.
+Например:
+# vim /etc/sysconfig/grub2
+...
+GRUB_CMDLINE_LINUX_DEFAULT=&apos; resume=/dev/disk/by-uuid/04cb5bdb-99ad-47da-95e4-1f5a4fd7cdef panic=30 quiet splash psi=1 altha=1&apos;
 
-2. В файле /etc/sysconfig/grub2 в строку GRUB_CMDLINE_LINUX_DEFAULT добавьте параметр altha=1.
-Пример:
-GRUB_CMDLINE_LINUX_DEFAULT=&apos;quiet splash altha=1&apos;
+Обновите загрузчик, выполнив команду:
+# update-grub
 
-3. После изменения выполните команду:
-sudo update-grub
-
-4. Перезагрузите систему и выберите в меню GRUB ядро un-def.</translation>
+Перезагрузите систему.</translation>
     </message>
 </context>
 <context>
