@@ -4,8 +4,45 @@ import plugins
 import os
 import json
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QListWidget, QListWidgetItem, QTextEdit, QSplitter, QLabel, QPushButton, QLineEdit, QComboBox, QToolButton, QCheckBox, QFileDialog
-from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont, QTextCursor, QTextCharFormat, QColor, QPalette
-from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale, QPoint
+from PyQt6.QtGui import QStandardItem, QStandardItemModel, QFont, QTextCursor, QTextCharFormat, QColor, QPalette, QPainter
+from PyQt6.QtCore import Qt, QProcess, QProcessEnvironment, QLocale, QPoint, QTimer
+
+class LoadingSpinner(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.angle = 0
+        self.timer = QTimer(self)
+        self.timer.setInterval(80)
+        self.timer.timeout.connect(self.rotate)
+        self.setFixedSize(22, 22)
+        self.hide()
+
+    def start(self):
+        self.show()
+        if not self.timer.isActive():
+            self.timer.start()
+
+    def stop(self):
+        self.timer.stop()
+        self.hide()
+
+    def rotate(self):
+        self.angle = (self.angle + 45) % 360
+        self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        color = self.palette().color(QPalette.ColorRole.Text)
+        painter.setPen(Qt.PenStyle.NoPen)
+        for i in range(8):
+            color.setAlpha(35 + i * 28)
+            painter.setBrush(color)
+            painter.save()
+            painter.translate(self.width() / 2, self.height() / 2)
+            painter.rotate(self.angle + i * 45)
+            painter.drawRoundedRect(-2, -9, 4, 7, 2, 2)
+            painter.restore()
 
 class JournalsWidget(QWidget):
     def __init__(self, main_window = None):
@@ -40,6 +77,7 @@ class JournalsWidget(QWidget):
         self.cb_journal = None
 
         self.edit_query = None
+        self.search_spinner = None
 
         self.combo_export = None
         self.btn_export = None
@@ -56,6 +94,12 @@ class JournalsWidget(QWidget):
         self.audit_cache_ready = False
 
         self.is_expert_mode = False
+        self.pending_load = False
+        self.pending_fetch_lines = None
+        self.search_timer = QTimer(self)
+        self.search_timer.setSingleShot(True)
+        self.search_timer.setInterval(300)
+        self.search_timer.timeout.connect(self.on_query_apply)
 
         self.initUI()
         self.initProcess()
@@ -133,6 +177,10 @@ class JournalsWidget(QWidget):
         self.edit_query.returnPressed.connect(self.on_query_apply)
         self.edit_query.textChanged.connect(self.on_query_text_changed)
         top.addWidget(self.edit_query, 1)
+
+        self.search_spinner = LoadingSpinner(self)
+        self.search_spinner.setToolTip(self.tr("Searching..."))
+        top.addWidget(self.search_spinner)
 
         top.addStretch(1)
         layout.addLayout(top)
@@ -309,6 +357,7 @@ class JournalsWidget(QWidget):
         return fixed[-max_lines:]
 
     def loadAudit(self, forced_fetch_lines=None):
+        self.search_spinner.start()
         self.loading = True
         self.update_nav_buttons()
 
@@ -341,6 +390,8 @@ class JournalsWidget(QWidget):
                 self.loading = False
                 self.has_more_older = False
                 self.update_nav_buttons()
+                if not self.search_timer.isActive():
+                    self.search_spinner.stop()
                 return
 
             if len(lines_all) > self.current_fetch_lines:
@@ -397,6 +448,8 @@ class JournalsWidget(QWidget):
 
             self.loading = False
             self.update_nav_buttons()
+            if not self.search_timer.isActive():
+                self.search_spinner.stop()
             return
 
         if self.proc_audit != None and self.proc_audit.state() != QProcess.ProcessState.NotRunning:
@@ -419,6 +472,8 @@ class JournalsWidget(QWidget):
             self.loading = False
             self.has_more_older = False
             self.update_nav_buttons()
+            if not self.search_timer.isActive():
+                self.search_spinner.stop()
             return
 
     def format_from_filter(self, selected_filter: str):
@@ -629,13 +684,17 @@ class JournalsWidget(QWidget):
         self.loadJournal()
 
     def on_query_apply(self):
+        self.search_timer.stop()
         self.page = 0
         self.loadJournal()
 
     def on_query_text_changed(self, text):
         if text.strip() == "":
+            self.search_timer.stop()
             self.page = 0
             self.loadJournal()
+        else:
+            self.search_timer.start()
 
     def initProcess(self):
         self.proc = QProcess(self)
@@ -719,13 +778,16 @@ class JournalsWidget(QWidget):
         self.text.setTextCursor(cursor)
 
     def loadJournal(self, forced_fetch_lines=None):
+        self.search_spinner.start()
         if self.current_source == "auditd":
             self.loadAudit(forced_fetch_lines)
             return
 
         if self.proc != None and self.proc.state() != QProcess.ProcessState.NotRunning:
+            self.pending_load = True
+            self.pending_fetch_lines = forced_fetch_lines
             self.proc.kill()
-            self.proc.waitForFinished(1000)
+            return
 
         self.loading = True
         self.update_nav_buttons()
@@ -778,6 +840,13 @@ class JournalsWidget(QWidget):
             self.stderr_buf.append(error)
 
     def on_journal_finished(self, exit_code, exit_status):
+        if self.pending_load:
+            forced_fetch_lines = self.pending_fetch_lines
+            self.pending_load = False
+            self.pending_fetch_lines = None
+            self.loadJournal(forced_fetch_lines)
+            return
+
         out = "".join(self.stdout_buf)
         err = "".join(self.stderr_buf)
 
@@ -856,6 +925,8 @@ class JournalsWidget(QWidget):
 
         self.loading = False
         self.update_nav_buttons()
+        if not self.search_timer.isActive():
+            self.search_spinner.stop()
 
 
 class PluginJournals(plugins.Base):
