@@ -95,6 +95,7 @@ class SSHSettingsWidget(QWidget):
         self.proc_apply = None
         self.proc_key = None
         self.saved_settings = None
+        self.previous_settings = None
 
         self.root_login_check = None
         self.pubkey_authentication_check = None
@@ -292,6 +293,10 @@ class SSHSettingsWidget(QWidget):
         self.btn_apply = QPushButton(self.tr("Apply"))
         self.btn_apply.clicked.connect(self.on_apply_clicked)
         apply_layout.addWidget(self.btn_apply)
+
+        self.btn_reset = QPushButton(self.tr("Reset SSH settings"))
+        self.btn_reset.clicked.connect(self.on_reset_clicked)
+        apply_layout.addWidget(self.btn_reset)
 
         self.lbl_status = QLabel("")
         self.lbl_status.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
@@ -552,6 +557,32 @@ class SSHSettingsWidget(QWidget):
         self.saved_settings = self.getCurrentSettings()
         self.updateApplyButton()
 
+    def on_reset_clicked(self):
+        if self.proc_apply != None and self.proc_apply.state() != QProcess.ProcessState.NotRunning:
+            return
+
+        if self.previous_settings is None:
+            self.previous_settings = self.getCurrentSettings()
+            settings = (True, True, True, True, True, False, "", "", "22", "0", "3")
+        else:
+            settings = self.previous_settings
+            self.previous_settings = None
+
+        self.root_login_check.setChecked(settings[0])
+        self.pubkey_authentication_check.setChecked(settings[1])
+        self.empty_passwords_check.setChecked(settings[2])
+        self.hostbased_authentication_check.setChecked(settings[3])
+        self.ignore_rhosts_check.setChecked(settings[4])
+        self.protocol_check.setChecked(settings[5])
+        self.allow_users_edit.setText(settings[6])
+        self.allow_groups_edit.setText(settings[7])
+        self.port_edit.setText(settings[8])
+        self.client_alive_interval_edit.setText(settings[9])
+        self.client_alive_count_max_edit.setText(settings[10])
+        self.btn_reset.setText(self.tr("Restore settings") if self.previous_settings is not None else self.tr("Reset SSH settings"))
+        self.lbl_status.clear()
+        self.updateApplyButton()
+
     def on_apply_clicked(self):
         if self.proc_apply != None and self.proc_apply.state() != QProcess.ProcessState.NotRunning:
             return
@@ -694,6 +725,8 @@ class SSHSettingsWidget(QWidget):
 
         if exit_code == 0:
             self.lbl_status.setText(self.tr("Done"))
+            self.previous_settings = None
+            self.btn_reset.setText(self.tr("Reset SSH settings"))
             self.loadSavedSettings()
             return
 

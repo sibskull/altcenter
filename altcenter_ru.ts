@@ -1497,7 +1497,7 @@ Please try again later</source>
     <message>
         <location filename="plugins/journal.py" line="182"/>
         <source>Searching...</source>
-        <translation type="unfinished"></translation>
+        <translation>Поиск...</translation>
     </message>
 </context>
 <context>
@@ -2076,7 +2076,7 @@ Please try again later</source>
 <context>
     <name>PluginSSHSettings</name>
     <message>
-        <location filename="plugins/ssh_settings.py" line="714"/>
+        <location filename="plugins/ssh_settings.py" line="747"/>
         <source>SSH settings</source>
         <translation>Настройка SSH</translation>
     </message>
@@ -2196,82 +2196,82 @@ Please try again later</source>
 <context>
     <name>SSHSettingsWidget</name>
     <message>
-        <location filename="plugins/ssh_settings.py" line="172"/>
+        <location filename="plugins/ssh_settings.py" line="173"/>
         <source>Deny remote SSH login as root</source>
         <translation>Запретить удалённый вход по SSH под пользователем root</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="292"/>
+        <location filename="plugins/ssh_settings.py" line="293"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="696"/>
+        <location filename="plugins/ssh_settings.py" line="727"/>
         <source>Done</source>
         <translation>Готово</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="703"/>
+        <location filename="plugins/ssh_settings.py" line="736"/>
         <source>Failed</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="253"/>
+        <location filename="plugins/ssh_settings.py" line="254"/>
         <source>SSH port</source>
         <translation>Порт SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="266"/>
+        <location filename="plugins/ssh_settings.py" line="267"/>
         <source>SSH inactivity timeout, sec.</source>
         <translation>Таймаут неактивности SSH, сек.</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="279"/>
+        <location filename="plugins/ssh_settings.py" line="280"/>
         <source>SSH alive check count</source>
         <translation>Количество проверок активности SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="605"/>
+        <location filename="plugins/ssh_settings.py" line="636"/>
         <source>Invalid SSH port</source>
         <translation>Неверный порт SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="614"/>
+        <location filename="plugins/ssh_settings.py" line="645"/>
         <source>Invalid SSH session timeout</source>
         <translation>Неверный таймаут SSH-сессии</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="623"/>
+        <location filename="plugins/ssh_settings.py" line="654"/>
         <source>Invalid SSH alive check count</source>
         <translation>Неверное количество проверок активности SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="181"/>
+        <location filename="plugins/ssh_settings.py" line="182"/>
         <source>Deny SSH login with empty passwords</source>
         <translation>Запретить вход по SSH с пустым паролем</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="190"/>
+        <location filename="plugins/ssh_settings.py" line="191"/>
         <source>Disable SSH host-based authentication</source>
         <translation>Отключить аутентификацию SSH по доверенным хостам</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="199"/>
+        <location filename="plugins/ssh_settings.py" line="200"/>
         <source>Ignore .rhosts and .shosts files</source>
         <translation>Игнорировать файлы .rhosts и .shosts</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="220"/>
+        <location filename="plugins/ssh_settings.py" line="221"/>
         <source>Users and groups are separated by spaces, for example: user1 user2</source>
         <translation>Пользователи и группы указываются через пробел, например: user1 user2</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="227"/>
+        <location filename="plugins/ssh_settings.py" line="228"/>
         <source>Allowed SSH users</source>
         <translation>Пользователи, которым разрешён вход по SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="240"/>
+        <location filename="plugins/ssh_settings.py" line="241"/>
         <source>Allowed SSH groups</source>
         <translation>Группы, которым разрешён вход по SSH</translation>
     </message>
@@ -2286,109 +2286,119 @@ Please try again later</source>
         <translation type="obsolete">Некорректный список групп SSH. Используйте пробелы</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="208"/>
+        <location filename="plugins/ssh_settings.py" line="209"/>
         <source>Use SSH protocol version 2 only</source>
         <translation>Использовать только протокол SSH версии 2</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="590"/>
+        <location filename="plugins/ssh_settings.py" line="621"/>
         <source>Invalid SSH users list. Use spaces only</source>
         <translation>Некорректный список пользователей SSH. Используйте пробелы</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="596"/>
+        <location filename="plugins/ssh_settings.py" line="627"/>
         <source>Invalid SSH groups list. Use spaces only</source>
         <translation>Некорректный список групп SSH. Используйте пробелы</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="163"/>
+        <location filename="plugins/ssh_settings.py" line="164"/>
         <source>Allow SSH login using a key</source>
         <translation>Разрешить вход по SSH-ключу</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="134"/>
+        <location filename="plugins/ssh_settings.py" line="135"/>
         <source>Select a user</source>
         <translation>Выберите пользователя</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="141"/>
+        <location filename="plugins/ssh_settings.py" line="142"/>
         <source>Public SSH key</source>
         <translation>Публичный SSH-ключ</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="143"/>
+        <location filename="plugins/ssh_settings.py" line="144"/>
         <source>Paste your public SSH key here</source>
         <translation>Вставьте публичный SSH-ключ</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="148"/>
+        <location filename="plugins/ssh_settings.py" line="149"/>
         <source>Add public key</source>
         <translation>Добавить публичный ключ</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="344"/>
+        <location filename="plugins/ssh_settings.py" line="349"/>
         <source>Invalid SSH public key or user.</source>
         <translation>Некорректный публичный SSH-ключ или пользователь.</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="347"/>
+        <location filename="plugins/ssh_settings.py" line="352"/>
         <source>Adding SSH key...</source>
         <translation>Добавление SSH-ключа...</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="359"/>
+        <location filename="plugins/ssh_settings.py" line="364"/>
         <source>Failed to start the privileged process.</source>
         <translation>Не удалось запустить процесс с повышенными привилегиями.</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="372"/>
+        <location filename="plugins/ssh_settings.py" line="377"/>
         <source>This public key is already installed.</source>
         <translation>Этот публичный ключ уже установлен.</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="374"/>
+        <location filename="plugins/ssh_settings.py" line="379"/>
         <source>Public SSH key added.</source>
         <translation>Публичный SSH-ключ добавлен.</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="378"/>
+        <location filename="plugins/ssh_settings.py" line="383"/>
         <source>Invalid public SSH key</source>
         <translation>Некорректный публичный SSH-ключ</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="379"/>
+        <location filename="plugins/ssh_settings.py" line="384"/>
         <source>Invalid SSH user</source>
         <translation>Некорректный пользователь SSH</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="380"/>
+        <location filename="plugins/ssh_settings.py" line="385"/>
         <source>Unsafe home directory</source>
         <translation>Небезопасные права доступа или владелец домашнего каталога</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="381"/>
+        <location filename="plugins/ssh_settings.py" line="386"/>
         <source>Unsafe .ssh directory owner</source>
         <translation>Некорректный владелец каталога .ssh</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="382"/>
+        <location filename="plugins/ssh_settings.py" line="387"/>
         <source>Unsafe authorized_keys file</source>
         <translation>Небезопасный файл authorized_keys</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="383"/>
+        <location filename="plugins/ssh_settings.py" line="388"/>
         <source>authorized_keys file is too large</source>
         <translation>Файл authorized_keys слишком большой</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="385"/>
+        <location filename="plugins/ssh_settings.py" line="390"/>
         <source>Failed to add the public SSH key.</source>
         <translation>Не удалось добавить публичный SSH-ключ.</translation>
     </message>
     <message>
-        <location filename="plugins/ssh_settings.py" line="131"/>
+        <location filename="plugins/ssh_settings.py" line="132"/>
         <source>SSH user</source>
         <translation>Пользователь SSH</translation>
+    </message>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="729"/>
+        <source>Reset SSH settings</source>
+        <translation>Сброс настроек SSH</translation>
+    </message>
+    <message>
+        <location filename="plugins/ssh_settings.py" line="582"/>
+        <source>Restore settings</source>
+        <translation>Вернуть параметры</translation>
     </message>
 </context>
 <context>
