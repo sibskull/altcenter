@@ -260,14 +260,15 @@ class FSTECWidget(QWidget):
 
 class PluginFSTEC(plugins.Base):
     requires_admin = True
+    menu_group = "security"
 
     def __init__(self, plist: QStandardItemModel = None, pane: QStackedWidget = None):
-        super().__init__("fstec", 130, plist, pane)
+        super().__init__("fstec", 150, plist, pane)
 
         if self.plist != None and self.pane != None:
             self.node = QStandardItem(self.tr("FSTEC recommendations"))
             self.node.setData(self.name)
-            self.plist.appendRow([self.node])
+            self.add_to_menu(self.node)
             self.pane.addWidget(QWidget())
 
     def _do_start(self, idx: int):

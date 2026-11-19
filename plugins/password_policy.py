@@ -1523,13 +1523,13 @@ class PasswordWidget(QWidget):
 
 class PasswordPlugin(plugins.Base):
     requires_admin = True
+    menu_group = "security"
 
     def __init__(self, plist=None, pane: QStackedWidget = None):
-        super().__init__("password_policy", 170, plist, pane)
+        super().__init__("password_policy", 50, plist, pane)
 
         if self.plist is not None and self.pane is not None:
             self.node = QStandardItem(self.tr("Password parameters"))
-            self.node.setData(self.name)
             self.node.setData(self.name)
             self.add_to_menu(self.node)
             self.pane.addWidget(QWidget())

@@ -642,9 +642,10 @@ class ChangePassword(QWidget):
 
 class ChangePasswordPlugin(plugins.Base):
     requires_admin = True
+    menu_group = "security"
 
     def __init__(self, plist=None, pane: QStackedWidget = None):
-        super().__init__("change_password", 160, plist, pane)
+        super().__init__("change_password", 150, plist, pane)
         if self.plist is not None and self.pane is not None:
             self.node = QStandardItem(self.tr("Change password"))
             self.node.setData(self.name)

@@ -97,7 +97,7 @@ class UsefulTextBrowser(QTextBrowser):
 
 class PluginUseful(plugins.Base):
     def __init__(self, plist: QStandardItemModel=None, pane: QStackedWidget = None):
-        super().__init__("useful", 50, plist, pane)
+        super().__init__("useful", 130, plist, pane)
         # self.node = None
 
         if self.plist != None and self.pane != None:

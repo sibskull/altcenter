@@ -737,12 +737,14 @@ class PoliciesWindow(QWidget):
 
 class PluginPolicies(plugins.Base):
     requires_admin = True
+    menu_group = "security"
+
     def __init__(self, plist: QStandardItemModel = None, pane: QStackedWidget = None):
         super().__init__("policies", 80, plist, pane)
         if self.plist != None and self.pane != None:
-            self.node = QStandardItem(self.tr("Policy"))
+            self.node = QStandardItem(self.tr("Access management"))
             self.node.setData(self.name)
-            self.plist.appendRow([self.node])
+            self.add_to_menu(self.node)
             self.pane.addWidget(QWidget())
 
     def _do_start(self, idx: int):

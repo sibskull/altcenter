@@ -1617,7 +1617,7 @@ class PluginJournals(plugins.Base):
         super().__init__("auditd_settings", 120, plist, pane)
 
         if self.plist != None and self.pane != None:
-            self.node = QStandardItem(self.tr("Auditd logs settings"))
+            self.node = QStandardItem(self.tr("Audit parameters and rules settings"))
             self.node.setData(self.name)
             self.add_to_menu(self.node)
             self.pane.addWidget(QWidget())

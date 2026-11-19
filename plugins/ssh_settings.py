@@ -740,8 +740,10 @@ class SSHSettingsWidget(QWidget):
 
 class PluginSSHSettings(plugins.Base):
     requires_admin = True
+    menu_group = "security"
+
     def __init__(self, plist: QStandardItemModel=None, pane: QStackedWidget = None):
-        super().__init__("ssh_settings", 150, plist, pane)
+        super().__init__("ssh_settings", 90, plist, pane)
 
         if self.plist != None and self.pane != None:
             self.node = QStandardItem(self.tr("SSH settings"))

@@ -107,6 +107,9 @@ class Base(QObject, metaclass=MetaQObjectABC):
         if self.group == "journals":
             return QCoreApplication.translate("Base", "Journals")
 
+        if self.group == "security":
+            return QCoreApplication.translate("Base", "Security Settings")
+
         return self.group
 
     def _insert_menu_item(self, item, position):

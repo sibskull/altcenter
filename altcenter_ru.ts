@@ -134,6 +134,11 @@
         <source>Journals</source>
         <translation>Журналы</translation>
     </message>
+    <message>
+        <location filename="plugins/__init__.py" line="111"/>
+        <source>Security Settings</source>
+        <translation>Параметры безопасности</translation>
+    </message>
 </context>
 <context>
     <name>ChangePassword</name>
@@ -2045,8 +2050,8 @@ Please try again later</source>
     </message>
     <message>
         <location filename="plugins/auditd_settings.py" line="1620"/>
-        <source>Auditd logs settings</source>
-        <translation>Настройки журналов аудита</translation>
+        <source>Audit parameters and rules settings</source>
+        <translation>Настройка параметров и правил аудита</translation>
     </message>
 </context>
 <context>
@@ -2062,7 +2067,12 @@ Please try again later</source>
     <message>
         <location filename="plugins/policies.py" line="743"/>
         <source>Policy</source>
-        <translation>Политики</translation>
+        <translation type="obsolete">Политики</translation>
+    </message>
+    <message>
+        <location filename="plugins/policies.py" line="745"/>
+        <source>Access management</source>
+        <translation>Управление доступом</translation>
     </message>
 </context>
 <context>
