@@ -96,6 +96,11 @@ class SSHSettingsWidget(QWidget):
         self.proc_key = None
         self.saved_settings = None
         self.previous_settings = None
+        self.proc_ssh_status = QProcess(self)
+        self.proc_ssh_status.finished.connect(self.on_ssh_status_finished)
+        self.proc_ssh_status.errorOccurred.connect(self.on_ssh_status_error)
+        self.proc_ssh_control = None
+        self.ssh_previous_state = False
 
         self.root_login_check = None
         self.pubkey_authentication_check = None
@@ -113,6 +118,7 @@ class SSHSettingsWidget(QWidget):
 
         self.initUI()
         self.loadSavedSettings()
+        self.check_ssh_status()
 
     def initUI(self):
         root_layout = QVBoxLayout(self)
@@ -127,6 +133,16 @@ class SSHSettingsWidget(QWidget):
         content = QWidget()
         layout = QVBoxLayout(content)
         layout.setContentsMargins(10, 10, 10, 10)
+
+        self.ssh_enabled_check = QCheckBox(self.tr("Enable SSH server"))
+        self.ssh_enabled_check.setEnabled(False)
+        layout.addWidget(self.ssh_enabled_check)
+
+        self.ssh_settings_content = QWidget()
+        self.ssh_settings_content.setEnabled(False)
+        layout.addWidget(self.ssh_settings_content)
+        layout = QVBoxLayout(self.ssh_settings_content)
+        layout.setContentsMargins(0, 0, 0, 0)
 
         key_user_layout = QHBoxLayout()
         key_user_layout.addWidget(QLabel(self.tr("SSH user")))
@@ -313,6 +329,7 @@ class SSHSettingsWidget(QWidget):
 
         self.scroll.setWidget(content)
 
+        self.ssh_enabled_check.toggled.connect(self.on_ssh_enabled_toggled)
         self.root_login_check.stateChanged.connect(self.updateApplyButton)
         self.pubkey_authentication_check.stateChanged.connect(self.updateApplyButton)
         self.empty_passwords_check.stateChanged.connect(self.updateApplyButton)
@@ -324,6 +341,71 @@ class SSHSettingsWidget(QWidget):
         self.port_edit.textChanged.connect(self.updateApplyButton)
         self.client_alive_interval_edit.textChanged.connect(self.updateApplyButton)
         self.client_alive_count_max_edit.textChanged.connect(self.updateApplyButton)
+
+    def check_ssh_status(self):
+        self.ssh_enabled_check.setEnabled(False)
+        self.ssh_settings_content.setEnabled(False)
+        self.proc_ssh_status.start("sh", ["-c", "systemctl is-active sshd.service; systemctl is-enabled sshd.service"])
+
+    def on_ssh_status_error(self, error):
+        if error == QProcess.ProcessError.FailedToStart:
+            self.lbl_status.setText(self.tr("Unable to check SSH service status."))
+
+    def on_ssh_status_finished(self, exit_code, exit_status):
+        states = self.proc_ssh_status.readAllStandardOutput().data().decode(errors="replace").splitlines()
+        active = states[0].strip() if len(states) > 0 else ""
+        enabled = states[1].strip() if len(states) > 1 else ""
+
+        if active not in ("active", "inactive", "failed", "activating", "deactivating", "reloading") or enabled in ("", "not-found"):
+            self.lbl_status.setText(self.tr("SSH service is unavailable."))
+            return
+
+        checked = active in ("active", "activating", "reloading") or enabled in ("enabled", "enabled-runtime")
+        self.ssh_enabled_check.blockSignals(True)
+        self.ssh_enabled_check.setChecked(checked)
+        self.ssh_enabled_check.blockSignals(False)
+        self.ssh_enabled_check.setEnabled(True)
+        self.ssh_settings_content.setEnabled(checked)
+
+    def on_ssh_enabled_toggled(self, enabled):
+        if self.proc_ssh_control is not None or (self.proc_apply is not None and self.proc_apply.state() != QProcess.ProcessState.NotRunning):
+            self.ssh_enabled_check.blockSignals(True)
+            self.ssh_enabled_check.setChecked(not enabled)
+            self.ssh_enabled_check.blockSignals(False)
+            return
+
+        self.ssh_previous_state = not enabled
+        self.ssh_enabled_check.setEnabled(False)
+        self.ssh_settings_content.setEnabled(False)
+        self.lbl_status.clear()
+        self.proc_ssh_control = QProcess(self)
+        self.proc_ssh_control.finished.connect(self.on_ssh_control_finished)
+        self.proc_ssh_control.errorOccurred.connect(self.on_ssh_control_error)
+        action = "enable" if enabled else "disable"
+        self.proc_ssh_control.start("pkexec", ["sh", "-c", f"systemctl {action} --now sshd.service"])
+
+    def on_ssh_control_error(self, error):
+        if error == QProcess.ProcessError.FailedToStart:
+            self.on_ssh_control_finished(-1, QProcess.ExitStatus.CrashExit)
+
+    def on_ssh_control_finished(self, exit_code, exit_status):
+        proc = self.proc_ssh_control
+        if proc is None:
+            return
+        err = proc.readAllStandardError().data().decode(errors="replace").strip()
+        proc.deleteLater()
+        self.proc_ssh_control = None
+
+        if exit_code == 0 and exit_status == QProcess.ExitStatus.NormalExit:
+            self.check_ssh_status()
+            return
+
+        self.ssh_enabled_check.blockSignals(True)
+        self.ssh_enabled_check.setChecked(self.ssh_previous_state)
+        self.ssh_enabled_check.blockSignals(False)
+        self.ssh_enabled_check.setEnabled(True)
+        self.ssh_settings_content.setEnabled(self.ssh_previous_state)
+        self.lbl_status.setText(err or self.tr("Failed to change SSH service state."))
 
     def updateAddKeyButton(self, *args):
         running = self.proc_key is not None and self.proc_key.state() != QProcess.ProcessState.NotRunning
