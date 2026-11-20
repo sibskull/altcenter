@@ -7,6 +7,7 @@ from PyQt6.QtCore import QLocale
 
 import json
 import os
+import subprocess
 
 
 class ReportWidget(QWidget):
@@ -45,6 +46,7 @@ class ReportWidget(QWidget):
 
         try:
             report = {
+                "ssh": self.getSshReport(),
                 "policies": self.getPoliciesReport(),
                 "journald": self.getPluginReport("journals_settings"),
                 "auditd": self.getPluginReport("auditd_settings"),
@@ -64,6 +66,21 @@ class ReportWidget(QWidget):
             return
 
         QMessageBox.information(self, self.tr("Report"), self.tr("Report saved"))
+
+    def getSshReport(self):
+        result = {}
+        for key, command in (("status", "is-active"), ("autostart", "is-enabled")):
+            try:
+                process = subprocess.run(
+                    ["systemctl", command, "sshd.service"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                result[key] = process.stdout.strip() or "unknown"
+            except (OSError, subprocess.TimeoutExpired):
+                result[key] = "unknown"
+        return result
 
     def getPluginReport(self, plugin_name):
         for i, plugin in enumerate(self.main_window._plugs):
